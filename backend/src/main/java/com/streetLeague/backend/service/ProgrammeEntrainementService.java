@@ -3,6 +3,7 @@ package com.streetLeague.backend.service;
 import com.streetLeague.backend.dto.ProgrammeEntrainementDTO;
 import com.streetLeague.backend.entity.ProgrammeEntrainement;
 import com.streetLeague.backend.enums.StatutProgramme;
+import com.streetLeague.backend.enums.StatutSeance;
 import com.streetLeague.backend.exception.BusinessRuleException;
 import com.streetLeague.backend.exception.ResourceNotFoundException;
 import com.streetLeague.backend.mapper.ProgrammeMapper;
@@ -55,6 +56,15 @@ public class ProgrammeEntrainementService {
         programme.setDateDebut(dto.getDateDebut());
         programme.setDateFin(dto.getDateFin());
         if (dto.getStatut() != null) {
+            // Règle métier : programme ne peut passer à TERMINE que si toutes les séances sont REALISEE ou ANNULEE
+            if (dto.getStatut() == StatutProgramme.TERMINE) {
+                boolean hasSeancesPrevues = programme.getSeances().stream()
+                        .anyMatch(s -> s.getStatut() == StatutSeance.PREVUE);
+                if (hasSeancesPrevues) {
+                    throw new BusinessRuleException(
+                            "Impossible de terminer le programme : certaines séances sont encore PREVUE");
+                }
+            }
             programme.setStatut(dto.getStatut());
         }
         return ProgrammeMapper.toResponse(programmeRepository.save(programme));

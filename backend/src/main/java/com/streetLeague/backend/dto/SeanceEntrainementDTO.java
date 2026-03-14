@@ -39,6 +39,7 @@ public class SeanceEntrainementDTO {
         private Intensite intensite;
         private StatutSeance statut;
         private Integer programmeId;
+        private String programmeTitre;
         private List<SeanceExerciceDTO.Response> exercices;
         private SuiviSeanceDTO.Response suiviSeance;
     }

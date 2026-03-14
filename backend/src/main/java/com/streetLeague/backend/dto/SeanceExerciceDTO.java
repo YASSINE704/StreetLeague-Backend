@@ -33,6 +33,7 @@ public class SeanceExerciceDTO {
     public static class Response {
         private Integer idSeanceExercice;
         private Integer seanceId;
+        private String seanceTitre;
         private Integer exerciceId;
         private String exerciceNom;
         private Integer series;

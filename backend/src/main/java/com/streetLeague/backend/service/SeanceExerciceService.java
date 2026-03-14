@@ -46,6 +46,12 @@ public class SeanceExerciceService {
                 .map(ExerciceMapper::toSeanceExerciceResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<SeanceExerciceDTO.Response> getByExercice(Integer exerciceId) {
+        return seanceExerciceRepository.findByExerciceIdExercice(exerciceId).stream()
+                .map(ExerciceMapper::toSeanceExerciceResponse).toList();
+    }
+
     public SeanceExerciceDTO.Response update(Integer id, SeanceExerciceDTO.Request dto) {
         SeanceExercice se = seanceExerciceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SeanceExercice non trouvé avec id: " + id));

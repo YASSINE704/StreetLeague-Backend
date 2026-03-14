@@ -29,6 +29,11 @@ public class SeanceExerciceController {
         return ResponseEntity.ok(seanceExerciceService.getBySeance(seanceId));
     }
 
+    @GetMapping("/exercice/{exerciceId}")
+    public ResponseEntity<List<SeanceExerciceDTO.Response>> getByExercice(@PathVariable Integer exerciceId) {
+        return ResponseEntity.ok(seanceExerciceService.getByExercice(exerciceId));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<SeanceExerciceDTO.Response> update(
             @PathVariable Integer id, @Valid @RequestBody SeanceExerciceDTO.Request dto) {

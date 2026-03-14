@@ -7,11 +7,12 @@
     <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
     <table class="table" *ngIf="seances.length > 0">
       <thead>
-        <tr><th>Titre</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th><th>Actions</th></tr>
+        <tr><th>Titre</th><th>Programme</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let s of seances">
           <td class="td-title">{{ s.titreSeance }}</td>
+          <td>{{ s.programmeTitre }}</td>
           <td>{{ s.dateSeance }}</td>
           <td>{{ s.dureeMinutes }} min</td>
           <td><span class="badge badge-intensite">{{ s.intensite }}</span></td>

@@ -40,6 +40,10 @@ export class ExerciceService {
     return this.http.get<SeanceExercice[]>(`${this.seanceExerciceUrl}/seance/${seanceId}`);
   }
 
+  getByExercice(exerciceId: number): Observable<SeanceExercice[]> {
+    return this.http.get<SeanceExercice[]>(`${this.seanceExerciceUrl}/exercice/${exerciceId}`);
+  }
+
   addToSeance(se: SeanceExercice): Observable<SeanceExercice> {
     return this.http.post<SeanceExercice>(this.seanceExerciceUrl, se);
   }

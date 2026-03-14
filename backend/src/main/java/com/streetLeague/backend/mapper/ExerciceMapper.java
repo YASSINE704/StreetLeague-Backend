@@ -30,6 +30,7 @@ public class ExerciceMapper {
         return SeanceExerciceDTO.Response.builder()
                 .idSeanceExercice(entity.getIdSeanceExercice())
                 .seanceId(entity.getSeance().getIdSeance())
+                .seanceTitre(entity.getSeance().getTitreSeance())
                 .exerciceId(entity.getExercice().getIdExercice())
                 .exerciceNom(entity.getExercice().getNom())
                 .series(entity.getSeries())

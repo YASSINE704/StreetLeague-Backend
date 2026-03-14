@@ -17,6 +17,7 @@ export interface SeanceEntrainement {
   intensite?: Intensite;
   statut?: StatutSeance;
   programmeId: number;
+  programmeTitre?: string;
   exercices?: SeanceExercice[];
   suiviSeance?: SuiviSeance;
 }
@@ -32,6 +33,7 @@ export interface Exercice {
 export interface SeanceExercice {
   idSeanceExercice?: number;
   seanceId: number;
+  seanceTitre?: string;
   exerciceId: number;
   exerciceNom?: string;
   series?: number;

@@ -65,6 +65,12 @@ public class SeanceEntrainementService {
         seance.setDureeMinutes(dto.getDureeMinutes());
         seance.setIntensite(dto.getIntensite());
         if (dto.getStatut() != null) {
+            // Règle métier : séance ne peut passer à REALISEE que si elle a au moins 1 exercice
+            if (dto.getStatut() == StatutSeance.REALISEE
+                    && (seance.getSeanceExercices() == null || seance.getSeanceExercices().isEmpty())) {
+                throw new BusinessRuleException(
+                        "Impossible de marquer la séance comme réalisée : aucun exercice associé");
+            }
             seance.setStatut(dto.getStatut());
         }
         if (dto.getProgrammeId() != null) {

@@ -38,6 +38,7 @@ public class SeanceMapper {
                 .intensite(entity.getIntensite())
                 .statut(entity.getStatut())
                 .programmeId(entity.getProgramme().getIdProgramme())
+                .programmeTitre(entity.getProgramme().getTitre())
                 .exercices(exercices)
                 .suiviSeance(suivi)
                 .build();

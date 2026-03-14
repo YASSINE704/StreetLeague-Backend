@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface SeanceExerciceRepository extends JpaRepository<SeanceExercice, Integer> {
     List<SeanceExercice> findBySeanceIdSeanceOrderByOrdreAsc(Integer seanceId);
+    List<SeanceExercice> findByExerciceIdExercice(Integer exerciceId);
 }
+
