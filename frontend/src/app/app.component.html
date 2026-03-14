@@ -1,0 +1,50 @@
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="logo" *ngIf="!sidebarCollapsed">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">StreetLeague</span>
+      </div>
+      <span class="logo-icon" *ngIf="sidebarCollapsed">⚡</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section" *ngIf="!sidebarCollapsed">
+        <span class="nav-section-title">COACHING</span>
+      </div>
+      <a routerLink="/coaching/programmes" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label" *ngIf="!sidebarCollapsed">Programmes</span>
+      </a>
+      <a routerLink="/coaching/seances" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🏋️</span>
+        <span class="nav-label" *ngIf="!sidebarCollapsed">Séances</span>
+      </a>
+      <a routerLink="/coaching/exercices" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">💪</span>
+        <span class="nav-label" *ngIf="!sidebarCollapsed">Exercices</span>
+      </a>
+    </nav>
+
+    <button class="sidebar-toggle" (click)="sidebarCollapsed = !sidebarCollapsed">
+      {{ sidebarCollapsed ? '→' : '←' }}
+    </button>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-wrapper">
+    <header class="top-header">
+      <div class="header-left">
+        <span class="header-subtitle">MODULE COACHING</span>
+        <h1 class="header-title">Gestion Entraînement</h1>
+      </div>
+      <div class="header-right">
+        <div class="header-badge">🏆 Coaching</div>
+      </div>
+    </header>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

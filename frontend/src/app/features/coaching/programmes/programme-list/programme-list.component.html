@@ -1,0 +1,80 @@
+<div class="page">
+  <!-- Stats cards -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon blue">📋</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ programmes.length }}</span>
+        <span class="stat-label">Programmes</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ countByStatut('ACTIF') }}</span>
+        <span class="stat-label">Actifs</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">📝</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ countByStatut('BROUILLON') }}</span>
+        <span class="stat-label">Brouillons</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">🏁</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ countByStatut('TERMINE') }}</span>
+        <span class="stat-label">Terminés</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main card -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Programmes d'Entraînement</h2>
+      <button (click)="onCreate()" class="btn btn-primary">+ Nouveau Programme</button>
+    </div>
+
+    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <table class="table" *ngIf="programmes.length > 0">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Date Début</th>
+          <th>Date Fin</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of programmes">
+          <td class="td-title">{{ p.titre }}</td>
+          <td>{{ p.dateDebut }}</td>
+          <td>{{ p.dateFin }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-brouillon': p.statut === 'BROUILLON',
+              'badge-actif': p.statut === 'ACTIF',
+              'badge-termine': p.statut === 'TERMINE'
+            }">{{ p.statut }}</span>
+          </td>
+          <td class="actions">
+            <button (click)="onDetails(p.idProgramme!)" class="btn-icon" title="Détails">👁️</button>
+            <button (click)="onEdit(p.idProgramme!)" class="btn-icon" title="Modifier">✏️</button>
+            <button (click)="onDelete(p.idProgramme!)" class="btn-icon danger" title="Supprimer">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="programmes.length === 0 && !errorMessage">
+      <span class="empty-icon">📋</span>
+      <p>Aucun programme trouvé</p>
+      <button (click)="onCreate()" class="btn btn-primary">Créer votre premier programme</button>
+    </div>
+  </div>
+</div>

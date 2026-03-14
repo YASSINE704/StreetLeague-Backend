@@ -1,0 +1,28 @@
+.page { display: flex; flex-direction: column; gap: 20px; }
+.card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-header h2 { font-size: 20px; font-weight: 700; color: #0f172a; margin-right: 12px; }
+.card-header h3 { font-size: 16px; font-weight: 700; color: #0f172a; }
+.card-header > div { display: flex; align-items: center; gap: 12px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.info-item { display: flex; flex-direction: column; gap: 4px; }
+.info-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.info-value { font-size: 14px; color: #0f172a; }
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+.table td { padding: 12px 14px; font-size: 14px; color: #334155; border-bottom: 1px solid #f1f5f9; }
+.table tbody tr:hover { background: #f8fafc; }
+.td-title { font-weight: 600; color: #0f172a; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.badge-brouillon { background: #f1f5f9; color: #64748b; }
+.badge-actif { background: #dcfce7; color: #16a34a; }
+.badge-termine { background: #dbeafe; color: #2563eb; }
+.btn { padding: 8px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.btn-primary { background: #3b82f6; color: white; }
+.btn-primary:hover { background: #2563eb; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-secondary { background: #f1f5f9; color: #475569; }
+.btn-secondary:hover { background: #e2e8f0; }
+.btn-icon { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 6px; border-radius: 6px; transition: background 0.2s; }
+.btn-icon:hover { background: #f1f5f9; }
+.empty-state { text-align: center; padding: 24px; color: #94a3b8; font-size: 14px; }

@@ -1,0 +1,37 @@
+<div class="page">
+  <div class="card">
+    <div class="card-header">
+      <h2>Séances d'Entraînement</h2>
+      <button (click)="onCreate()" class="btn btn-primary">+ Nouvelle Séance</button>
+    </div>
+    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <table class="table" *ngIf="seances.length > 0">
+      <thead>
+        <tr><th>Titre</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of seances">
+          <td class="td-title">{{ s.titreSeance }}</td>
+          <td>{{ s.dateSeance }}</td>
+          <td>{{ s.dureeMinutes }} min</td>
+          <td><span class="badge badge-intensite">{{ s.intensite }}</span></td>
+          <td><span class="badge" [ngClass]="{
+            'badge-prevue': s.statut === 'PREVUE',
+            'badge-realisee': s.statut === 'REALISEE',
+            'badge-annulee': s.statut === 'ANNULEE'
+          }">{{ s.statut }}</span></td>
+          <td class="actions">
+            <button (click)="onDetails(s.idSeance!)" class="btn-icon" title="Détails">👁️</button>
+            <button (click)="onEdit(s.idSeance!)" class="btn-icon" title="Modifier">✏️</button>
+            <button (click)="onDelete(s.idSeance!)" class="btn-icon danger" title="Supprimer">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="seances.length === 0 && !errorMessage">
+      <span class="empty-icon">🏋️</span>
+      <p>Aucune séance trouvée</p>
+      <button (click)="onCreate()" class="btn btn-primary">Créer une séance</button>
+    </div>
+  </div>
+</div>

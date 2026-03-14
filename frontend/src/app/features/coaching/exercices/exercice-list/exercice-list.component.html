@@ -1,0 +1,30 @@
+<div class="page">
+  <div class="card">
+    <div class="card-header">
+      <h2>Catalogue d'Exercices</h2>
+      <button (click)="onCreate()" class="btn btn-primary">+ Nouvel Exercice</button>
+    </div>
+    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <table class="table" *ngIf="exercices.length > 0">
+      <thead>
+        <tr><th>Nom</th><th>Type</th><th>Description</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of exercices">
+          <td class="td-title">{{ e.nom }}</td>
+          <td><span class="badge badge-type">{{ e.type }}</span></td>
+          <td class="td-desc">{{ e.description }}</td>
+          <td class="actions">
+            <button (click)="onEdit(e.idExercice!)" class="btn-icon" title="Modifier">✏️</button>
+            <button (click)="onDelete(e.idExercice!)" class="btn-icon danger" title="Supprimer">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="exercices.length === 0 && !errorMessage">
+      <span class="empty-icon">💪</span>
+      <p>Aucun exercice trouvé</p>
+      <button (click)="onCreate()" class="btn btn-primary">Créer un exercice</button>
+    </div>
+  </div>
+</div>

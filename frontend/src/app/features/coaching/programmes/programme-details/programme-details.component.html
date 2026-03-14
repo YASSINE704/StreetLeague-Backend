@@ -1,0 +1,70 @@
+<div class="page" *ngIf="programme">
+  <!-- Programme info card -->
+  <div class="card info-card">
+    <div class="card-header">
+      <div>
+        <h2>{{ programme.titre }}</h2>
+        <span class="badge" [ngClass]="{
+          'badge-brouillon': programme.statut === 'BROUILLON',
+          'badge-actif': programme.statut === 'ACTIF',
+          'badge-termine': programme.statut === 'TERMINE'
+        }">{{ programme.statut }}</span>
+      </div>
+      <button (click)="onBack()" class="btn btn-secondary">← Retour</button>
+    </div>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Description</span>
+        <span class="info-value">{{ programme.description || '—' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Période</span>
+        <span class="info-value">{{ programme.dateDebut }} → {{ programme.dateFin }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Séances card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Séances</h3>
+      <button (click)="onAddSeance()" class="btn btn-primary btn-sm">+ Ajouter Séance</button>
+    </div>
+    <table class="table" *ngIf="programme.seances && programme.seances.length > 0">
+      <thead>
+        <tr><th>Titre</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of programme.seances">
+          <td class="td-title">{{ s.titreSeance }}</td>
+          <td>{{ s.dateSeance }}</td>
+          <td>{{ s.dureeMinutes }} min</td>
+          <td>{{ s.intensite }}</td>
+          <td>{{ s.statut }}</td>
+          <td><button (click)="onSeanceDetails(s.idSeance!)" class="btn-icon">👁️</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!programme.seances || programme.seances.length === 0">
+      <p>Aucune séance</p>
+    </div>
+  </div>
+
+  <!-- Affectations card -->
+  <div class="card">
+    <div class="card-header"><h3>Affectations</h3></div>
+    <table class="table" *ngIf="programme.affectations && programme.affectations.length > 0">
+      <thead><tr><th>Type</th><th>Utilisateur</th><th>Date</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let a of programme.affectations">
+          <td><span class="badge" [ngClass]="{'badge-actif': a.type==='COACH', 'badge-termine': a.type==='SPORTIF'}">{{ a.type }}</span></td>
+          <td>{{ a.userNom }}</td>
+          <td>{{ a.dateAffectation }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!programme.affectations || programme.affectations.length === 0">
+      <p>Aucune affectation</p>
+    </div>
+  </div>
+</div>

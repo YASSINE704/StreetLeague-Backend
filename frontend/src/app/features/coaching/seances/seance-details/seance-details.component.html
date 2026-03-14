@@ -1,0 +1,50 @@
+<div class="page" *ngIf="seance">
+  <div class="card info-card">
+    <div class="card-header">
+      <div>
+        <h2>{{ seance.titreSeance }}</h2>
+        <span class="badge" [ngClass]="{
+          'badge-prevue': seance.statut === 'PREVUE',
+          'badge-realisee': seance.statut === 'REALISEE',
+          'badge-annulee': seance.statut === 'ANNULEE'
+        }">{{ seance.statut }}</span>
+      </div>
+      <button (click)="onBack()" class="btn btn-secondary">← Retour</button>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><span class="info-label">Date</span><span class="info-value">{{ seance.dateSeance }}</span></div>
+      <div class="info-item"><span class="info-label">Durée</span><span class="info-value">{{ seance.dureeMinutes }} min</span></div>
+      <div class="info-item"><span class="info-label">Intensité</span><span class="info-value">{{ seance.intensite }}</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Exercices de la séance</h3></div>
+    <table class="table" *ngIf="seance.exercices && seance.exercices.length > 0">
+      <thead><tr><th>Ordre</th><th>Exercice</th><th>Séries</th><th>Répétitions</th><th>Charge (kg)</th><th>Temps (s)</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let ex of seance.exercices">
+          <td>{{ ex.ordre }}</td><td class="td-title">{{ ex.exerciceNom }}</td>
+          <td>{{ ex.series }}</td><td>{{ ex.repetitions }}</td><td>{{ ex.charge }}</td><td>{{ ex.tempsSecondes }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!seance.exercices || seance.exercices.length === 0"><p>Aucun exercice</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Suivi</h3></div>
+    <div *ngIf="seance.suiviSeance" class="suivi-grid">
+      <div class="suivi-item"><span class="suivi-label">Ressenti</span><span class="suivi-value">{{ seance.suiviSeance.ressenti }}/10</span></div>
+      <div class="suivi-item"><span class="suivi-label">Fatigue</span><span class="suivi-value">{{ seance.suiviSeance.fatigue }}/10</span></div>
+      <div class="suivi-item full"><span class="suivi-label">Commentaire</span><span class="suivi-value">{{ seance.suiviSeance.commentaire || '—' }}</span></div>
+      <div class="suivi-item"><span class="suivi-label">Date validation</span><span class="suivi-value">{{ seance.suiviSeance.dateValidation }}</span></div>
+    </div>
+    <div *ngIf="!seance.suiviSeance && seance.statut === 'REALISEE'" class="empty-state">
+      <button (click)="onAddSuivi()" class="btn btn-primary">+ Ajouter Suivi</button>
+    </div>
+    <div *ngIf="!seance.suiviSeance && seance.statut !== 'REALISEE'" class="empty-state">
+      <p>Le suivi n'est disponible que pour les séances réalisées</p>
+    </div>
+  </div>
+</div>
