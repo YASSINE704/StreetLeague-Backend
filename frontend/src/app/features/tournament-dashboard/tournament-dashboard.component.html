@@ -1,0 +1,1552 @@
+<div class="td-root">
+
+  <!-- ═══ TOP BAR ═══ -->
+  <div class="td-topbar">
+    <div class="td-topbar__left">
+      <div class="td-breadcrumb">
+        <span>Tournaments</span><span class="td-bc-sep">›</span>
+        <span class="td-bc-current">{{ tournamentName }}</span>
+      </div>
+      <h1 class="td-topbar__title">Tournament Dashboard</h1>
+    </div>
+    <div class="td-topbar__actions">
+      <div class="td-status-group">
+        <span class="td-status-badge"><span class="td-status-badge__dot"></span>In Progress</span>
+        <div class="td-live-badge">
+          <span class="td-live-dot"></span>
+          Unified Engine Active
+        </div>
+      </div>
+      <button class="td-btn td-btn--white td-btn--sm" (click)="setTab('standings')" id="btn-standings">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Standings
+      </button>
+      <button class="td-btn td-btn--primary td-btn--sm" id="btn-start" (click)="startTournament()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Start Tournament
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="td-hero">
+    <div class="td-hero__gfx"></div>
+    <div class="td-hero__left">
+      <p class="td-hero__label">Season 2025 · {{ activeBracket?.category || 'Street League' }}</p>
+      <h2 class="td-hero__name">{{ tournamentName }}</h2>
+      <div class="td-hero__chips">
+        <span class="td-hero__chip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{{ currentRound }}</span>
+        <span class="td-hero__chip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>{{ totalTeamsCount }} Teams</span>
+        <span class="td-hero__chip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Step {{ currentRoundNumber }}/{{ totalRounds }}</span>
+      </div>
+      <div class="td-progress-wrap">
+        <div class="td-progress-label"><span>Tournament Progress</span><strong>{{ progressPercent }}%</strong></div>
+        <div class="td-progress-track"><div class="td-progress-fill" [style.width.%]="progressPercent"></div></div>
+      </div>
+    </div>
+    <div class="td-hero__right">
+      <div class="td-round-ring">
+        <span class="td-round-ring__top">Phase</span>
+        <span class="td-round-ring__main" [innerHTML]="currentRound.replace(' ', '<br>')"></span>
+        <span class="td-round-ring__sub">{{ currentRoundNumber }} / {{ totalRounds }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STATS ═══ -->
+  <section class="td-stats">
+    <div class="td-stat td-stat--blue">
+      <div class="td-stat__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="td-stat__body"><span class="td-stat__val">{{ totalTeamsCount }}</span><span class="td-stat__lbl">Teams</span></div>
+    </div>
+    <div class="td-stat td-stat--orange">
+      <div class="td-stat__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="td-stat__body"><span class="td-stat__val">{{ currentRound }}</span><span class="td-stat__lbl">Current Stage</span></div>
+    </div>
+    <div class="td-stat td-stat--green">
+      <div class="td-stat__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="td-stat__body"><span class="td-stat__val">{{ completedCount }}/7</span><span class="td-stat__lbl">Matches Done</span></div>
+    </div>
+    <div class="td-stat td-stat--violet">
+      <div class="td-stat__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="td-stat__body"><span class="td-stat__val">{{ totalGoals }}</span><span class="td-stat__lbl">Total Goals</span></div>
+    </div>
+  </section>
+
+  <!-- ═══ TABS ═══ -->
+  <div class="td-tabs">
+    <button class="td-tab" [class.td-tab--active]="activeTab==='overview'"  (click)="setTab('overview')"  id="tab-overview">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview
+    </button>
+    <button class="td-tab" [class.td-tab--active]="activeTab==='bracket'"   (click)="setTab('bracket')"   id="tab-bracket">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>Bracket
+    </button>
+    <button class="td-tab" [class.td-tab--active]="activeTab==='standings'" (click)="setTab('standings')" id="tab-standings">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Standings
+    </button>
+    <button class="td-tab" [class.td-tab--active]="activeTab==='teams'"     (click)="setTab('teams')"     id="tab-teams">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Teams
+    </button>
+    <button class="td-tab" [class.td-tab--active]="activeTab==='match-mgmt'" (click)="setTab('match-mgmt')" id="tab-matches">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Matchs
+    </button>
+    <button class="td-tab" [class.td-tab--active]="activeTab==='stadium-mgmt'" (click)="setTab('stadium-mgmt')" id="tab-stadiums">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11V4h7m9 7V4h-7M4 13v7h7m9-7v7h-7"/></svg>Terrains
+    </button>
+    <button class="td-tab" [class.td-tab--active]="activeTab==='player-mgmt'" (click)="setTab('player-mgmt')" id="tab-players">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Joueurs Management
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       OVERVIEW TAB
+  ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='overview'" class="td-panel">
+    <div class="td-two-col">
+
+      <!-- Upcoming Matches -->
+      <div class="td-card">
+        <div class="td-card__header">
+          <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Upcoming Matches</h2>
+          <button class="td-btn td-btn--ghost" (click)="setTab('bracket')" id="btn-see-bracket">View Bracket →</button>
+        </div>
+        <div class="td-match-list">
+          <div class="td-match-row" *ngFor="let m of upcomingMatchesList" id="upcoming-{{ m.id }}">
+            <span class="td-round-chip">{{ m.round }}</span>
+            <div class="td-match-row__teams">
+              <div class="td-mini-logo" [style.background]="getColor(m.team1)">{{ getLogo(m.team1) }}</div>
+              <span class="td-match-row__team">{{ m.team1 }}</span>
+              <span class="td-match-row__vs">vs</span>
+              <span class="td-match-row__team">{{ m.team2 }}</span>
+              <div class="td-mini-logo" [style.background]="getColor(m.team2)">{{ getLogo(m.team2) }}</div>
+            </div>
+            <div class="td-match-row__time">
+              <span class="td-match-row__date">{{ m.date }}</span>
+              <span class="td-match-row__hour">{{ m.time }}</span>
+            </div>
+            <span class="td-venue-chip">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {{ m.venue }}
+            </span>
+            <span class="td-pill td-pill--scheduled">Scheduled</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Results + Activity -->
+      <div class="td-card">
+        <div class="td-card__header">
+          <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Recent Results</h2>
+        </div>
+        <div class="td-match-list">
+          <div class="td-match-row" *ngFor="let m of recentResultsList" id="recent-{{ m.id }}">
+            <span class="td-round-chip td-round-chip--green">{{ m.round }}</span>
+            <div class="td-result-row__body">
+              <span class="td-result-row__team" [class.td-result-row__team--winner]="(m.score1??0)>(m.score2??0)">{{ m.team1 }}</span>
+              <div class="td-result-row__score">
+                <span class="td-result-row__num" [class.td-result-row__num--win]="(m.score1??0)>(m.score2??0)">{{ m.score1 }}</span>
+                <span class="td-score-sep">:</span>
+                <span class="td-result-row__num" [class.td-result-row__num--win]="(m.score2??0)>(m.score1??0)">{{ m.score2 }}</span>
+              </div>
+              <span class="td-result-row__team td-result-row__team--right" [class.td-result-row__team--winner]="(m.score2??0)>(m.score1??0)">{{ m.team2 }}</span>
+            </div>
+            <span class="td-result-row__date">{{ m.date }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Feed + Bracket Progress -->
+    <div class="td-two-col">
+      <!-- Activity -->
+      <div class="td-card">
+        <div class="td-card__header">
+          <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Activity Feed</h2>
+        </div>
+        <div class="td-activity-list">
+          <div class="td-activity-item" *ngFor="let a of activityFeed">
+            <div class="td-activity-item__icon" [style.background]="a.color + '18'" [style.color]="a.color">{{ a.icon }}</div>
+            <div class="td-activity-item__body">
+              <p class="td-activity-item__msg">{{ a.msg }}</p>
+              <p class="td-activity-item__sub">{{ a.sub }}</p>
+            </div>
+            <span class="td-activity-item__time">{{ a.time }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bracket Progress Panel -->
+      <div class="td-card">
+        <div class="td-card__header">
+          <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>Bracket Progress</h2>
+          <div class="td-bracket-nav td-bracket-nav--sm" style="margin-bottom:0;">
+            <button *ngFor="let b of brackets" class="td-bracket-tab td-bracket-tab--xs" [class.td-bracket-tab--active]="activeBracketId===b.id" (click)="activeBracketId=b.id">
+              <span class="td-bracket-tab__dot" [style.background]="b.color"></span>
+              {{ b.id | uppercase }}
+            </button>
+          </div>
+          <button class="td-btn td-btn--outline td-btn--sm" (click)="setTab('bracket')" id="btn-view-bracket">Open Bracket →</button>
+        </div>
+        <div class="td-bracket-progress">
+          <div class="td-bp-stat">
+            <span class="td-bp-stat__val">{{ completedCount }}</span>
+            <span class="td-bp-stat__lbl">Completed</span>
+          </div>
+          <div class="td-bp-stat">
+            <span class="td-bp-stat__val">{{ 7 - completedCount }}</span>
+            <span class="td-bp-stat__lbl">Remaining</span>
+          </div>
+          <div class="td-bp-stat">
+            <span class="td-bp-stat__val">{{ bracketProgress }}%</span>
+            <span class="td-bp-stat__lbl">Done</span>
+          </div>
+        </div>
+        <div class="td-bp-rounds">
+          <div class="td-bp-round" *ngFor="let r of [{lbl:'QF',done: (bracketData['qf1'].winner?1:0)+(bracketData['qf2'].winner?1:0)+(bracketData['qf3'].winner?1:0)+(bracketData['qf4'].winner?1:0), total:4},{lbl:'SF',done:(bracketData['sf1'].winner?1:0)+(bracketData['sf2'].winner?1:0),total:2},{lbl:'Final',done:bracketData['f1'].winner?1:0,total:1}]">
+            <div class="td-bp-round__header">
+              <span class="td-bp-round__name">{{ r.lbl }}</span>
+              <span class="td-bp-round__count">{{ r.done }}/{{ r.total }}</span>
+            </div>
+            <div class="td-bp-track"><div class="td-bp-fill" [style.width.%]="r.total ? r.done/r.total*100 : 0"></div></div>
+          </div>
+        </div>
+        <div *ngIf="champion" class="td-champion-banner">
+          🏆 Champion: <strong>{{ champion }}</strong>
+        </div>
+        <div class="td-bp-actions">
+          <button class="td-btn td-btn--primary td-btn--sm" (click)="simulateBracket()" id="btn-sim-overview">🎲 Simulate Bracket</button>
+          <button class="td-btn td-btn--white td-btn--sm" (click)="showResetConfirm=true" id="btn-reset-overview">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BRACKET TAB
+  ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='bracket'" class="td-panel">
+
+    <!-- Tournament Hub Header -->
+    <div class="td-hub-header">
+      <div class="td-hub-top">
+        <div class="td-hub-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="td-hub-title-icon"><path d="M6 9l6 6 6-6"/></svg>
+          <h3>Tournament Hub</h3>
+          <span class="td-count-badge">{{ brackets.length }} Tournaments</span>
+        </div>
+        <div class="td-hub-actions">
+          <button class="td-btn td-btn--white td-btn--sm" (click)="generateSampleTournaments(10)">🧪 Load Samples</button>
+          <button class="td-btn td-btn--primary td-btn--sm" (click)="openCreateTournament()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Create Tournament
+          </button>
+        </div>
+      </div>
+
+      <div class="td-browse-controls">
+        <div class="td-search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" class="td-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" [(ngModel)]="bracketSearch" placeholder="Search tournaments..." class="td-search-input">
+        </div>
+        <div class="td-filter-group">
+          <button (click)="bracketStatusFilter='ALL'" class="td-filter-btn" [class.td-filter-btn--active]="bracketStatusFilter==='ALL'">All</button>
+          <button (click)="bracketStatusFilter='Active'" class="td-filter-btn" [class.td-filter-btn--active]="bracketStatusFilter==='Active'">Active</button>
+          <button (click)="bracketStatusFilter='Completed'" class="td-filter-btn" [class.td-filter-btn--active]="bracketStatusFilter==='Completed'">Finished</button>
+        </div>
+      </div>
+
+      <div class="td-bracket-nav">
+        <button *ngFor="let b of filteredBrackets" class="td-bracket-tab" [class.td-bracket-tab--active]="activeBracketId===b.id" (click)="activeBracketId=b.id">
+          <span class="td-bracket-tab__dot" [style.background]="b.color"></span>
+          <div class="td-bracket-tab__info">
+            <span class="td-bracket-tab__name">{{ b.name }}</span>
+            <span class="td-bracket-tab__sub">{{ b.category }} · {{ b.status }}</span>
+          </div>
+          <button class="td-bracket-del" (click)="deleteTournament(b.id, $event)">✕</button>
+        </button>
+        <div *ngIf="filteredBrackets.length === 0" class="td-hub-empty">
+          <p>No tournaments match your search.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Champion Banner -->
+    <div *ngIf="champion" class="td-champion-bar">
+      <span class="td-champion-bar__trophy">🏆</span>
+      <div>
+        <p class="td-champion-bar__label">Tournament Champion</p>
+        <p class="td-champion-bar__name">{{ champion }}</p>
+      </div>
+      <div class="td-mini-logo td-mini-logo--lg" [style.background]="getColor(champion)">{{ getLogo(champion) }}</div>
+    </div>
+
+    <!-- Reset confirm -->
+    <div *ngIf="showResetConfirm" class="td-confirm-bar">
+      <span>⚠️ This will clear all bracket results. Are you sure?</span>
+      <div style="display:flex;gap:8px;">
+        <button class="td-btn td-btn--danger td-btn--sm" (click)="resetBracket()" id="btn-confirm-reset">Yes, Reset</button>
+        <button class="td-btn td-btn--white td-btn--sm" (click)="showResetConfirm=false" id="btn-cancel-reset">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Bracket toolbar -->
+    <div class="td-bracket-toolbar">
+      <!-- Stats row -->
+      <div class="td-bracket-stats">
+        <div class="td-bs-item">
+          <span class="td-bs-item__val">{{ completedCount }}/7</span>
+          <span class="td-bs-item__lbl">Matches Played</span>
+        </div>
+        <div class="td-bs-divider"></div>
+        <div class="td-bs-item">
+          <span class="td-bs-item__val">{{ totalGoals }}</span>
+          <span class="td-bs-item__lbl">Total Goals</span>
+        </div>
+        <div class="td-bs-divider"></div>
+        <div class="td-bs-item">
+          <span class="td-bs-item__val">{{ avgGoals }}</span>
+          <span class="td-bs-item__lbl">Avg Goals/Match</span>
+        </div>
+        <div class="td-bs-divider"></div>
+        <div class="td-bs-item">
+          <span class="td-bs-item__val">{{ bracketProgress }}%</span>
+          <span class="td-bs-item__lbl">Bracket Complete</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="td-bracket-actions">
+        <button class="td-btn td-btn--primary td-btn--sm" (click)="simulateBracket()" id="btn-simulate">🎲 Simulate All</button>
+        <button class="td-btn td-btn--white td-btn--sm" (click)="showResetConfirm=true" id="btn-reset">🔄 Reset</button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="td-legend">
+      <div class="td-legend-item"><span class="td-legend-dot td-legend-dot--upcoming"></span>Click a team to advance them</div>
+      <div class="td-legend-item"><span class="td-legend-dot td-legend-dot--done"></span>Completed match</div>
+      <div class="td-legend-item"><span class="td-legend-dot td-legend-dot--tbd"></span>TBD — awaiting winner</div>
+    </div>
+
+    <!-- Bracket + Detail Side-Panel -->
+    <div class="td-bracket-layout">
+
+      <!-- THE BRACKET -->
+      <div class="td-bracket-scroll">
+        <div *ngIf="activeBracket.status === 'Draft'" class="td-empty-state td-empty-state--bracket">
+          <div class="td-empty-icon">🏆</div>
+          <h3>No Tournament Active</h3>
+          <p>This tournament category is currently in draft. Click the <strong>Start Tournament</strong> button in the top bar to generate pairings and begin the competition based on team performance.</p>
+          <button class="td-btn td-btn--primary" (click)="startTournament()">🚀 Initialize & Start Tournament</button>
+        </div>
+
+        <div class="td-bracket" *ngIf="activeBracket.status !== 'Draft'">
+
+          <!-- QF Column -->
+          <div class="td-bcol">
+            <div class="td-bcol__label">Quarter-Finals</div>
+            <div class="td-bcol__body">
+              <ng-container *ngFor="let m of [bracketData['qf1'],bracketData['qf2'],bracketData['qf3'],bracketData['qf4']]">
+                <ng-container *ngTemplateOutlet="matchCard; context:{m:m}"></ng-container>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- QF→SF Connectors (2 groups, each pairs 2 QF → 1 SF) -->
+          <div class="td-bconn">
+            <div class="td-bconn__group"><div class="td-bconn__top"></div><div class="td-bconn__bot"></div></div>
+            <div class="td-bconn__group"><div class="td-bconn__top"></div><div class="td-bconn__bot"></div></div>
+          </div>
+
+          <!-- SF Column -->
+          <div class="td-bcol">
+            <div class="td-bcol__label">Semi-Finals</div>
+            <div class="td-bcol__body">
+              <ng-container *ngFor="let m of [bracketData['sf1'],bracketData['sf2']]">
+                <ng-container *ngTemplateOutlet="matchCard; context:{m:m}"></ng-container>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- SF→F Connector -->
+          <div class="td-bconn td-bconn--center">
+            <div class="td-bconn__group"><div class="td-bconn__top"></div><div class="td-bconn__bot"></div></div>
+          </div>
+
+          <!-- Final Column -->
+          <div class="td-bcol td-bcol--final">
+            <div class="td-bcol__label">🏆 Final</div>
+            <div class="td-bcol__body">
+              <ng-container *ngTemplateOutlet="matchCard; context:{m:bracketData['f1']}"></ng-container>
+            </div>
+
+          </div>
+
+          <!-- F→Champion arrow -->
+          <div class="td-bconn td-bconn--arrow">
+            <div class="td-bconn__arrow-line"></div>
+            <div class="td-bconn__arrow-head"></div>
+          </div>
+
+          <!-- Champion -->
+          <div class="td-bcol td-bcol--champ">
+            <div class="td-bcol__label">Champion</div>
+            <div class="td-bcol__body">
+              <div class="td-champion-card" [class.td-champion-card--won]="!!champion">
+                <div class="td-champion-card__trophy">🏆</div>
+                <div *ngIf="champion" class="td-champion-card__logo" [style.background]="getColor(champion)">{{ getLogo(champion) }}</div>
+                <p class="td-champion-card__label">{{ champion ? 'Champion' : 'Winner' }}</p>
+                <p class="td-champion-card__name">{{ champion ?? 'TBD' }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /td-bracket -->
+      </div><!-- /bracket-scroll -->
+
+      <!-- MATCH DETAIL SIDE PANEL -->
+      <div class="td-detail-panel" [class.td-detail-panel--open]="!!selectedMatch">
+        <ng-container *ngIf="selectedMatch as m">
+          <div class="td-detail-panel__header">
+            <div>
+              <span class="td-detail-panel__round">{{ roundLabel(m.round) }}</span>
+              <p class="td-detail-panel__date">{{ m.date }} · {{ m.time }}</p>
+              <p class="td-detail-panel__venue">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ m.venue }}
+              </p>
+            </div>
+            <button class="td-detail-panel__close" (click)="closeMatchPanel()">✕</button>
+          </div>
+
+          <div class="td-detail-panel__status">
+            <span class="td-pill" [ngClass]="{'td-pill--scheduled': m.status==='upcoming','td-pill--live':m.status==='live','td-pill--done':m.status==='completed','td-pill--tbd':m.status==='tbd'}">
+              {{ m.status === 'tbd' ? 'TBD' : m.status === 'upcoming' ? 'Scheduled' : m.status === 'live' ? '● Live' : 'Full Time' }}
+            </span>
+          </div>
+
+          <!-- Teams -->
+          <div class="td-detail-panel__matchup">
+            <div class="td-detail-team" [class.td-detail-team--winner]="m.winner===m.team1" [class.td-detail-team--loser]="m.winner && m.winner!==m.team1">
+              <div class="td-detail-logo" [style.background]="getColor(m.team1)">{{ getLogo(m.team1) }}</div>
+              <p class="td-detail-name">{{ m.team1 ?? 'TBD' }}</p>
+              <span *ngIf="m.team1" class="td-detail-seed">Seed {{ m.seed1 }}</span>
+            </div>
+            <div class="td-detail-score">
+              <span [class.td-detail-score__num--win]="m.winner===m.team1">{{ m.score1 ?? '—' }}</span>
+              <span class="td-detail-score__sep">:</span>
+              <span [class.td-detail-score__num--win]="m.winner===m.team2">{{ m.score2 ?? '—' }}</span>
+            </div>
+            <div class="td-detail-team td-detail-team--right" [class.td-detail-team--winner]="m.winner===m.team2" [class.td-detail-team--loser]="m.winner && m.winner!==m.team2">
+              <div class="td-detail-logo" [style.background]="getColor(m.team2)">{{ getLogo(m.team2) }}</div>
+              <p class="td-detail-name">{{ m.team2 ?? 'TBD' }}</p>
+              <span *ngIf="m.team2" class="td-detail-seed">Seed {{ m.seed2 }}</span>
+            </div>
+          </div>
+
+          <!-- Winner Selection -->
+          <div *ngIf="m.team1 && m.team2 && !m.winner" class="td-detail-panel__actions">
+            <p class="td-detail-panel__prompt">Select match winner:</p>
+            <button class="td-btn td-btn--white" style="width:100%;justify-content:center" (click)="selectWinner(m.id, m.team1!)" id="btn-pick-t1">
+              <div class="td-mini-logo td-mini-logo--xs" [style.background]="getColor(m.team1)">{{ getLogo(m.team1) }}</div>
+              {{ m.team1 }} wins
+            </button>
+            <button class="td-btn td-btn--white" style="width:100%;justify-content:center" (click)="selectWinner(m.id, m.team2!)" id="btn-pick-t2">
+              <div class="td-mini-logo td-mini-logo--xs" [style.background]="getColor(m.team2)">{{ getLogo(m.team2) }}</div>
+              {{ m.team2 }} wins
+            </button>
+          </div>
+
+          <div *ngIf="m.winner" class="td-detail-panel__winner-announce">
+            <span>🏅 Winner:</span> <strong>{{ m.winner }}</strong>
+          </div>
+
+          <div *ngIf="m.winner" class="td-detail-panel__actions">
+            <button class="td-btn td-btn--danger td-btn--sm" style="width:100%;justify-content:center" (click)="resetMatch(m.id)" id="btn-reset-match">🔄 Reset this match</button>
+          </div>
+
+          <!-- Team Stats in panel -->
+          <div *ngIf="m.team1 && m.team2" class="td-detail-panel__stats">
+            <p class="td-detail-panel__stats-title">Season Stats</p>
+            <div class="td-detail-stat-row" *ngFor="let stat of [
+              {lbl:'Wins', v1: getTeam(m.team1)?.wins, v2: getTeam(m.team2)?.wins},
+              {lbl:'Goals For', v1: getTeam(m.team1)?.goalsFor, v2: getTeam(m.team2)?.goalsFor},
+              {lbl:'Win Rate', v1: getWinRate(getTeam(m.team1)!), v2: getWinRate(getTeam(m.team2)!)}
+            ]">
+              <span class="td-detail-stat-row__v" [class.td-detail-stat-row__v--better]="(stat.v1??0)>=(stat.v2??0)">{{ stat.v1 }}{{ stat.lbl==='Win Rate'?'%':'' }}</span>
+              <span class="td-detail-stat-row__lbl">{{ stat.lbl }}</span>
+              <span class="td-detail-stat-row__v" [class.td-detail-stat-row__v--better]="(stat.v2??0)>=(stat.v1??0)">{{ stat.v2 }}{{ stat.lbl==='Win Rate'?'%':'' }}</span>
+            </div>
+          </div>
+
+          <!-- Stadium Details Card -->
+          <div class="td-stadium-card" *ngIf="getStadium(m.venue) as stad">
+            <div class="td-stadium-card__header">
+              <span class="td-stadium-card__icon">{{ stad.icon }}</span>
+              <div class="td-stadium-card__title-group">
+                <p class="td-stadium-card__label">VENUE</p>
+                <p class="td-stadium-card__name">{{ stad.name }}</p>
+              </div>
+              <span class="td-stadium-card__year">Est. {{ stad.yearBuilt }}</span>
+            </div>
+            <p class="td-stadium-card__desc">{{ stad.description }}</p>
+            <div class="td-stadium-grid">
+              <div class="td-stadium-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span class="td-stadium-stat__val">{{ stad.capacity | number }}</span>
+                <span class="td-stadium-stat__lbl">Capacity</span>
+              </div>
+              <div class="td-stadium-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                <span class="td-stadium-stat__val">{{ stad.surface }}</span>
+                <span class="td-stadium-stat__lbl">Surface</span>
+              </div>
+              <div class="td-stadium-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span class="td-stadium-stat__val">{{ stad.district }}</span>
+                <span class="td-stadium-stat__lbl">District</span>
+              </div>
+              <div class="td-stadium-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <span class="td-stadium-stat__val">{{ stad.lighting }}</span>
+                <span class="td-stadium-stat__lbl">Lighting</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Empty state -->
+        <div *ngIf="!selectedMatch" class="td-detail-panel__empty">
+          <div class="td-detail-panel__empty-icon">👆</div>
+          <p>Click any match card to see details and select a winner</p>
+        </div>
+      </div>
+
+    </div><!-- /bracket-layout -->
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       STANDINGS TAB
+  ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='standings'" class="td-panel">
+    <div class="td-card td-card--full">
+      <div class="td-card__header">
+        <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Championship Standings</h2>
+        <div class="td-standings-legend">
+          <span class="td-sl-item td-sl-item--q">QF Qualified</span>
+          <span class="td-sl-item td-sl-item--d">Draw</span>
+          <span class="td-sl-item td-sl-item--e">Eliminated</span>
+        </div>
+      </div>
+      <div class="td-table-wrap">
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th>
+              <th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Form</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of standings" class="td-table__row"
+                [class.td-table__row--q1]="s.rank<=4"
+                [class.td-table__row--qb]="s.rank>4">
+              <td class="td-table__rank">
+                <span class="td-rank-badge" [class.td-rank-badge--gold]="s.rank===1" [class.td-rank-badge--silver]="s.rank===2" [class.td-rank-badge--bronze]="s.rank===3">{{ s.rank }}</span>
+              </td>
+              <td class="td-table__team">
+                <div class="td-mini-logo" [style.background]="s.team.color">{{ s.team.logo }}</div>
+                <span>{{ s.team.name }}</span>
+              </td>
+              <td>{{ s.played }}</td>
+              <td class="td-table__w">{{ s.wins }}</td>
+              <td class="td-table__d">{{ s.draws }}</td>
+              <td class="td-table__l">{{ s.losses }}</td>
+              <td>{{ s.gf }}</td>
+              <td>{{ s.ga }}</td>
+              <td [class.td-table__gd--pos]="s.gd>0" [class.td-table__gd--neg]="s.gd<0">{{ s.gd>0?'+':'' }}{{ s.gd }}</td>
+              <td class="td-table__pts">{{ s.pts }}</td>
+              <td>
+                <div class="td-form">
+                  <span *ngFor="let f of s.form" class="td-form-badge" [class.td-form-badge--w]="f==='W'" [class.td-form-badge--d]="f==='D'" [class.td-form-badge--l]="f==='L'">{{ f }}</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="td-table-note">3 pts for a win · 1 pt for a draw · 0 for a loss. Top 4 qualified for Quarter-Finals.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TEAMS TAB
+  ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='teams'" class="td-panel">
+    <div class="td-card td-card--full">
+      <div class="td-card__header">
+        <div class="td-card__header-left">
+          <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Registered Teams</h2>
+          <span class="td-count-badge">{{ filteredTeams.length }} / {{ teams.length }}</span>
+        </div>
+        <button class="td-btn td-btn--primary td-btn--sm" (click)="openAddTeam()" id="btn-add-team">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouvelle Équipe
+        </button>
+      </div>
+
+      <!-- Search + Sort Bar -->
+      <div class="td-teams-controls">
+        <div class="td-search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" class="td-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="td-search-input" type="text" placeholder="Search teams…" [(ngModel)]="teamSearch" id="input-team-search" />
+          <button *ngIf="teamSearch" class="td-search-clear" (click)="teamSearch=''">✕</button>
+        </div>
+        <div class="td-sort-group">
+          <span class="td-sort-label">Sort by:</span>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="teamSortBy==='winrate'" (click)="teamSortBy='winrate'" id="sort-winrate">Win Rate</button>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="teamSortBy==='wins'"   (click)="teamSortBy='wins'"    id="sort-wins">Wins</button>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="teamSortBy==='goals'"  (click)="teamSortBy='goals'"   id="sort-goals">Goals</button>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="teamSortBy==='name'"   (click)="teamSortBy='name'"    id="sort-name">Name</button>
+        </div>
+      </div>
+
+      <!-- Team Cards -->
+      <div class="td-teams-grid">
+        <div class="td-team-card" *ngFor="let t of filteredTeams; let i=index" id="team-{{ t.id }}">
+          <div class="td-team-card__top">
+            <div class="td-team-card__logo" [style.background]="t.color">{{ t.logo }}</div>
+            <div class="td-team-card__info">
+              <p class="td-team-card__name">{{ t.name }}</p>
+              <span class="td-team-sport">{{ t.sportType || 'Football' }}</span>
+              <div class="td-team-record">
+                <span class="td-team-record__w">{{ t.wins }}W</span>
+                <span class="td-team-record__d">{{ t.draws }}D</span>
+                <span class="td-team-record__l">{{ t.losses }}L</span>
+              </div>
+            </div>
+            <div class="td-winrate-wrap">
+              <span class="td-winrate-pct">{{ wr(t) }}%</span>
+              <div class="td-winrate-track"><div class="td-winrate-fill" [style.width.%]="wr(t)"></div></div>
+            </div>
+          </div>
+          <div class="td-team-card__stats">
+            <div class="td-team-mini-stat"><span class="td-team-mini-stat__val">{{ t.goalsFor ?? 0 }}</span><span class="td-team-mini-stat__lbl">GF</span></div>
+            <div class="td-team-mini-stat"><span class="td-team-mini-stat__val">{{ t.goalsAgainst ?? 0 }}</span><span class="td-team-mini-stat__lbl">GA</span></div>
+            <div class="td-team-mini-stat"><span class="td-team-mini-stat__val" [class.td-gd-pos]="(t.goalsFor ?? 0)>(t.goalsAgainst ?? 0)" [class.td-gd-neg]="(t.goalsFor ?? 0)<(t.goalsAgainst ?? 0)">{{ ((t.goalsFor ?? 0)-(t.goalsAgainst ?? 0))>0?'+':'' }}{{ (t.goalsFor ?? 0)-(t.goalsAgainst ?? 0) }}</span><span class="td-team-mini-stat__lbl">GD</span></div>
+            <div class="td-team-mini-stat"><span class="td-team-mini-stat__val td-pts-val">{{ (t.wins ?? 0)*3+(t.draws ?? 0) }}</span><span class="td-team-mini-stat__lbl">Pts</span></div>
+          </div>
+          <div class="td-team-card__footer">
+            <button class="td-btn td-btn--ghost td-btn--sm td-roster-btn" (click)="openRoster(t, $event)" [id]="'btn-roster-'+t.id">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Effectif ({{ t.players.length }})
+            </button>
+            <div class="td-team-actions">
+              <button class="td-btn-icon td-btn-icon--sm" (click)="editTeam(t)" title="Modifier">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="td-btn-icon td-btn-icon--sm td-btn-icon--danger" (click)="deleteTeam(t.id)" title="Supprimer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="filteredTeams.length===0" class="td-empty-state">
+        <p>No teams found matching "{{ teamSearch }}"</p>
+        <button class="td-btn td-btn--ghost" (click)="teamSearch=''">Clear search</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PLAYER MANAGEMENT TAB
+  ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='player-mgmt'" class="td-panel">
+    <div class="td-card td-card--full">
+      <div class="td-card__header">
+        <div class="td-card__header-left">
+          <h2 class="td-card__title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Gestion des Joueurs
+          </h2>
+          <span class="td-count-badge">{{ filteredPlayerList.length }} Registered Players</span>
+        </div>
+        <button class="td-btn td-btn--primary td-btn--sm" (click)="openAddPlayer()" id="btn-add-player">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nouveau Joueur
+        </button>
+      </div>
+
+      <!-- Search + Filters Bar -->
+      <div class="td-teams-controls">
+        <div class="td-search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" class="td-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="td-search-input" type="text" placeholder="Rechercher un joueur..." [(ngModel)]="playerSearch" id="input-player-search" />
+          <button *ngIf="playerSearch" class="td-search-clear" (click)="playerSearch=''">✕</button>
+        </div>
+        <div class="td-sort-group">
+          <span class="td-sort-label">Filtrer:</span>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="playerSkillFilter==='ALL'" (click)="playerSkillFilter='ALL'" id="filter-skill-all">Tout</button>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="playerSkillFilter==='Pro'" (click)="playerSkillFilter='Pro'" id="filter-skill-pro">Pro</button>
+          
+          <span class="td-sort-label" style="margin-left: 20px;">Sort by:</span>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="playerSortBy==='goals'" (click)="playerSortBy='goals'" id="sort-player-goals">Most Goals</button>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="playerSortBy==='assists'" (click)="playerSortBy='assists'" id="sort-player-assists">Most Assists</button>
+          <button class="td-sort-btn" [class.td-sort-btn--active]="playerSortBy==='rating'" (click)="playerSortBy='rating'" id="sort-player-rating">Best Rating</button>
+        </div>
+      </div>
+
+      <!-- Player Management Table -->
+      <div class="td-table-wrap">
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>Nom du Joueur</th>
+              <th>Âge</th>
+              <th>Niveau de compétence</th>
+              <th>Équipe Actuelle</th>
+              <th>Stats (G/A)</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filteredPlayerList" class="td-table__row">
+              <td class="td-table__player">
+                <div class="td-player-avatar" [style.background]="getTeamById(p.teamId)?.color ?? 'linear-gradient(135deg,#94a3b8,#64748b)'">{{ p.name.charAt(0) }}</div>
+                <div>
+                  <span class="td-player-name">{{ p.name }}</span>
+                  <p class="td-player-sub">#{{ p.number }} · {{ p.position }}</p>
+                </div>
+              </td>
+              <td>{{ p.age }} ans</td>
+              <td>
+                <span class="td-skill-badge" [ngClass]="'td-skill-badge--' + (p.skillLevel === 'Débutant' ? 'low' : p.skillLevel === 'Intermédiaire' ? 'mid' : 'high')">
+                  {{ p.skillLevel }}
+                </span>
+              </td>
+              <td class="td-table__team">
+                <div *ngIf="getTeamById(p.teamId) as t; else noTeam">
+                  <div class="td-mini-logo" [style.background]="t.color">{{ t.logo }}</div>
+                  <span>{{ t.name }}</span>
+                </div>
+                <ng-template #noTeam><span class="td-unassigned">Non assigné</span></ng-template>
+              </td>
+              <td>
+                <div class="td-player-stats-mini">
+                  <span title="Goals">⚽ {{ p.goals }}</span>
+                  <span title="Assists">🎯 {{ p.assists }}</span>
+                </div>
+              </td>
+              <td class="td-player-actions">
+                <button class="td-btn-icon" (click)="editPlayer(p)" title="Modifier">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="td-btn-icon td-btn-icon--danger" (click)="deletePlayer(p.id)" title="Supprimer">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="filteredPlayerList.length===0" class="td-empty-state">
+        <p>No players found matching "{{ playerSearch }}"</p>
+        <button class="td-btn td-btn--ghost" (click)="playerSearch=''; playerSkillFilter='ALL'">Clear filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       STADIUM MANAGEMENT TAB
+  ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='stadium-mgmt'" class="td-panel">
+    <div class="td-card td-card--full">
+      <div class="td-card__header">
+        <div class="td-card__header-left">
+          <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11V4h7m9 7V4h-7M4 13v7h7m9-7v7h-7"/></svg>Gestion des Terrains</h2>
+          <span class="td-count-badge">{{ filteredStadiums.length }} / {{ stadiumsList.length }}</span>
+        </div>
+        <button class="td-btn td-btn--primary td-btn--sm" (click)="openAddStadium()" id="btn-add-stadium">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouveau Terrain
+        </button>
+      </div>
+
+      <div class="td-teams-controls">
+        <div class="td-search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" class="td-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="td-search-input" type="text" placeholder="Rechercher un terrain ou quartier…" [(ngModel)]="stadiumSearch" id="input-stadium-search" />
+        </div>
+      </div>
+
+      <div class="td-stadium-grid">
+        <div class="td-stadium-card" *ngFor="let s of filteredStadiums" id="stadium-{{ s.id }}">
+          <div class="td-stadium-card__header">
+            <div class="td-stadium-icon">{{ s.icon }}</div>
+            <div class="td-stadium-header-info">
+              <h3 class="td-stadium-name">{{ s.name }}</h3>
+              <p class="td-stadium-district">{{ s.district }}</p>
+            </div>
+            <div class="td-stadium-actions">
+              <button class="td-btn-icon td-btn-icon--sm" (click)="editStadium(s)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button class="td-btn-icon td-btn-icon--sm td-btn-icon--danger" (click)="deleteStadium(s.id)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="td-stadium-body">
+            <div class="td-stadium-spec">
+              <span class="td-stadium-spec-lbl">Capacité:</span>
+              <span class="td-stadium-spec-val">{{ s.capacity.toLocaleString() }}</span>
+            </div>
+            <div class="td-stadium-spec">
+              <span class="td-stadium-spec-lbl">Status:</span>
+              <span class="td-occ-badge" [class.td-occ-badge--busy]="isStadiumOccupied(s.name)">
+                {{ isStadiumOccupied(s.name) ? '● Occupé' : 'Libre' }}
+              </span>
+            </div>
+            <div class="td-stadium-sports">
+              <span class="td-sport-tag" *ngFor="let sport of s.supportedSports">{{ sport }}</span>
+            </div>
+          </div>
+          <div class="td-stadium-card__footer">
+            <button class="td-btn td-btn--ghost td-btn--sm" style="width: 100%; justify-content: center;" (click)="openStadiumDetails(s)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Voir l'historique
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="filteredStadiums.length===0" class="td-empty-state">
+        <p>Aucun terrain trouvé.</p>
+        <button class="td-btn td-btn--ghost" (click)="stadiumSearch=''">Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MATCH MANAGEMENT TAB
+  ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab==='match-mgmt'" class="td-panel">
+    <div class="td-card td-card--full">
+      <div class="td-card__header">
+        <div class="td-card__header-left">
+          <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Gestion des Matchs</h2>
+          <span class="td-count-badge">{{ filteredMatchList.length }} / {{ matchesList.length }}</span>
+        </div>
+        <button class="td-btn td-btn--primary td-btn--sm" (click)="openAddMatch()" id="btn-add-match">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Programmer un Match
+        </button>
+      </div>
+
+      <div class="td-teams-controls">
+        <div class="td-search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" class="td-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="td-search-input" type="text" placeholder="Rechercher une équipe ou un lieu…" [(ngModel)]="matchSearch" id="input-match-search" />
+        </div>
+      </div>
+
+      <div class="td-match-grid">
+        <div class="td-match-card" *ngFor="let m of filteredMatchList" id="match-{{ m.id }}">
+          <div class="td-match-card__header">
+            <span class="td-round-chip">{{ m.round }}</span>
+            <span class="td-bracket-badge" *ngIf="m.bracketSlotId">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              Bracket
+            </span>
+            <span class="td-pill" [class.td-pill--tbd]="m.status==='tbd'" [class.td-pill--scheduled]="m.status==='upcoming'" [class.td-pill--completed]="m.status==='completed'">
+              {{ m.status==='tbd' ? 'TBD' : (m.status==='upcoming' ? 'Programmé' : 'Terminé') }}
+            </span>
+            <div class="td-match-actions">
+              <button class="td-btn-icon td-btn-icon--sm" (click)="editMatch(m)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+              <button class="td-btn-icon td-btn-icon--sm td-btn-icon--danger" (click)="deleteMatch(m.id)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+            </div>
+          </div>
+          <div class="td-match-card__teams">
+            <div class="td-match-team">
+              <div class="td-team-logo-mini" [style.background]="getColor(m.team1)">{{ getLogo(m.team1) }}</div>
+              <span class="td-team-name-mini">{{ m.team1 || '---' }}</span>
+              <span class="td-match-score" *ngIf="m.status==='completed'">{{ m.score1 }}</span>
+            </div>
+            <div class="td-match-vs">VS</div>
+            <div class="td-match-team">
+              <span class="td-match-score" *ngIf="m.status==='completed'">{{ m.score2 }}</span>
+              <span class="td-team-name-mini">{{ m.team2 || '---' }}</span>
+              <div class="td-team-logo-mini" [style.background]="getColor(m.team2)">{{ getLogo(m.team2) }}</div>
+            </div>
+          </div>
+          <div class="td-match-card__footer">
+            <div class="td-match-detail">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              {{ m.date }} @ {{ m.time }}
+            </div>
+            <div class="td-match-detail">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {{ m.venue }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="matchesList.length===0" class="td-empty-state">
+        <p>Aucun match programmé.</p>
+        <button class="td-btn td-btn--ghost" (click)="openAddMatch()">Programmer le premier match</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════
+     PLAYER ADD/EDIT MODAL
+═══════════════════════ -->
+<div class="td-modal-overlay" *ngIf="showPlayerModal" (click)="closePlayerModal()" id="modal-player">
+  <div class="td-modal td-modal--player" (click)="$event.stopPropagation()">
+    <div class="td-modal__header" style="background:var(--c-blue)">
+      <div class="td-modal__header-left">
+        <h2 class="td-modal__team-name">{{ editingPlayer?.id ? 'Modifier Joueur' : 'Nouveau Joueur' }}</h2>
+      </div>
+      <button class="td-modal__close" (click)="closePlayerModal()">✕</button>
+    </div>
+
+    <div class="td-modal__body td-modal__body--form">
+      <div class="td-form-field">
+        <label>Nom complet</label>
+        <input type="text" [(ngModel)]="editingPlayer!.name" placeholder="Ex: Lionel Messi" class="td-input" />
+      </div>
+
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Âge</label>
+          <input type="number" [(ngModel)]="editingPlayer!.age" class="td-input" />
+        </div>
+        <div class="td-form-field">
+          <label>Numéro</label>
+          <input type="number" [(ngModel)]="editingPlayer!.number" class="td-input" />
+        </div>
+      </div>
+
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Niveau de compétence</label>
+          <select [(ngModel)]="editingPlayer!.skillLevel" class="td-input">
+            <option value="Débutant">Débutant</option>
+            <option value="Intermédiaire">Intermédiaire</option>
+            <option value="Pro">Pro</option>
+          </select>
+        </div>
+        <div class="td-form-field">
+          <label>Position (Group)</label>
+          <select [(ngModel)]="editingPlayer!.posGroup" class="td-input">
+            <option value="GK">Goalkeeper (GK)</option>
+            <option value="DEF">Defender (DEF)</option>
+            <option value="MID">Midfielder (MID)</option>
+            <option value="FWD">Forward (FWD)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="td-form-field">
+        <label>Position (Détail)</label>
+        <input type="text" [(ngModel)]="editingPlayer!.position" placeholder="Ex: ST, CAM, CB, LB" class="td-input" />
+      </div>
+
+      <div class="td-form-field">
+        <label>Affectation à une équipe</label>
+        <select [ngModel]="editingPlayer!.teamId" (ngModelChange)="editingPlayer!.teamId = $event" class="td-input">
+          <option [ngValue]="undefined">Non assigné</option>
+          <option *ngFor="let t of teams" [ngValue]="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+
+      <div class="td-modal__warning" *ngIf="editingPlayer?.teamId">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Le joueur sera automatiquement ajouté à l'effectif de l'équipe sélectionnée.</span>
+      </div>
+    </div>
+
+    <div class="td-modal__footer">
+      <button class="td-btn td-btn--white" (click)="closePlayerModal()">Annuler</button>
+      <button class="td-btn td-btn--primary" (click)="savePlayer()">{{ editingPlayer?.id ? 'Mettre à jour' : 'Enregistrer' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════
+     TEAM ADD/EDIT MODAL
+═══════════════════════ -->
+<div class="td-modal-overlay" *ngIf="showTeamModal" (click)="closeTeamModal()" id="modal-team">
+  <div class="td-modal td-modal--player" (click)="$event.stopPropagation()">
+    <div class="td-modal__header" [style.background]="editingTeam?.color || 'var(--c-blue)'">
+      <div class="td-modal__header-left">
+        <h2 class="td-modal__team-name">{{ editingTeam?.id ? 'Modifier Équipe' : 'Nouvelle Équipe' }}</h2>
+      </div>
+      <button class="td-modal__close" (click)="closeTeamModal()">✕</button>
+    </div>
+
+    <div class="td-modal__body td-modal__body--form">
+      <div class="td-form-field">
+        <label>Nom de l'équipe</label>
+        <input type="text" [(ngModel)]="editingTeam!.name" placeholder="Ex: Warriors FC" class="td-input" />
+      </div>
+
+      <div class="td-form-field">
+        <label>Type de sport</label>
+        <select [(ngModel)]="editingTeam!.sportType" class="td-input">
+          <option *ngFor="let s of teamSportTypes" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="td-form-field">
+        <label>Couleur du thème</label>
+        <input type="text" [(ngModel)]="editingTeam!.color" placeholder="linear-gradient(...)" class="td-input" />
+      </div>
+
+      <div class="td-form-grid" *ngIf="editingTeam?.id">
+        <div class="td-form-field">
+          <label>Wins</label>
+          <input type="number" [(ngModel)]="editingTeam!.wins" class="td-input" />
+        </div>
+        <div class="td-form-field">
+          <label>Draws</label>
+          <input type="number" [(ngModel)]="editingTeam!.draws" class="td-input" />
+        </div>
+      </div>
+    </div>
+
+    <div class="td-modal__footer">
+      <button class="td-btn td-btn--white" (click)="closeTeamModal()">Annuler</button>
+      <button class="td-btn td-btn--primary" (click)="saveTeam()">{{ editingTeam?.id ? 'Mettre à jour' : 'Enregistrer' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════
+     STADIUM ADD/EDIT MODAL
+═══════════════════════ -->
+<div class="td-modal-overlay" *ngIf="showStadiumModal" (click)="closeStadiumModal()" id="modal-stadium">
+  <div class="td-modal td-modal--player" (click)="$event.stopPropagation()">
+    <div class="td-modal__header" style="background: linear-gradient(135deg, #10b981, #059669)">
+      <div class="td-modal__header-left">
+        <h2 class="td-modal__team-name">{{ editingStadium?.id ? 'Modifier Terrain' : 'Nouveau Terrain' }}</h2>
+      </div>
+      <button class="td-modal__close" (click)="closeStadiumModal()">✕</button>
+    </div>
+
+    <div class="td-modal__body td-modal__body--form">
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Nom du terrain</label>
+          <input type="text" [(ngModel)]="editingStadium!.name" class="td-input" />
+        </div>
+        <div class="td-form-field">
+          <label>Quartier / District</label>
+          <input type="text" [(ngModel)]="editingStadium!.district" class="td-input" />
+        </div>
+      </div>
+
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Capacité</label>
+          <input type="number" [(ngModel)]="editingStadium!.capacity" class="td-input" />
+        </div>
+        <div class="td-form-field">
+          <label>Surface</label>
+          <input type="text" [(ngModel)]="editingStadium!.surface" class="td-input" />
+        </div>
+      </div>
+
+      <div class="td-form-field">
+        <label>Sports supportés</label>
+        <div class="td-sports-select-grid">
+          <button *ngFor="let s of teamSportTypes" 
+                  class="td-sport-select-btn" 
+                  [class.td-sport-select-btn--active]="editingStadium!.supportedSports!.includes(s)"
+                  (click)="toggleStadiumSport(s)">
+            {{ s }}
+          </button>
+        </div>
+      </div>
+
+      <div class="td-form-field">
+        <label>Description</label>
+        <textarea [(ngModel)]="editingStadium!.description" class="td-input" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="td-modal__footer">
+      <button class="td-btn td-btn--white" (click)="closeStadiumModal()">Annuler</button>
+      <button class="td-btn td-btn--primary" (click)="saveStadium()">{{ editingStadium?.id ? 'Mettre à jour' : 'Enregistrer' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════
+     MATCH ADD/EDIT MODAL
+═══════════════════════ -->
+<div class="td-modal-overlay" *ngIf="showMatchModal" (click)="closeMatchModal()" id="modal-match">
+  <div class="td-modal td-modal--player" (click)="$event.stopPropagation()">
+    <div class="td-modal__header" style="background: linear-gradient(135deg, #7c3aed, #4f46e5)">
+      <div class="td-modal__header-left">
+        <h2 class="td-modal__team-name">{{ editingMatch?.id ? 'Modifier Match' : 'Nouveau Match' }}</h2>
+      </div>
+      <button class="td-modal__close" (click)="closeMatchModal()">✕</button>
+    </div>
+
+    <div class="td-modal__body td-modal__body--form">
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Équipe Domicile</label>
+          <select [(ngModel)]="editingMatch!.team1" class="td-input">
+            <option value="">Sélectionner une équipe</option>
+            <option *ngFor="let t of teams" [value]="t.name">{{ t.name }}</option>
+          </select>
+        </div>
+        <div class="td-form-field">
+          <label>Équipe Extérieur</label>
+          <select [(ngModel)]="editingMatch!.team2" class="td-input">
+            <option value="">Sélectionner une équipe</option>
+            <option *ngFor="let t of teams" [value]="t.name">{{ t.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Date</label>
+          <input type="text" [(ngModel)]="editingMatch!.date" placeholder="Ex: Mar 14" class="td-input" />
+        </div>
+        <div class="td-form-field">
+          <label>Heure</label>
+          <input type="text" [(ngModel)]="editingMatch!.time" placeholder="18:00" class="td-input" />
+        </div>
+      </div>
+
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Venue</label>
+          <select [(ngModel)]="editingMatch!.venue" class="td-input">
+            <option *ngFor="let s of stadiumsList" [value]="s.name">{{ s.name }}</option>
+          </select>
+        </div>
+        <div class="td-form-field">
+          <label>Duration (mins)</label>
+          <input type="number" [(ngModel)]="editingMatch!.durationMinutes" class="td-input" placeholder="e.g. 90">
+        </div>
+      </div>
+
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Tour / Round</label>
+          <input type="text" [(ngModel)]="editingMatch!.round" placeholder="Regular / QF / SF" class="td-input" />
+        </div>
+        <div class="td-form-field">
+          <label>Status</label>
+          <select [(ngModel)]="editingMatch!.status" class="td-input">
+            <option value="upcoming">Programmé</option>
+            <option value="completed">Terminé</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="td-form-grid" *ngIf="editingMatch!.status==='completed'">
+        <div class="td-form-field">
+          <label>Score Domicile</label>
+          <input type="number" [(ngModel)]="editingMatch!.score1" class="td-input" />
+        </div>
+        <div class="td-form-field">
+          <label>Score Extérieur</label>
+          <input type="number" [(ngModel)]="editingMatch!.score2" class="td-input" />
+        </div>
+      </div>
+    </div>
+
+    <div class="td-modal__footer">
+      <button class="td-btn td-btn--white" (click)="closeMatchModal()">Annuler</button>
+      <button class="td-btn td-btn--primary" (click)="saveMatch()">{{ editingMatch?.id ? 'Mettre à jour' : 'Enregistrer' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════
+     ROSTER MODAL
+═══════════════════════ -->
+<div class="td-modal-overlay" *ngIf="selectedRosterTeam" (click)="closeRoster()" id="modal-roster">
+  <div class="td-modal" (click)="$event.stopPropagation()">
+
+    <div class="td-modal__header" [style.background]="selectedRosterTeam.color">
+      <div class="td-modal__header-left">
+        <div class="td-modal__logo">{{ selectedRosterTeam.logo }}</div>
+        <div>
+          <p class="td-modal__team-name">{{ selectedRosterTeam.name }}</p>
+          <p class="td-modal__team-sub">{{ selectedRosterTeam.players.length }} Players · {{ selectedRosterTeam.wins ?? 0 }}W {{ selectedRosterTeam.draws ?? 0 }}D {{ selectedRosterTeam.losses ?? 0 }}L</p>
+        </div>
+      </div>
+      <button class="td-modal__close" (click)="closeRoster()" id="btn-close-roster">✕</button>
+    </div>
+
+    <div class="td-modal__stats-bar">
+      <div class="td-modal-stat"><span class="td-modal-stat__val">{{ selectedRosterTeam.goalsFor ?? 0 }}</span><span class="td-modal-stat__lbl">Goals Scored</span></div>
+      <div class="td-modal-stat"><span class="td-modal-stat__val">{{ selectedRosterTeam.goalsAgainst ?? 0 }}</span><span class="td-modal-stat__lbl">Conceded</span></div>
+      <div class="td-modal-stat"><span class="td-modal-stat__val" [class.td-modal-stat__val--pos]="(selectedRosterTeam.goalsFor ?? 0)>(selectedRosterTeam.goalsAgainst ?? 0)">{{ ((selectedRosterTeam.goalsFor ?? 0)-(selectedRosterTeam.goalsAgainst ?? 0))>0?'+':'' }}{{ (selectedRosterTeam.goalsFor ?? 0)-(selectedRosterTeam.goalsAgainst ?? 0) }}</span><span class="td-modal-stat__lbl">GD</span></div>
+      <div class="td-modal-stat"><span class="td-modal-stat__val td-pts-val">{{ (selectedRosterTeam.wins ?? 0)*3+(selectedRosterTeam.draws ?? 0) }}</span><span class="td-modal-stat__lbl">Points</span></div>
+      <div class="td-modal-stat"><span class="td-modal-stat__val">{{ wr(selectedRosterTeam) }}%</span><span class="td-modal-stat__lbl">Win Rate</span></div>
+    </div>
+
+    <div class="td-modal__filters">
+      <span class="td-modal__filters-label">Filter:</span>
+      <button class="td-pos-filter" [class.td-pos-filter--active]="rosterFilter==='ALL'"  (click)="rosterFilter='ALL'"  id="filter-all">All</button>
+      <button class="td-pos-filter td-pos-filter--gk"  [class.td-pos-filter--active]="rosterFilter==='GK'"  (click)="rosterFilter='GK'"  id="filter-gk">GK</button>
+      <button class="td-pos-filter td-pos-filter--def" [class.td-pos-filter--active]="rosterFilter==='DEF'" (click)="rosterFilter='DEF'" id="filter-def">DEF</button>
+      <button class="td-pos-filter td-pos-filter--mid" [class.td-pos-filter--active]="rosterFilter==='MID'" (click)="rosterFilter='MID'" id="filter-mid">MID</button>
+      <button class="td-pos-filter td-pos-filter--fwd" [class.td-pos-filter--active]="rosterFilter==='FWD'" (click)="rosterFilter='FWD'" id="filter-fwd">FWD</button>
+    </div>
+
+    <div class="td-modal__body">
+      <table class="td-player-table">
+        <thead><tr><th>#</th><th>Player</th><th>Pos</th><th>Apps</th><th>⚽ Goals</th><th>🎯 Assists</th><th>Rating</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of filteredPlayers" class="td-player-row"
+              [class.td-player-row--top]="topScorer !== null && p.id===topScorer!.id"
+              [id]="'player-'+p.id">
+            <td class="td-player-table__num">{{ p.number }}</td>
+            <td class="td-player-table__name">
+              <div class="td-player-avatar" [style.background]="selectedRosterTeam!.color">{{ p.name.charAt(0) }}</div>
+              <span>{{ p.name }}</span>
+            </td>
+            <td><span class="td-pos-badge" [ngClass]="'td-pos-badge--'+p.posGroup.toLowerCase()">{{ p.position }}</span></td>
+            <td class="td-player-table__num">{{ p.appearances }}</td>
+            <td class="td-player-table__goals">{{ p.goals }}</td>
+            <td class="td-player-table__assists">{{ p.assists }}</td>
+            <td>
+              <div class="td-rating-cell">
+                <span class="td-rating-badge" [style.background]="ratingColor(p.rating)+'18'" [style.color]="ratingColor(p.rating)">{{ p.rating }}</span>
+                <div class="td-rating-bar"><div class="td-rating-fill" [style.width.%]="p.rating*10" [style.background]="ratingColor(p.rating)"></div></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="td-modal__footer">
+      <div class="td-top-scorer" *ngIf="topScorer">
+        <span class="td-top-scorer__icon">⚽</span>
+        <span class="td-top-scorer__label">Top Scorer:</span>
+        <div class="td-player-avatar td-player-avatar--sm" [style.background]="selectedRosterTeam!.color">{{ topScorer!.name.charAt(0) }}</div>
+        <span class="td-top-scorer__name">{{ topScorer!.name }}</span>
+        <span class="td-top-scorer__stat">{{ topScorer!.goals }} goals</span>
+      </div>
+      <div class="td-top-scorer" *ngIf="topAssist">
+        <span class="td-top-scorer__icon">🎯</span>
+        <span class="td-top-scorer__label">Top Assist:</span>
+        <div class="td-player-avatar td-player-avatar--sm" [style.background]="selectedRosterTeam!.color">{{ topAssist!.name.charAt(0) }}</div>
+        <span class="td-top-scorer__name">{{ topAssist!.name }}</span>
+        <span class="td-top-scorer__stat">{{ topAssist!.assists }} assists</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════
+     MATCH CARD TEMPLATE
+════════════════════════ -->
+<ng-template #matchCard let-m="m">
+  <div class="td-bmatch"
+       [class.td-bmatch--completed]="m.status==='completed'"
+       [class.td-bmatch--tbd]="m.status==='tbd'"
+       [class.td-bmatch--final]="m.round==='F'"
+       [class.td-bmatch--selected]="selectedMatchId===m.id"
+       (click)="m.status==='upcoming' ? openResultModal(m.id) : selectMatch(m.id)"
+       [id]="'match-'+m.id">
+
+    <!-- Match header -->
+    <div class="td-bmatch__meta">
+      <span class="td-bmatch__meta-round">{{ m.round }}</span>
+      <span class="td-bmatch__meta-date">{{ m.date }}</span>
+      <span class="td-bstatus" [ngClass]="'td-bstatus--'+m.status">
+        {{ m.status==='completed'?'FT':m.status==='live'?'●':m.status==='upcoming'?m.time:'TBD' }}
+      </span>
+    </div>
+    <!-- Venue -->
+    <div class="td-bmatch__venue">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      {{ m.venue }}
+    </div>
+
+    <!-- Team 1 -->
+    <div class="td-bmatch__slot td-bmatch__slot--clickable"
+         [class.td-bmatch__slot--winner]="m.winner===m.team1"
+         [class.td-bmatch__slot--loser]="m.winner && m.winner!==m.team1 && !!m.team1"
+         (mouseenter)="m.team1 && selectTeamHighlight(m.team1)"
+         (mouseleave)="clearHighlight()"
+         (click)="openTeamProfile(m.team1, $event)">
+      <div class="td-bmatch__winner-bar"></div>
+      <span class="td-bmatch__seed">{{ m.seed1 ?? '—' }}</span>
+      <div class="td-bmatch__logo" [class.td-bmatch__logo--tbd]="!m.team1" [style.background]="getColor(m.team1)">{{ getLogo(m.team1) }}</div>
+      <span class="td-bmatch__name" [class.td-bmatch__name--tbd]="!m.team1">{{ m.team1 ?? 'TBD' }}</span>
+      <span class="td-bmatch__score" [class.td-bmatch__score--win]="m.winner===m.team1">{{ m.score1 ?? '' }}</span>
+    </div>
+
+    <!-- Divider -->
+    <div class="td-bmatch__divider"></div>
+
+    <!-- Team 2 -->
+    <div class="td-bmatch__slot td-bmatch__slot--clickable"
+         [class.td-bmatch__slot--winner]="m.winner===m.team2"
+         [class.td-bmatch__slot--loser]="m.winner && m.winner!==m.team2 && !!m.team2"
+         (mouseenter)="m.team2 && selectTeamHighlight(m.team2)"
+         (mouseleave)="clearHighlight()"
+         (click)="openTeamProfile(m.team2, $event)">
+      <div class="td-bmatch__winner-bar"></div>
+      <span class="td-bmatch__seed">{{ m.seed2 ?? '—' }}</span>
+      <div class="td-bmatch__logo" [class.td-bmatch__logo--tbd]="!m.team2" [style.background]="getColor(m.team2)">{{ getLogo(m.team2) }}</div>
+      <span class="td-bmatch__name" [class.td-bmatch__name--tbd]="!m.team2">{{ m.team2 ?? 'TBD' }}</span>
+      <span class="td-bmatch__score" [class.td-bmatch__score--win]="m.winner===m.team2">{{ m.score2 ?? '' }}</span>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOURNAMENT CREATION MODAL
+══════════════════════════════════════════════════════════ -->
+<div *ngIf="showCreateTournamentModal" class="td-modal-overlay">
+  <div class="td-modal td-modal--create">
+    <div class="td-modal__header" [style.background]="newBracketForm.color">
+      <div class="td-modal__header-left">
+        <h3 class="td-modal__team-name">Setup New Tournament</h3>
+      </div>
+      <button class="td-modal__close" (click)="showCreateTournamentModal=false">✕</button>
+    </div>
+    
+    <div class="td-modal__body--form">
+      <div class="td-form-field">
+        <label>Tournament Name</label>
+        <input type="text" [(ngModel)]="newBracketForm.name" placeholder="e.g. Summer Cup 2025" class="td-input">
+      </div>
+      
+      <div class="td-form-grid">
+        <div class="td-form-field">
+          <label>Category</label>
+          <select [(ngModel)]="newBracketForm.category" class="td-input">
+            <option value="Pro League">Pro League</option>
+            <option value="Elite">Elite</option>
+            <option value="Youth">Youth</option>
+            <option value="Community">Community</option>
+          </select>
+        </div>
+        <div class="td-form-field">
+          <label>Theme Color</label>
+          <input type="color" [(ngModel)]="newBracketForm.color" class="td-input td-input--color">
+        </div>
+      </div>
+
+      <div class="td-modal__warning" style="margin-top:10px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Creating a tournament will automatically assign 8 squads to the bracket based on current team registrations.</span>
+      </div>
+    </div>
+
+    <div class="td-modal__footer">
+      <button class="td-btn td-btn--white" (click)="showCreateTournamentModal=false">Cancel</button>
+      <button class="td-btn td-btn--primary" (click)="createTournament()">🚀 Launch Tournament</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MATCH RESULT MODAL
+══════════════════════════════════════════════════════════ -->
+<div *ngIf="showResultModal" class="td-modal-overlay">
+  <div class="td-modal td-modal--result">
+    <div class="td-modal__header" [style.background]="'linear-gradient(90deg, ' + getColor(bracketData[reportingMatchId!].team1) + ', ' + getColor(bracketData[reportingMatchId!].team2) + ')'">
+      <h3 class="td-modal__team-name">Report Match Result</h3>
+      <button class="td-modal__close" (click)="showResultModal=false">✕</button>
+    </div>
+
+    <div class="td-modal__body td-result-body">
+      <!-- 1. Scoreboard Header -->
+      <div class="td-result-header">
+        <div class="td-result-team">
+          <div class="td-result-logo" [style.background]="getColor(bracketData[reportingMatchId!].team1)">{{ getLogo(bracketData[reportingMatchId!].team1) }}</div>
+          <span class="td-result-name">{{ bracketData[reportingMatchId!].team1 }}</span>
+        </div>
+        <div class="td-result-score-wrap">
+          <input type="number" [(ngModel)]="resultForm.score1" class="td-score-input">
+          <span class="td-score-sep">-</span>
+          <input type="number" [(ngModel)]="resultForm.score2" class="td-score-input">
+        </div>
+        <div class="td-result-team">
+          <div class="td-result-logo" [style.background]="getColor(bracketData[reportingMatchId!].team2)">{{ getLogo(bracketData[reportingMatchId!].team2) }}</div>
+          <span class="td-result-name">{{ bracketData[reportingMatchId!].team2 }}</span>
+        </div>
+      </div>
+
+      <!-- 2. Events Timeline -->
+      <div class="td-result-events-section">
+        <div class="td-section-label">MATCH EVENTS (Goals & Assists)</div>
+        <div class="td-result-events-list">
+          <div *ngFor="let ev of resultForm.events; let i=index" class="td-result-event-tag">
+            <span class="td-event-icon">{{ ev.type==='goal'?'⚽':ev.type==='assist'?'👟':ev.type==='yellow'?'🟨':'🟥' }}</span>
+            <span class="td-event-pname">{{ ev.playerName }}</span>
+            <button class="td-event-remove" (click)="removeMatchEvent(i)">✕</button>
+          </div>
+          <div *ngIf="resultForm.events.length===0" class="td-empty-events">Assign goals/assists below</div>
+        </div>
+      </div>
+
+      <!-- 3. Roster Selection -->
+      <div class="td-result-rosters">
+        <!-- Team 1 Roster -->
+        <div class="td-result-roster">
+          <div class="td-roster-header">{{ bracketData[reportingMatchId!].team1 }} Players</div>
+          <div class="td-result-players-grid">
+            <div *ngFor="let p of getTeam(bracketData[reportingMatchId!].team1)?.players" class="td-mini-player-card">
+              <span class="td-mpc-num">#{{ p.number }}</span>
+              <span class="td-mpc-name">{{ p.name }}</span>
+              <div class="td-mpc-actions">
+                <button (click)="addMatchEvent(p.id, p.name, 'goal', getTeam(bracketData[reportingMatchId!].team1)!.id)" title="Add Goal">⚽</button>
+                <button (click)="addMatchEvent(p.id, p.name, 'assist', getTeam(bracketData[reportingMatchId!].team1)!.id)" title="Add Assist">👟</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Team 2 Roster -->
+        <div class="td-result-roster">
+          <div class="td-roster-header">{{ bracketData[reportingMatchId!].team2 }} Players</div>
+          <div class="td-result-players-grid">
+            <div *ngFor="let p of getTeam(bracketData[reportingMatchId!].team2)?.players" class="td-mini-player-card">
+              <span class="td-mpc-num">#{{ p.number }}</span>
+              <span class="td-mpc-name">{{ p.name }}</span>
+              <div class="td-mpc-actions">
+                <button (click)="addMatchEvent(p.id, p.name, 'goal', getTeam(bracketData[reportingMatchId!].team2)!.id)" title="Add Goal">⚽</button>
+                <button (click)="addMatchEvent(p.id, p.name, 'assist', getTeam(bracketData[reportingMatchId!].team2)!.id)" title="Add Assist">👟</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Team Stats -->
+      <div class="td-result-stats">
+        <div class="td-section-label">TEAM STATISTICS</div>
+        <div class="td-result-stat-row">
+          <span>Possession %</span>
+          <div class="td-stat-slider-wrap">
+            <span>{{ resultForm.stats.possession1 }}%</span>
+            <input type="range" [(ngModel)]="resultForm.stats.possession1" (input)="resultForm.stats.possession2 = 100 - resultForm.stats.possession1" min="0" max="100">
+            <span>{{ resultForm.stats.possession2 }}%</span>
+          </div>
+        </div>
+        <div class="td-result-stat-grid">
+          <div class="td-form-field">
+            <label>Shots (T1)</label>
+            <input type="number" [(ngModel)]="resultForm.stats.shots1" class="td-input">
+          </div>
+          <div class="td-form-field">
+            <label>Shots (T2)</label>
+            <input type="number" [(ngModel)]="resultForm.stats.shots2" class="td-input">
+          </div>
+          <div class="td-form-field">
+            <label>Fouls (T1)</label>
+            <input type="number" [(ngModel)]="resultForm.stats.fouls1" class="td-input">
+          </div>
+          <div class="td-form-field">
+            <label>Fouls (T2)</label>
+            <input type="number" [(ngModel)]="resultForm.stats.fouls2" class="td-input">
+          </div>
+        </div>
+        <div class="td-form-field" style="margin-top:15px;">
+          <label>Match Duration (mins)</label>
+          <input type="number" [(ngModel)]="resultForm.durationMinutes" class="td-input" placeholder="e.g. 90">
+        </div>
+      </div>
+    </div>
+
+    <div class="td-modal__footer">
+      <button class="td-btn td-btn--white" (click)="showResultModal=false">Discard</button>
+      <button class="td-btn td-btn--primary" (click)="saveMatchResult()">🏆 Save Official Result</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       STADIUM DETAILS MODAL
+  ══════════════════════════════════════════════════════════ -->
+  <div class="td-modal-overlay" *ngIf="showStadiumDetailsModal" (click)="closeStadiumDetails()">
+    <div class="td-modal td-modal--lg" (click)="$event.stopPropagation()">
+      <div class="td-modal__header">
+        <div class="td-modal__title-group">
+          <span class="td-modal__icon">{{ selectedStadiumDetails?.icon }}</span>
+          <div>
+            <h2 class="td-modal__title">{{ selectedStadiumDetails?.name }}</h2>
+            <p class="td-modal__sub">{{ selectedStadiumDetails?.district }} · {{ selectedStadiumDetails?.surface }}</p>
+          </div>
+        </div>
+        <button class="td-modal__close" (click)="closeStadiumDetails()">✕</button>
+      </div>
+
+      <div class="td-stadium-details-content">
+        <!-- Occ status -->
+        <div class="td-occ-status-hero" [class.td-occ-status-hero--busy]="isStadiumOccupied(selectedStadiumDetails!.name)">
+          <div class="td-occ-status-hero__info">
+            <span class="td-live-dot" *ngIf="isStadiumOccupied(selectedStadiumDetails!.name)"></span>
+            <p class="td-occ-status-hero__text">
+              {{ isStadiumOccupied(selectedStadiumDetails!.name) ? 'Actuellement occupé par un match' : 'Terrain actuellement disponible' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="td-stadium-history-layout">
+          <!-- Past Matches -->
+          <div class="td-history-section">
+            <h3 class="td-section-title">Matchs Passés</h3>
+            <div class="td-history-list" *ngIf="getStadiumMatchHistory(selectedStadiumDetails!.name).length > 0; else noHistory">
+              <div class="td-history-item" *ngFor="let m of getStadiumMatchHistory(selectedStadiumDetails!.name)">
+                <div class="td-history-item__side">
+                  <span class="td-history-date">{{ m.date }}</span>
+                  <span class="td-history-round">{{ m.round }}</span>
+                </div>
+                <div class="td-history-item__main">
+                  <div class="td-history-matchup">
+                    <span class="td-hist-team" [class.td-hist-team--w]="(m.score1??0)>(m.score2??0)">{{ m.team1 }}</span>
+                    <span class="td-hist-score">{{ m.score1 }} - {{ m.score2 }}</span>
+                    <span class="td-hist-team" [class.td-hist-team--w]="(m.score2??0)>(m.score1??0)">{{ m.team2 }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #noHistory>
+              <div class="td-empty-small">Aucun match passé recordé sur ce terrain.</div>
+            </ng-template>
+          </div>
+
+          <!-- Upcoming Matches -->
+          <div class="td-history-section">
+            <h3 class="td-section-title">Matchs Programmé</h3>
+            <div class="td-history-list" *ngIf="getStadiumUpcomingMatches(selectedStadiumDetails!.name).length > 0; else noUpcoming">
+              <div class="td-history-item" *ngFor="let m of getStadiumUpcomingMatches(selectedStadiumDetails!.name)">
+                <div class="td-history-item__side">
+                  <p class="td-history-time">{{ m.time }} · {{ m.durationMinutes || 90 }} min</p>
+                  <span class="td-history-round">{{ m.round }}</span>
+                </div>
+                <div class="td-history-item__main">
+                  <div class="td-history-matchup">
+                    <span class="td-hist-team">{{ m.team1 }}</span>
+                    <span class="td-hist-vs">vs</span>
+                    <span class="td-hist-team">{{ m.team2 }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #noUpcoming>
+              <div class="td-empty-small">Aucun match programmé pour le moment.</div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <div class="td-modal__footer">
+        <button class="td-btn td-btn--white" (click)="closeStadiumDetails()">Fermer</button>
+        <button class="td-btn td-btn--primary" (click)="editStadium(selectedStadiumDetails!)">Modifier le terrain</button>
+      </div>
+    </div>
+  </div>
+
+</div>
