@@ -12,10 +12,6 @@
     <div class="td-topbar__actions">
       <div class="td-status-group">
         <span class="td-status-badge"><span class="td-status-badge__dot"></span>In Progress</span>
-        <div class="td-live-badge">
-          <span class="td-live-dot"></span>
-          Unified Engine Active
-        </div>
       </div>
       <button class="td-btn td-btn--white td-btn--sm" (click)="setTab('standings')" id="btn-standings">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -24,6 +20,10 @@
       <button class="td-btn td-btn--primary td-btn--sm" id="btn-start" (click)="startTournament()">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         Start Tournament
+      </button>
+      <button class="td-btn td-btn--white td-btn--sm td-logout-btn" (click)="authService.logout()" title="Déconnexion">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
       </button>
     </div>
   </div>
@@ -179,11 +179,11 @@
       <div class="td-card">
         <div class="td-card__header">
           <h2 class="td-card__title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>Bracket Progress</h2>
-          <div class="td-bracket-nav td-bracket-nav--sm" style="margin-bottom:0;">
-            <button *ngFor="let b of brackets" class="td-bracket-tab td-bracket-tab--xs" [class.td-bracket-tab--active]="activeBracketId===b.id" (click)="activeBracketId=b.id">
-              <span class="td-bracket-tab__dot" [style.background]="b.color"></span>
-              {{ b.id | uppercase }}
-            </button>
+          <div class="td-bp-selector">
+            <span class="td-bp-sel-dot" [style.background]="activeBracket?.color"></span>
+            <select class="td-bp-select" [(ngModel)]="activeBracketId">
+              <option *ngFor="let b of brackets" [value]="b.id">{{ b.name }}</option>
+            </select>
           </div>
           <button class="td-btn td-btn--outline td-btn--sm" (click)="setTab('bracket')" id="btn-view-bracket">Open Bracket →</button>
         </div>

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../auth/auth.service';
 
 export type TabType = 'overview' | 'bracket' | 'teams' | 'standings' | 'stadium-mgmt' | 'player-mgmt' | 'match-mgmt';
 
@@ -453,7 +454,7 @@ export class TournamentDashboardComponent {
     ]},
   ];
 
-  constructor() {
+  constructor(public authService: AuthService) {
     this.initAllPlayers();
     this.initMatches();
   }
