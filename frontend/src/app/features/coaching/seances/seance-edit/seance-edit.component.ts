@@ -13,6 +13,7 @@ export class SeanceEditComponent implements OnInit {
   intensites = Object.values(Intensite);
   statuts = Object.values(StatutSeance);
   errorMessage = '';
+  private returnProgrammeId: number | null = null;
 
   constructor(
     private seanceService: SeanceService,
@@ -21,9 +22,17 @@ export class SeanceEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const programmeId = this.route.snapshot.queryParamMap.get('programmeId');
+    this.returnProgrammeId = programmeId ? Number(programmeId) : null;
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.seanceService.getById(id).subscribe({
-      next: (data) => this.seance = data,
+      next: (data) => {
+        this.seance = data;
+        if (!this.returnProgrammeId && data.programmeId) {
+          this.returnProgrammeId = data.programmeId;
+        }
+      },
       error: () => this.errorMessage = 'Séance introuvable'
     });
   }
@@ -31,7 +40,7 @@ export class SeanceEditComponent implements OnInit {
   onSubmit(): void {
     this.errorMessage = '';
     this.seanceService.update(this.seance.idSeance!, this.seance).subscribe({
-      next: () => this.router.navigate(['/coaching/seances']),
+      next: () => this.navigateAfterSave(),
       error: (err) => {
         this.errorMessage = err.error?.message || 'Erreur lors de la mise à jour';
       }
@@ -39,6 +48,14 @@ export class SeanceEditComponent implements OnInit {
   }
 
   onCancel(): void {
+    this.navigateAfterSave();
+  }
+
+  private navigateAfterSave(): void {
+    if (this.returnProgrammeId) {
+      this.router.navigate(['/coaching/programmes', this.returnProgrammeId]);
+      return;
+    }
     this.router.navigate(['/coaching/seances']);
   }
 }

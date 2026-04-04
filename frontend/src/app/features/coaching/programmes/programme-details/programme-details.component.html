@@ -1,5 +1,6 @@
 <div class="page" *ngIf="programme">
-  <!-- Programme info card -->
+  <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
   <div class="card info-card">
     <div class="card-header">
       <div>
@@ -24,15 +25,17 @@
     </div>
   </div>
 
-  <!-- Séances card -->
   <div class="card">
     <div class="card-header">
-      <h3>Séances</h3>
+      <div class="section-title-wrap">
+        <h3>Séances du programme</h3>
+        <span class="section-hint">Gère toutes les séances depuis ce programme</span>
+      </div>
       <button (click)="onAddSeance()" class="btn btn-primary btn-sm">+ Ajouter Séance</button>
     </div>
     <table class="table" *ngIf="programme.seances && programme.seances.length > 0">
       <thead>
-        <tr><th>Titre</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th><th></th></tr>
+        <tr><th>Titre</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let s of programme.seances">
@@ -41,16 +44,19 @@
           <td>{{ s.dureeMinutes }} min</td>
           <td>{{ s.intensite }}</td>
           <td>{{ s.statut }}</td>
-          <td><button (click)="onSeanceDetails(s.idSeance!)" class="btn-icon">👁️</button></td>
+          <td class="actions-cell">
+            <button (click)="onSeanceDetails(s.idSeance!)" class="btn-icon" title="Détails">👁️</button>
+            <button (click)="onEditSeance(s.idSeance!)" class="btn-icon" title="Modifier">✏️</button>
+            <button (click)="onDeleteSeance(s.idSeance!)" class="btn-icon danger" title="Supprimer">🗑️</button>
+          </td>
         </tr>
       </tbody>
     </table>
     <div class="empty-state" *ngIf="!programme.seances || programme.seances.length === 0">
-      <p>Aucune séance</p>
+      <p>Aucune séance dans ce programme</p>
     </div>
   </div>
 
-  <!-- Affectations card -->
   <div class="card">
     <div class="card-header"><h3>Affectations</h3></div>
     <table class="table" *ngIf="programme.affectations && programme.affectations.length > 0">

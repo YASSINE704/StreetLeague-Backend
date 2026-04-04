@@ -95,6 +95,10 @@ export class SeanceDetailsComponent implements OnInit {
   }
 
   onBack(): void {
+    if (this.seance?.programmeId) {
+      this.router.navigate(['/coaching/programmes', this.seance.programmeId]);
+      return;
+    }
     this.router.navigate(['/coaching/seances']);
   }
 

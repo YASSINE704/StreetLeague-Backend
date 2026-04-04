@@ -22,6 +22,7 @@ export class SeanceCreateComponent implements OnInit {
   intensites = Object.values(Intensite);
   statuts = Object.values(StatutSeance);
   errorMessage = '';
+  private returnProgrammeId: number | null = null;
 
   constructor(
     private seanceService: SeanceService,
@@ -34,6 +35,7 @@ export class SeanceCreateComponent implements OnInit {
     const programmeId = this.route.snapshot.paramMap.get('programmeId');
     if (programmeId) {
       this.seance.programmeId = Number(programmeId);
+      this.returnProgrammeId = Number(programmeId);
     }
     this.programmeService.getAll().subscribe(data => this.programmes = data);
   }
@@ -41,7 +43,7 @@ export class SeanceCreateComponent implements OnInit {
   onSubmit(): void {
     this.errorMessage = '';
     this.seanceService.create(this.seance).subscribe({
-      next: () => this.router.navigate(['/coaching/seances']),
+      next: () => this.navigateAfterSave(),
       error: (err) => {
         this.errorMessage = err.error?.message || 'Erreur lors de la création';
       }
@@ -49,6 +51,14 @@ export class SeanceCreateComponent implements OnInit {
   }
 
   onCancel(): void {
+    this.navigateAfterSave();
+  }
+
+  private navigateAfterSave(): void {
+    if (this.returnProgrammeId) {
+      this.router.navigate(['/coaching/programmes', this.returnProgrammeId]);
+      return;
+    }
     this.router.navigate(['/coaching/seances']);
   }
 }
