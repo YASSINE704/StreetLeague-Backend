@@ -107,6 +107,7 @@
 }
 .empty-icon { font-size: 48px; display: block; margin-bottom: 12px; }
 .empty-state p { margin-bottom: 16px; font-size: 15px; }
+.empty-hint { font-size: 12px; color: #b0b8c4; display: block; }
 
 /* Error */
 .error-banner {

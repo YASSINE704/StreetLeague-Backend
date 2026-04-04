@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -30,6 +31,9 @@ public class SeanceEntrainementService {
         if (programme.getStatut() == StatutProgramme.TERMINE) {
             throw new BusinessRuleException("Impossible de créer une séance pour un programme terminé");
         }
+
+        // Règle métier : la date de la séance doit être dans l'intervalle du programme
+        validateDateInProgrammeRange(dto.getDateSeance(), programme);
 
         SeanceEntrainement seance = SeanceMapper.toEntity(dto);
         seance.setProgramme(programme);
@@ -64,6 +68,15 @@ public class SeanceEntrainementService {
         seance.setDateSeance(dto.getDateSeance());
         seance.setDureeMinutes(dto.getDureeMinutes());
         seance.setIntensite(dto.getIntensite());
+
+        // Règle métier : la date de la séance doit être dans l'intervalle du programme
+        ProgrammeEntrainement currentProgramme = seance.getProgramme();
+        if (dto.getProgrammeId() != null && !dto.getProgrammeId().equals(currentProgramme.getIdProgramme())) {
+            currentProgramme = programmeService.findOrThrow(dto.getProgrammeId());
+            seance.setProgramme(currentProgramme);
+        }
+        validateDateInProgrammeRange(dto.getDateSeance(), currentProgramme);
+
         if (dto.getStatut() != null) {
             // Règle métier : séance ne peut passer à REALISEE que si elle a au moins 1 exercice
             if (dto.getStatut() == StatutSeance.REALISEE
@@ -72,10 +85,6 @@ public class SeanceEntrainementService {
                         "Impossible de marquer la séance comme réalisée : aucun exercice associé");
             }
             seance.setStatut(dto.getStatut());
-        }
-        if (dto.getProgrammeId() != null) {
-            ProgrammeEntrainement programme = programmeService.findOrThrow(dto.getProgrammeId());
-            seance.setProgramme(programme);
         }
         return SeanceMapper.toResponse(seanceRepository.save(seance));
     }
@@ -88,5 +97,17 @@ public class SeanceEntrainementService {
     public SeanceEntrainement findOrThrow(Integer id) {
         return seanceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Séance non trouvée avec id: " + id));
+    }
+
+    private void validateDateInProgrammeRange(LocalDate dateSeance, ProgrammeEntrainement programme) {
+        if (dateSeance == null || programme.getDateDebut() == null || programme.getDateFin() == null) {
+            return;
+        }
+        if (dateSeance.isBefore(programme.getDateDebut()) || dateSeance.isAfter(programme.getDateFin())) {
+            throw new BusinessRuleException(
+                    "La date de la séance doit être comprise entre le "
+                    + programme.getDateDebut() + " et le " + programme.getDateFin()
+                    + " (dates du programme « " + programme.getTitre() + " »)");
+        }
     }
 }

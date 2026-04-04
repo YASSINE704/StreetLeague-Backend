@@ -22,4 +22,5 @@
 .empty-state { text-align: center; padding: 48px 20px; color: #94a3b8; }
 .empty-icon { font-size: 48px; display: block; margin-bottom: 12px; }
 .empty-state p { margin-bottom: 16px; font-size: 15px; }
+.empty-hint { font-size: 12px; color: #b0b8c4; display: block; }
 .error-banner { background: #fef2f2; color: #dc2626; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; border-left: 3px solid #dc2626; }
