@@ -1,0 +1,71 @@
+<div class="sl-page">
+  <div class="sl-toast" *ngIf="successMessage">✅ {{ successMessage }}</div>
+
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <h2>Séances d'Entraînement</h2>
+      <button (click)="onCreate()" class="sl-btn sl-btn--primary">+ Nouvelle Séance</button>
+    </div>
+
+    <div class="sl-toolbar">
+      <div class="sl-search-box">
+        <span class="sl-search-icon">🔍</span>
+        <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+      </div>
+      <select class="sl-filter-select" [(ngModel)]="filterStatut" (change)="applyFilters()">
+        <option value="">Tous statuts</option>
+        <option value="PREVUE">Prévue</option>
+        <option value="REALISEE">Réalisée</option>
+        <option value="ANNULEE">Annulée</option>
+      </select>
+      <select class="sl-filter-select" [(ngModel)]="filterIntensite" (change)="applyFilters()">
+        <option value="">Toutes intensités</option>
+        <option value="FAIBLE">Faible</option>
+        <option value="MOYENNE">Moyenne</option>
+        <option value="FORTE">Forte</option>
+      </select>
+    </div>
+
+    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <table class="sl-table" *ngIf="filtered.length > 0">
+      <thead>
+        <tr>
+          <th (click)="onSort('titreSeance')" class="sl-sortable">Titre {{ sortIcon('titreSeance') }}</th>
+          <th>Programme</th>
+          <th (click)="onSort('dateSeance')" class="sl-sortable">Date {{ sortIcon('dateSeance') }}</th>
+          <th (click)="onSort('dureeMinutes')" class="sl-sortable">Durée {{ sortIcon('dureeMinutes') }}</th>
+          <th>Intensité</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of paged">
+          <td class="sl-td-title">{{ s.titreSeance }}</td>
+          <td>{{ s.programmeTitre }}</td>
+          <td>{{ s.dateSeance }}</td>
+          <td>{{ s.dureeMinutes }} min</td>
+          <td><span class="sl-badge sl-badge--orange">{{ s.intensite }}</span></td>
+          <td><span class="sl-badge" [ngClass]="{'sl-badge--blue':s.statut==='PREVUE','sl-badge--green':s.statut==='REALISEE','sl-badge--red':s.statut==='ANNULEE'}">{{ s.statut }}</span></td>
+          <td class="sl-actions">
+            <button (click)="onDetails(s.idSeance!)" class="sl-btn-icon">👁️</button>
+            <button (click)="onEdit(s.idSeance!)" class="sl-btn-icon">✏️</button>
+            <button (click)="onDelete(s.idSeance!)" class="sl-btn-icon sl-btn-icon--danger">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sl-pagination" *ngIf="totalPages > 1">
+      <button class="sl-page-btn" [disabled]="page===1" (click)="page=page-1">← Précédent</button>
+      <span class="sl-page-info">Page {{ page }} / {{ totalPages }}</span>
+      <button class="sl-page-btn" [disabled]="page===totalPages" (click)="page=page+1">Suivant →</button>
+    </div>
+
+    <div class="sl-empty" *ngIf="filtered.length === 0 && seances.length > 0"><p>Aucun résultat</p></div>
+    <div class="sl-empty" *ngIf="seances.length === 0 && !errorMessage">
+      <span class="sl-empty-icon">🏋️</span><p>Aucune séance trouvée</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+/* Component-specific: section hint */
+.programme-section-hint {
+  font-size: 0.8rem;
+  color: var(--sl-text4);
+}
+
+.programme-header-actions {
+  margin-bottom: 1rem;
+}

@@ -1,1 +1,25 @@
-<p>login works!</p>
+<div class="login-page">
+  <div class="login-card">
+    <h2>Connexion Coaching</h2>
+    <p class="hint">Utilisez un compte backend existant pour accéder au module coaching.</p>
+
+    <form (ngSubmit)="onSubmit()">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="email" name="email" required>
+
+      <label>Mot de passe</label>
+      <input type="password" [(ngModel)]="password" name="password" required>
+
+      <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <button type="submit">Se connecter</button>
+    </form>
+
+    <div class="demo-box">
+      <strong>Comptes de démonstration</strong>
+      <div>coach@streetleague.tn / coach123</div>
+      <div>sportif@streetleague.tn / sportif123</div>
+      <div>admin@streetleague.tn / admin123</div>
+    </div>
+  </div>
+</div>

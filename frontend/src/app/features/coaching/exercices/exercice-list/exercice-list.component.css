@@ -1,0 +1,203 @@
+/* ── Hero Banner (component-specific) ── */
+.exercice-hero-banner {
+  background: var(--sl-surface);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-lg);
+  box-shadow: var(--sl-shadow-xs);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.exercice-hero-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exercice-hero-text h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--sl-text);
+}
+
+.exercice-hero-text p {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: var(--sl-text3);
+}
+
+/* ── Exercice Card Grid ── */
+.exercice-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exercice-card {
+  background: var(--sl-surface);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-lg);
+  box-shadow: var(--sl-shadow-xs);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.exercice-card:hover {
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.exercice-card--expanded {
+  border-color: var(--sl-blue);
+  box-shadow: 0 4px 20px rgba(37,99,235,0.1);
+}
+
+.exercice-card-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+}
+
+.exercice-icon-wrap {
+  width: 48px;
+  height: 48px;
+  background: var(--sl-blue-l);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.exercice-type-icon { font-size: 1.4rem; }
+
+.exercice-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.exercice-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sl-text);
+}
+
+.exercice-type-badge {
+  display: inline-block;
+  border-radius: var(--sl-radius-full);
+  padding: 0.2rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+  background: var(--sl-blue-l);
+  color: var(--sl-blue);
+}
+
+.exercice-type-badge[data-type="FORCE"] { background: var(--sl-red-l); color: var(--sl-red); }
+.exercice-type-badge[data-type="CARDIO"] { background: var(--sl-green-l); color: var(--sl-green); }
+.exercice-type-badge[data-type="MOBILITE"] { background: var(--sl-orange-l); color: var(--sl-orange); }
+.exercice-type-badge[data-type="TECHNIQUE"] { background: var(--sl-violet-l); color: var(--sl-violet); }
+
+.exercice-desc {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  color: var(--sl-text3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exercice-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.exercice-expand-arrow {
+  font-size: 1rem;
+  color: var(--sl-text4);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.exercice-expand-arrow--rotated { transform: rotate(180deg); }
+
+/* ── Linked Séances ── */
+.exercice-linked-seances {
+  border-top: 1px solid var(--sl-border);
+  padding: 1.25rem 1.5rem;
+  background: var(--sl-surface2);
+}
+
+.exercice-linked-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sl-text2);
+  margin-bottom: 1rem;
+}
+
+.exercice-loading {
+  font-size: 0.85rem;
+  color: var(--sl-text4);
+  padding: 0.5rem 0;
+}
+
+.exercice-linked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.exercice-linked-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: var(--sl-surface);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-md);
+}
+
+.exercice-linked-item-info { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.exercice-linked-seance-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sl-text);
+}
+
+.exercice-linked-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.exercice-detail-chip {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--sl-blue-l);
+  color: var(--sl-blue);
+}
+
+.exercice-linked-empty {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--sl-text4);
+  font-size: 0.9rem;
+}
+
+.exercice-linked-empty p { margin: 0 0 0.8rem; }
+
+@media (max-width: 768px) {
+  .exercice-hero-content { flex-direction: column; gap: 1rem; align-items: flex-start; }
+}
