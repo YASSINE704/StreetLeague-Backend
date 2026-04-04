@@ -24,6 +24,16 @@ public class SeanceExerciceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(seanceExerciceService.create(dto));
     }
 
+    @GetMapping
+    public ResponseEntity<List<SeanceExerciceDTO.Response>> getAll() {
+        return ResponseEntity.ok(seanceExerciceService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SeanceExerciceDTO.Response> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(seanceExerciceService.getById(id));
+    }
+
     @GetMapping("/seance/{seanceId}")
     public ResponseEntity<List<SeanceExerciceDTO.Response>> getBySeance(@PathVariable Integer seanceId) {
         return ResponseEntity.ok(seanceExerciceService.getBySeance(seanceId));

@@ -4,6 +4,7 @@ import com.streetLeague.backend.dto.SeanceExerciceDTO;
 import com.streetLeague.backend.entity.Exercice;
 import com.streetLeague.backend.entity.SeanceEntrainement;
 import com.streetLeague.backend.entity.SeanceExercice;
+import com.streetLeague.backend.exception.BusinessRuleException;
 import com.streetLeague.backend.exception.ResourceNotFoundException;
 import com.streetLeague.backend.mapper.ExerciceMapper;
 import com.streetLeague.backend.repository.ExerciceRepository;
@@ -28,6 +29,8 @@ public class SeanceExerciceService {
         Exercice exercice = exerciceRepository.findById(dto.getExerciceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Exercice non trouvé avec id: " + dto.getExerciceId()));
 
+        validateVolume(dto);
+
         SeanceExercice se = SeanceExercice.builder()
                 .seance(seance)
                 .exercice(exercice)
@@ -38,6 +41,17 @@ public class SeanceExerciceService {
                 .ordre(dto.getOrdre())
                 .build();
         return ExerciceMapper.toSeanceExerciceResponse(seanceExerciceRepository.save(se));
+    }
+
+    @Transactional(readOnly = true)
+    public List<SeanceExerciceDTO.Response> getAll() {
+        return seanceExerciceRepository.findAll().stream()
+                .map(ExerciceMapper::toSeanceExerciceResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public SeanceExerciceDTO.Response getById(Integer id) {
+        return ExerciceMapper.toSeanceExerciceResponse(findOrThrow(id));
     }
 
     @Transactional(readOnly = true)
@@ -53,8 +67,17 @@ public class SeanceExerciceService {
     }
 
     public SeanceExerciceDTO.Response update(Integer id, SeanceExerciceDTO.Request dto) {
-        SeanceExercice se = seanceExerciceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("SeanceExercice non trouvé avec id: " + id));
+        SeanceExercice se = findOrThrow(id);
+        validateVolume(dto);
+
+        if (dto.getSeanceId() != null && !dto.getSeanceId().equals(se.getSeance().getIdSeance())) {
+            se.setSeance(seanceService.findOrThrow(dto.getSeanceId()));
+        }
+        if (dto.getExerciceId() != null && !dto.getExerciceId().equals(se.getExercice().getIdExercice())) {
+            Exercice exercice = exerciceRepository.findById(dto.getExerciceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Exercice non trouvé avec id: " + dto.getExerciceId()));
+            se.setExercice(exercice);
+        }
         se.setSeries(dto.getSeries());
         se.setRepetitions(dto.getRepetitions());
         se.setCharge(dto.getCharge());
@@ -64,9 +87,19 @@ public class SeanceExerciceService {
     }
 
     public void delete(Integer id) {
-        if (!seanceExerciceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("SeanceExercice non trouvé avec id: " + id);
+        seanceExerciceRepository.delete(findOrThrow(id));
+    }
+
+    private SeanceExercice findOrThrow(Integer id) {
+        return seanceExerciceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("SeanceExercice non trouvé avec id: " + id));
+    }
+
+    private void validateVolume(SeanceExerciceDTO.Request dto) {
+        boolean hasRepetitions = dto.getRepetitions() != null && dto.getRepetitions() > 0;
+        boolean hasDuration = dto.getTempsSecondes() != null && dto.getTempsSecondes() > 0;
+        if (!hasRepetitions && !hasDuration) {
+            throw new BusinessRuleException("Un exercice de séance doit avoir des répétitions ou un temps d'exécution");
         }
-        seanceExerciceRepository.deleteById(id);
     }
 }

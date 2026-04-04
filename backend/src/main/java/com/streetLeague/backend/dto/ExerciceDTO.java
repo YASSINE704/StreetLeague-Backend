@@ -15,6 +15,7 @@ public class ExerciceDTO {
         @Size(max = 500, message = "La description ne doit pas dépasser 500 caractères")
         private String description;
 
+        @NotNull(message = "Le type d'exercice est obligatoire")
         private TypeExercice type;
 
         @Size(max = 500, message = "L'URL vidéo ne doit pas dépasser 500 caractères")
@@ -26,6 +27,7 @@ public class ExerciceDTO {
         private Integer idExercice;
         private String nom;
         private String description;
+        @NotNull(message = "Le type d'exercice est obligatoire")
         private TypeExercice type;
         private String videoUrl;
     }

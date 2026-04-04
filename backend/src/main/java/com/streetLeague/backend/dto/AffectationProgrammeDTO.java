@@ -2,6 +2,7 @@ package com.streetLeague.backend.dto;
 
 import com.streetLeague.backend.enums.TypeAffectationProgramme;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,10 +12,12 @@ public class AffectationProgrammeDTO {
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
     public static class Request {
         @NotNull
+        @Positive(message = "L'identifiant du programme doit être positif")
         private Integer programmeId;
         @NotNull
+        @Positive(message = "L'identifiant de l'utilisateur doit être positif")
         private Integer userId;
-        @NotNull
+        @NotNull(message = "Le type d'affectation est obligatoire")
         private TypeAffectationProgramme type;
     }
 

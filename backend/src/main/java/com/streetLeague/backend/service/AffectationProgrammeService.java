@@ -4,7 +4,6 @@ import com.streetLeague.backend.dto.AffectationProgrammeDTO;
 import com.streetLeague.backend.entity.AffectationProgramme;
 import com.streetLeague.backend.entity.ProgrammeEntrainement;
 import com.streetLeague.backend.entity.User;
-import com.streetLeague.backend.enums.TypeAffectationProgramme;
 import com.streetLeague.backend.exception.BusinessRuleException;
 import com.streetLeague.backend.exception.ResourceNotFoundException;
 import com.streetLeague.backend.mapper.AffectationMapper;
@@ -31,11 +30,7 @@ public class AffectationProgrammeService {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User non trouvé avec id: " + dto.getUserId()));
 
-        // Règle métier : exactement 1 COACH et 1 SPORTIF par programme
-        if (affectationRepository.findByProgrammeIdProgrammeAndType(dto.getProgrammeId(), dto.getType()).isPresent()) {
-            throw new BusinessRuleException(
-                    "Une affectation de type " + dto.getType() + " existe déjà pour ce programme");
-        }
+        validateSingleAffectationByType(dto.getProgrammeId(), dto.getType(), null);
 
         AffectationProgramme affectation = AffectationProgramme.builder()
                 .type(dto.getType())
@@ -44,6 +39,16 @@ public class AffectationProgrammeService {
                 .programme(programme)
                 .build();
         return AffectationMapper.toResponse(affectationRepository.save(affectation));
+    }
+
+    @Transactional(readOnly = true)
+    public List<AffectationProgrammeDTO.Response> getAll() {
+        return affectationRepository.findAll().stream().map(AffectationMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public AffectationProgrammeDTO.Response getById(Integer id) {
+        return AffectationMapper.toResponse(findOrThrow(id));
     }
 
     @Transactional(readOnly = true)
@@ -58,10 +63,34 @@ public class AffectationProgrammeService {
                 .map(AffectationMapper::toResponse).toList();
     }
 
+    public AffectationProgrammeDTO.Response update(Integer id, AffectationProgrammeDTO.Request dto) {
+        AffectationProgramme affectation = findOrThrow(id);
+        ProgrammeEntrainement programme = programmeService.findOrThrow(dto.getProgrammeId());
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User non trouvé avec id: " + dto.getUserId()));
+
+        validateSingleAffectationByType(dto.getProgrammeId(), dto.getType(), id);
+
+        affectation.setProgramme(programme);
+        affectation.setUser(user);
+        affectation.setType(dto.getType());
+        return AffectationMapper.toResponse(affectationRepository.save(affectation));
+    }
+
     public void delete(Integer id) {
-        if (!affectationRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Affectation non trouvée avec id: " + id);
-        }
-        affectationRepository.deleteById(id);
+        affectationRepository.delete(findOrThrow(id));
+    }
+
+    private AffectationProgramme findOrThrow(Integer id) {
+        return affectationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Affectation non trouvée avec id: " + id));
+    }
+
+    private void validateSingleAffectationByType(Integer programmeId, com.streetLeague.backend.enums.TypeAffectationProgramme type, Integer currentId) {
+        affectationRepository.findByProgrammeIdProgrammeAndType(programmeId, type)
+                .filter(existing -> !existing.getIdAffectation().equals(currentId))
+                .ifPresent(existing -> {
+                    throw new BusinessRuleException("Une affectation de type " + type + " existe déjà pour ce programme");
+                });
     }
 }
