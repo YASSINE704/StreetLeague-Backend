@@ -1,75 +1,78 @@
-<div class="page" *ngIf="programme">
-  <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+<div class="sl-page sl-page--medium" *ngIf="programme">
+  <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <div class="card info-card">
-    <div class="card-header">
+  <div class="sl-card">
+    <div class="sl-card-header">
       <div>
         <h2>{{ programme.titre }}</h2>
-        <span class="badge" [ngClass]="{
-          'badge-brouillon': programme.statut === 'BROUILLON',
-          'badge-actif': programme.statut === 'ACTIF',
-          'badge-termine': programme.statut === 'TERMINE'
+        <span class="sl-badge" [ngClass]="{
+          'sl-badge--orange': programme.statut === 'BROUILLON',
+          'sl-badge--green': programme.statut === 'ACTIF',
+          'sl-badge--violet': programme.statut === 'TERMINE'
         }">{{ programme.statut }}</span>
       </div>
-      <button (click)="onBack()" class="btn btn-secondary">← Retour</button>
+      <button (click)="onBack()" class="sl-btn sl-btn--secondary">← Retour</button>
     </div>
-    <div class="info-grid">
-      <div class="info-item">
-        <span class="info-label">Description</span>
-        <span class="info-value">{{ programme.description || '—' }}</span>
+    <div class="programme-header-actions">
+      <button (click)="exportPDF()" class="sl-btn sl-btn--secondary sl-btn--sm">📄 Export PDF</button>
+    </div>
+    <div class="sl-info-grid">
+      <div class="sl-info-item">
+        <span class="sl-info-label">Description</span>
+        <span class="sl-info-value">{{ programme.description || '—' }}</span>
       </div>
-      <div class="info-item">
-        <span class="info-label">Période</span>
-        <span class="info-value">{{ programme.dateDebut }} → {{ programme.dateFin }}</span>
+      <div class="sl-info-item">
+        <span class="sl-info-label">Période</span>
+        <span class="sl-info-value">{{ programme.dateDebut }} → {{ programme.dateFin }}</span>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <div class="section-title-wrap">
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <div>
         <h3>Séances du programme</h3>
-        <span class="section-hint">Gère toutes les séances depuis ce programme</span>
+        <span class="programme-section-hint">Gère toutes les séances depuis ce programme</span>
       </div>
-      <button (click)="onAddSeance()" class="btn btn-primary btn-sm">+ Ajouter Séance</button>
+      <button (click)="onAddSeance()" class="sl-btn sl-btn--primary sl-btn--sm">+ Ajouter Séance</button>
     </div>
-    <table class="table" *ngIf="programme.seances && programme.seances.length > 0">
+    <table class="sl-table" *ngIf="programme.seances && programme.seances.length > 0">
       <thead>
         <tr><th>Titre</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th><th>Actions</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let s of programme.seances">
-          <td class="td-title">{{ s.titreSeance }}</td>
+          <td class="sl-td-title">{{ s.titreSeance }}</td>
           <td>{{ s.dateSeance }}</td>
           <td>{{ s.dureeMinutes }} min</td>
           <td>{{ s.intensite }}</td>
           <td>{{ s.statut }}</td>
-          <td class="actions-cell">
-            <button (click)="onSeanceDetails(s.idSeance!)" class="btn-icon" title="Détails">👁️</button>
-            <button (click)="onEditSeance(s.idSeance!)" class="btn-icon" title="Modifier">✏️</button>
-            <button (click)="onDeleteSeance(s.idSeance!)" class="btn-icon danger" title="Supprimer">🗑️</button>
+          <td class="sl-actions">
+            <button (click)="onSeanceDetails(s.idSeance!)" class="sl-btn-icon" title="Détails">👁️</button>
+            <button (click)="onEditSeance(s.idSeance!)" class="sl-btn-icon" title="Modifier">✏️</button>
+            <button (click)="onDeleteSeance(s.idSeance!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer">🗑️</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <div class="empty-state" *ngIf="!programme.seances || programme.seances.length === 0">
+    <div class="sl-empty" *ngIf="!programme.seances || programme.seances.length === 0">
       <p>Aucune séance dans ce programme</p>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header"><h3>Affectations</h3></div>
-    <table class="table" *ngIf="programme.affectations && programme.affectations.length > 0">
+  <div class="sl-card">
+    <div class="sl-card-header"><h3>Affectations</h3></div>
+    <table class="sl-table" *ngIf="programme.affectations && programme.affectations.length > 0">
       <thead><tr><th>Type</th><th>Utilisateur</th><th>Date</th></tr></thead>
       <tbody>
         <tr *ngFor="let a of programme.affectations">
-          <td><span class="badge" [ngClass]="{'badge-actif': a.type==='COACH', 'badge-termine': a.type==='SPORTIF'}">{{ a.type }}</span></td>
+          <td><span class="sl-badge" [ngClass]="{'sl-badge--green': a.type==='COACH', 'sl-badge--violet': a.type==='SPORTIF'}">{{ a.type }}</span></td>
           <td>{{ a.userNom }}</td>
           <td>{{ a.dateAffectation }}</td>
         </tr>
       </tbody>
     </table>
-    <div class="empty-state" *ngIf="!programme.affectations || programme.affectations.length === 0">
+    <div class="sl-empty" *ngIf="!programme.affectations || programme.affectations.length === 0">
       <p>Aucune affectation</p>
     </div>
   </div>

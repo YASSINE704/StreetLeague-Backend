@@ -11,11 +11,17 @@ import { Exercice, SeanceExercice, SeanceEntrainement } from '../../../../shared
 })
 export class ExerciceListComponent implements OnInit {
   exercices: Exercice[] = [];
+  filtered: Exercice[] = [];
   seances: SeanceEntrainement[] = [];
   errorMessage = '';
+  successMessage = '';
   expandedId: number | null = null;
   linkedSeances: SeanceExercice[] = [];
   loadingLinks = false;
+
+  // Search & Filter
+  searchTerm = '';
+  filterType = '';
 
   // Assign to séance
   showAssignModal = false;
@@ -37,10 +43,22 @@ export class ExerciceListComponent implements OnInit {
   loadExercices(): void {
     this.errorMessage = '';
     this.exerciceService.getAll().subscribe({
-      next: (data) => this.exercices = data,
+      next: (data) => { this.exercices = data; this.applyFilters(); },
       error: () => this.errorMessage = 'Erreur de connexion au serveur'
     });
   }
+
+  applyFilters(): void {
+    let result = [...this.exercices];
+    if (this.searchTerm) {
+      const t = this.searchTerm.toLowerCase();
+      result = result.filter(e => e.nom.toLowerCase().includes(t) || e.description?.toLowerCase().includes(t));
+    }
+    if (this.filterType) result = result.filter(e => e.type === this.filterType);
+    this.filtered = result;
+  }
+
+  showToast(msg: string): void { this.successMessage = msg; setTimeout(() => this.successMessage = '', 3000); }
 
   toggleExpand(id: number): void {
     if (this.expandedId === id) { this.expandedId = null; return; }

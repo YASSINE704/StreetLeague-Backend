@@ -1,80 +1,75 @@
-<div class="page">
+<div class="sl-page">
+  <!-- Toast -->
+  <div class="sl-toast" *ngIf="successMessage">✅ {{ successMessage }}</div>
+
   <!-- Stats cards -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-icon blue">📋</div>
-      <div class="stat-info">
-        <span class="stat-value">{{ programmes.length }}</span>
-        <span class="stat-label">Programmes</span>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon green">✅</div>
-      <div class="stat-info">
-        <span class="stat-value">{{ countByStatut('ACTIF') }}</span>
-        <span class="stat-label">Actifs</span>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon orange">📝</div>
-      <div class="stat-info">
-        <span class="stat-value">{{ countByStatut('BROUILLON') }}</span>
-        <span class="stat-label">Brouillons</span>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon purple">🏁</div>
-      <div class="stat-info">
-        <span class="stat-value">{{ countByStatut('TERMINE') }}</span>
-        <span class="stat-label">Terminés</span>
-      </div>
-    </div>
+  <div class="sl-stats-row">
+    <div class="sl-stat-card"><div class="sl-stat-icon sl-stat-icon--blue">📋</div><div><span class="sl-stat-value">{{ programmes.length }}</span><span class="sl-stat-label">Programmes</span></div></div>
+    <div class="sl-stat-card"><div class="sl-stat-icon sl-stat-icon--green">✅</div><div><span class="sl-stat-value">{{ countByStatut('ACTIF') }}</span><span class="sl-stat-label">Actifs</span></div></div>
+    <div class="sl-stat-card"><div class="sl-stat-icon sl-stat-icon--orange">📝</div><div><span class="sl-stat-value">{{ countByStatut('BROUILLON') }}</span><span class="sl-stat-label">Brouillons</span></div></div>
+    <div class="sl-stat-card"><div class="sl-stat-icon sl-stat-icon--violet">🏁</div><div><span class="sl-stat-value">{{ countByStatut('TERMINE') }}</span><span class="sl-stat-label">Terminés</span></div></div>
   </div>
 
-  <!-- Main card -->
-  <div class="card">
-    <div class="card-header">
+  <div class="sl-card">
+    <div class="sl-card-header">
       <h2>Programmes d'Entraînement</h2>
-      <button (click)="onCreate()" class="btn btn-primary">+ Nouveau Programme</button>
+      <button (click)="onCreate()" class="sl-btn sl-btn--primary">+ Nouveau Programme</button>
     </div>
 
-    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <!-- Search & Filter bar -->
+    <div class="sl-toolbar">
+      <div class="sl-search-box">
+        <span class="sl-search-icon">🔍</span>
+        <input type="text" placeholder="Rechercher par titre..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+      </div>
+      <select class="sl-filter-select" [(ngModel)]="filterStatut" (change)="applyFilters()">
+        <option value="">Tous les statuts</option>
+        <option value="BROUILLON">Brouillon</option>
+        <option value="ACTIF">Actif</option>
+        <option value="TERMINE">Terminé</option>
+      </select>
+    </div>
 
-    <table class="table" *ngIf="programmes.length > 0">
+    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <table class="sl-table" *ngIf="filtered.length > 0">
       <thead>
         <tr>
-          <th>Titre</th>
-          <th>Date Début</th>
-          <th>Date Fin</th>
-          <th>Statut</th>
+          <th (click)="onSort('titre')" class="sl-sortable">Titre {{ sortIcon('titre') }}</th>
+          <th (click)="onSort('dateDebut')" class="sl-sortable">Date Début {{ sortIcon('dateDebut') }}</th>
+          <th (click)="onSort('dateFin')" class="sl-sortable">Date Fin {{ sortIcon('dateFin') }}</th>
+          <th (click)="onSort('statut')" class="sl-sortable">Statut {{ sortIcon('statut') }}</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of programmes">
-          <td class="td-title">{{ p.titre }}</td>
+        <tr *ngFor="let p of paged">
+          <td class="sl-td-title">{{ p.titre }}</td>
           <td>{{ p.dateDebut }}</td>
           <td>{{ p.dateFin }}</td>
-          <td>
-            <span class="badge" [ngClass]="{
-              'badge-brouillon': p.statut === 'BROUILLON',
-              'badge-actif': p.statut === 'ACTIF',
-              'badge-termine': p.statut === 'TERMINE'
-            }">{{ p.statut }}</span>
-          </td>
-          <td class="actions">
-            <button (click)="onDetails(p.idProgramme!)" class="btn-icon" title="Détails">👁️</button>
-            <button (click)="onEdit(p.idProgramme!)" class="btn-icon" title="Modifier">✏️</button>
-            <button (click)="onDelete(p.idProgramme!)" class="btn-icon danger" title="Supprimer">🗑️</button>
+          <td><span class="sl-badge" [ngClass]="{'sl-badge--orange': p.statut==='BROUILLON','sl-badge--green': p.statut==='ACTIF','sl-badge--violet': p.statut==='TERMINE'}">{{ p.statut }}</span></td>
+          <td class="sl-actions">
+            <button (click)="onDetails(p.idProgramme!)" class="sl-btn-icon" title="Détails">👁️</button>
+            <button (click)="onEdit(p.idProgramme!)" class="sl-btn-icon" title="Modifier">✏️</button>
+            <button (click)="onDelete(p.idProgramme!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer">🗑️</button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div class="empty-state" *ngIf="programmes.length === 0 && !errorMessage">
-      <span class="empty-icon">📋</span>
+    <!-- Pagination -->
+    <div class="sl-pagination" *ngIf="totalPages > 1">
+      <button class="sl-page-btn" [disabled]="page === 1" (click)="page = page - 1">← Précédent</button>
+      <span class="sl-page-info">Page {{ page }} / {{ totalPages }}</span>
+      <button class="sl-page-btn" [disabled]="page === totalPages" (click)="page = page + 1">Suivant →</button>
+    </div>
+
+    <div class="sl-empty" *ngIf="filtered.length === 0 && programmes.length > 0">
+      <p>Aucun résultat pour cette recherche</p>
+    </div>
+    <div class="sl-empty" *ngIf="programmes.length === 0 && !errorMessage">
+      <span class="sl-empty-icon">📋</span>
       <p>Aucun programme trouvé</p>
-      <span class="empty-hint">Utilisez le bouton « + Nouveau Programme » ci-dessus</span>
     </div>
   </div>
 </div>

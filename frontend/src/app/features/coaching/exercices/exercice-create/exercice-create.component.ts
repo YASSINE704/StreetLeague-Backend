@@ -20,7 +20,11 @@ export class ExerciceCreateComponent {
     this.exerciceService.create(this.exercice).subscribe({
       next: () => this.router.navigate(['/coaching/exercices']),
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de la création';
+        if (err.error?.errors) {
+          this.errorMessage = Object.values(err.error.errors).join(', ');
+        } else {
+          this.errorMessage = err.error?.message || 'Erreur lors de la création';
+        }
       }
     });
   }

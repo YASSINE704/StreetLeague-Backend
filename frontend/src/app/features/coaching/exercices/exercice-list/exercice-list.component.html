@@ -1,122 +1,142 @@
-<div class="page">
+<div class="sl-page">
   <!-- Hero header -->
-  <div class="hero-banner">
-    <div class="hero-content">
-      <div class="hero-text">
+  <div class="exercice-hero-banner">
+    <div class="exercice-hero-content">
+      <div class="exercice-hero-text">
         <h1>Catalogue d'Exercices</h1>
         <p>Gérez vos exercices et leurs affectations aux séances</p>
       </div>
-      <button (click)="onCreate()" class="btn btn-hero">
-        <span class="btn-icon-left">+</span> Nouvel Exercice
+      <button (click)="onCreate()" class="sl-btn sl-btn--primary">
+        <span>+</span> Nouvel Exercice
       </button>
     </div>
   </div>
 
-  <div class="error-banner" *ngIf="errorMessage">
-    <span class="error-icon">⚠️</span> {{ errorMessage }}
-    <button class="error-close" (click)="errorMessage = ''">✕</button>
+  <div class="sl-error-banner" *ngIf="errorMessage">
+    <span>⚠️</span> {{ errorMessage }}
+    <button class="sl-error-close" (click)="errorMessage = ''">✕</button>
+  </div>
+
+  <div class="sl-toast" *ngIf="successMessage">✅ {{ successMessage }}</div>
+
+  <!-- Search & Filter -->
+  <div class="sl-toolbar">
+    <div class="sl-search-box">
+      <span class="sl-search-icon">🔍</span>
+      <input type="text" placeholder="Rechercher un exercice..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+    </div>
+    <select class="sl-filter-select" [(ngModel)]="filterType" (change)="applyFilters()">
+      <option value="">Tous les types</option>
+      <option value="FORCE">Force</option>
+      <option value="CARDIO">Cardio</option>
+      <option value="MOBILITE">Mobilité</option>
+      <option value="TECHNIQUE">Technique</option>
+    </select>
   </div>
 
   <!-- Exercice cards grid -->
-  <div class="exercice-grid" *ngIf="exercices.length > 0">
-    <div class="exercice-card" *ngFor="let e of exercices"
-         [class.expanded]="expandedId === e.idExercice">
+  <div class="exercice-grid" *ngIf="filtered.length > 0">
+    <div class="exercice-card" *ngFor="let e of filtered"
+         [class.exercice-card--expanded]="expandedId === e.idExercice">
       <div class="exercice-card-main" (click)="toggleExpand(e.idExercice!)">
         <div class="exercice-icon-wrap">
           <span class="exercice-type-icon">{{ getTypeIcon(e.type) }}</span>
         </div>
         <div class="exercice-info">
           <h3>{{ e.nom }}</h3>
-          <span class="type-badge" [attr.data-type]="e.type">{{ e.type }}</span>
+          <span class="exercice-type-badge" [attr.data-type]="e.type">{{ e.type }}</span>
           <p class="exercice-desc" *ngIf="e.description">{{ e.description }}</p>
         </div>
-        <div class="exercice-actions" (click)="$event.stopPropagation()">
-          <button (click)="openAssignModal(e)" class="action-btn assign" title="Affecter à une séance">📎</button>
-          <button (click)="onEdit(e.idExercice!)" class="action-btn edit" title="Modifier">✏️</button>
-          <button (click)="onDelete(e.idExercice!)" class="action-btn delete" title="Supprimer">🗑️</button>
+        <div class="exercice-card-actions" (click)="$event.stopPropagation()">
+          <button (click)="openAssignModal(e)" class="sl-btn-icon" title="Affecter à une séance">📎</button>
+          <button (click)="onEdit(e.idExercice!)" class="sl-btn-icon" title="Modifier">✏️</button>
+          <button (click)="onDelete(e.idExercice!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer">🗑️</button>
         </div>
-        <span class="expand-arrow" [class.rotated]="expandedId === e.idExercice">▾</span>
+        <span class="exercice-expand-arrow" [class.exercice-expand-arrow--rotated]="expandedId === e.idExercice">▾</span>
       </div>
 
       <!-- Expanded: linked séances -->
-      <div class="linked-seances" *ngIf="expandedId === e.idExercice">
-        <div class="linked-header">
-          <span class="linked-icon">🔗</span>
+      <div class="exercice-linked-seances" *ngIf="expandedId === e.idExercice">
+        <div class="exercice-linked-header">
+          <span>🔗</span>
           <span>Séances liées</span>
         </div>
-        <div class="loading-spinner" *ngIf="loadingLinks">Chargement...</div>
-        <div class="linked-list" *ngIf="!loadingLinks && linkedSeances.length > 0">
-          <div class="linked-item" *ngFor="let ls of linkedSeances">
-            <div class="linked-item-info">
-              <span class="linked-seance-name">{{ ls.seanceTitre }}</span>
-              <div class="linked-details">
-                <span class="detail-chip">{{ ls.series }} séries</span>
-                <span class="detail-chip">{{ ls.repetitions }} reps</span>
-                <span class="detail-chip" *ngIf="ls.charge">{{ ls.charge }} kg</span>
-                <span class="detail-chip" *ngIf="ls.tempsSecondes">{{ ls.tempsSecondes }}s</span>
+        <div class="exercice-loading" *ngIf="loadingLinks">Chargement...</div>
+        <div class="exercice-linked-list" *ngIf="!loadingLinks && linkedSeances.length > 0">
+          <div class="exercice-linked-item" *ngFor="let ls of linkedSeances">
+            <div class="exercice-linked-item-info">
+              <span class="exercice-linked-seance-name">{{ ls.seanceTitre }}</span>
+              <div class="exercice-linked-details">
+                <span class="exercice-detail-chip">{{ ls.series }} séries</span>
+                <span class="exercice-detail-chip">{{ ls.repetitions }} reps</span>
+                <span class="exercice-detail-chip" *ngIf="ls.charge">{{ ls.charge }} kg</span>
+                <span class="exercice-detail-chip" *ngIf="ls.tempsSecondes">{{ ls.tempsSecondes }}s</span>
               </div>
             </div>
-            <button (click)="onUnlink(ls.idSeanceExercice!)" class="action-btn delete small" title="Retirer">✕</button>
+            <button (click)="onUnlink(ls.idSeanceExercice!)" class="sl-btn-icon sl-btn-icon--danger sl-btn--xs" title="Retirer">✕</button>
           </div>
         </div>
-        <div class="linked-empty" *ngIf="!loadingLinks && linkedSeances.length === 0">
+        <div class="exercice-linked-empty" *ngIf="!loadingLinks && linkedSeances.length === 0">
           <p>Pas encore affecté à une séance</p>
-          <button (click)="openAssignModal(e)" class="btn btn-sm btn-outline">📎 Affecter maintenant</button>
+          <button (click)="openAssignModal(e)" class="sl-btn sl-btn--primary sl-btn--sm">📎 Affecter maintenant</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Empty state -->
-  <div class="empty-state-card" *ngIf="exercices.length === 0 && !errorMessage">
-    <div class="empty-illustration">💪</div>
+  <div class="sl-card sl-empty" *ngIf="filtered.length === 0 && exercices.length > 0">
+    <p>Aucun résultat pour cette recherche</p>
+  </div>
+  <div class="sl-card sl-empty" *ngIf="exercices.length === 0 && !errorMessage">
+    <span class="sl-empty-icon">💪</span>
     <h3>Aucun exercice dans le catalogue</h3>
     <p>Utilisez le bouton « + Nouvel Exercice » ci-dessus pour commencer</p>
   </div>
 
   <!-- Assign Modal -->
-  <div class="modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-header">
+  <div class="sl-modal-overlay" *ngIf="showAssignModal" (click)="closeAssignModal()">
+    <div class="sl-modal" (click)="$event.stopPropagation()">
+      <div class="sl-modal-header">
         <h3>Affecter « {{ assignExerciceNom }} »</h3>
-        <button class="modal-close" (click)="closeAssignModal()">✕</button>
+        <button class="sl-modal-close" (click)="closeAssignModal()">✕</button>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
+      <div class="sl-modal-body">
+        <div class="sl-form-group">
           <label>Séance</label>
-          <select [(ngModel)]="assignForm.seanceId">
+          <select class="sl-select" [(ngModel)]="assignForm.seanceId">
             <option [value]="0" disabled>-- Choisir une séance --</option>
             <option *ngFor="let s of seances" [value]="s.idSeance">{{ s.titreSeance }} ({{ s.programmeTitre }})</option>
           </select>
         </div>
-        <div class="form-row-2">
-          <div class="form-group">
+        <div class="sl-form-row">
+          <div class="sl-form-group">
             <label>Séries</label>
-            <input type="number" [(ngModel)]="assignForm.series" min="1">
+            <input type="number" class="sl-input" [(ngModel)]="assignForm.series" min="1">
           </div>
-          <div class="form-group">
+          <div class="sl-form-group">
             <label>Répétitions</label>
-            <input type="number" [(ngModel)]="assignForm.repetitions" min="0">
+            <input type="number" class="sl-input" [(ngModel)]="assignForm.repetitions" min="0">
           </div>
         </div>
-        <div class="form-row-2">
-          <div class="form-group">
+        <div class="sl-form-row">
+          <div class="sl-form-group">
             <label>Charge (kg)</label>
-            <input type="number" [(ngModel)]="assignForm.charge" min="0" step="0.5">
+            <input type="number" class="sl-input" [(ngModel)]="assignForm.charge" min="0" step="0.5">
           </div>
-          <div class="form-group">
+          <div class="sl-form-group">
             <label>Temps (s)</label>
-            <input type="number" [(ngModel)]="assignForm.tempsSecondes" min="0">
+            <input type="number" class="sl-input" [(ngModel)]="assignForm.tempsSecondes" min="0">
           </div>
         </div>
-        <div class="form-group">
+        <div class="sl-form-group">
           <label>Ordre</label>
-          <input type="number" [(ngModel)]="assignForm.ordre" min="1">
+          <input type="number" class="sl-input" [(ngModel)]="assignForm.ordre" min="1">
         </div>
       </div>
-      <div class="modal-footer">
-        <button (click)="closeAssignModal()" class="btn btn-secondary">Annuler</button>
-        <button (click)="onAssign()" class="btn btn-primary">Affecter</button>
+      <div class="sl-modal-footer">
+        <button (click)="closeAssignModal()" class="sl-btn sl-btn--secondary">Annuler</button>
+        <button (click)="onAssign()" class="sl-btn sl-btn--primary">Affecter</button>
       </div>
     </div>
   </div>

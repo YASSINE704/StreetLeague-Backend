@@ -1,181 +1,181 @@
-<div class="page" *ngIf="seance">
+<div class="sl-page sl-page--medium" *ngIf="seance">
   <!-- Hero Banner -->
-  <div class="hero-banner">
-    <div class="hero-top">
-      <button (click)="onBack()" class="btn-back">← Retour aux séances</button>
-      <span class="status-badge" [ngClass]="{
-        'status-prevue': seance.statut === 'PREVUE',
-        'status-realisee': seance.statut === 'REALISEE',
-        'status-annulee': seance.statut === 'ANNULEE'
+  <div class="seance-hero-banner">
+    <div class="seance-hero-top">
+      <button (click)="onBack()" class="sl-btn sl-btn--ghost sl-btn--sm">← Retour aux séances</button>
+      <span class="sl-badge" [ngClass]="{
+        'sl-badge--blue': seance.statut === 'PREVUE',
+        'sl-badge--green': seance.statut === 'REALISEE',
+        'sl-badge--red': seance.statut === 'ANNULEE'
       }">{{ seance.statut }}</span>
     </div>
-    <h1 class="hero-title">{{ seance.titreSeance }}</h1>
-    <div class="hero-meta">
-      <div class="meta-chip"><span class="meta-icon">📅</span> {{ seance.dateSeance }}</div>
-      <div class="meta-chip"><span class="meta-icon">⏱️</span> {{ seance.dureeMinutes }} min</div>
-      <div class="meta-chip"><span class="meta-icon">🔥</span> {{ seance.intensite }}</div>
-      <div class="meta-chip" *ngIf="seance.programmeTitre"><span class="meta-icon">📋</span> {{ seance.programmeTitre }}</div>
+    <h1 class="seance-hero-title">{{ seance.titreSeance }}</h1>
+    <div class="seance-hero-meta">
+      <div class="seance-meta-chip"><span class="seance-meta-icon">📅</span> {{ seance.dateSeance }}</div>
+      <div class="seance-meta-chip"><span class="seance-meta-icon">⏱️</span> {{ seance.dureeMinutes }} min</div>
+      <div class="seance-meta-chip"><span class="seance-meta-icon">🔥</span> {{ seance.intensite }}</div>
+      <div class="seance-meta-chip" *ngIf="seance.programmeTitre"><span class="seance-meta-icon">📋</span> {{ seance.programmeTitre }}</div>
     </div>
     <!-- Stats bar -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <span class="stat-number">{{ seance.exercices?.length || 0 }}</span>
-        <span class="stat-label">Exercices</span>
+    <div class="seance-stats-bar">
+      <div class="seance-stat-item">
+        <span class="seance-stat-number">{{ seance.exercices?.length || 0 }}</span>
+        <span class="sl-stat-label">Exercices</span>
       </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-number">{{ getTotalSeries() }}</span>
-        <span class="stat-label">Séries totales</span>
+      <div class="seance-stat-divider"></div>
+      <div class="seance-stat-item">
+        <span class="seance-stat-number">{{ getTotalSeries() }}</span>
+        <span class="sl-stat-label">Séries totales</span>
       </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-number">{{ seance.dureeMinutes || 0 }}</span>
-        <span class="stat-label">Minutes</span>
+      <div class="seance-stat-divider"></div>
+      <div class="seance-stat-item">
+        <span class="seance-stat-number">{{ seance.dureeMinutes || 0 }}</span>
+        <span class="sl-stat-label">Minutes</span>
       </div>
     </div>
   </div>
 
-  <div class="error-banner" *ngIf="errorMessage">
-    <span class="error-icon">⚠️</span> {{ errorMessage }}
-    <button class="error-close" (click)="errorMessage = ''">✕</button>
+  <div class="sl-error-banner" *ngIf="errorMessage">
+    <span>⚠️</span> {{ errorMessage }}
+    <button class="sl-error-close" (click)="errorMessage = ''">✕</button>
   </div>
 
   <!-- Exercices Section -->
-  <div class="section-card">
-    <div class="section-header">
-      <div class="section-title-group">
-        <span class="section-icon">🏋️</span>
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <div class="seance-section-title-group">
+        <span class="seance-section-icon">🏋️</span>
         <div>
           <h2>Exercices de la séance</h2>
-          <p class="section-subtitle">{{ seance.exercices?.length || 0 }} exercice(s) programmé(s)</p>
+          <p class="seance-section-subtitle">{{ seance.exercices?.length || 0 }} exercice(s) programmé(s)</p>
         </div>
       </div>
-      <button (click)="toggleAddForm()" class="btn btn-primary" *ngIf="seance.statut !== 'REALISEE'">
+      <button (click)="toggleAddForm()" class="sl-btn sl-btn--primary" *ngIf="seance.statut !== 'REALISEE'">
         <span *ngIf="!showAddForm">+ Ajouter</span>
         <span *ngIf="showAddForm">✕ Fermer</span>
       </button>
     </div>
 
     <!-- Inline Add Form -->
-    <div class="add-form-panel" *ngIf="showAddForm">
-      <div class="add-form-header">
-        <span class="form-badge">Nouveau</span>
+    <div class="seance-add-form-panel" *ngIf="showAddForm">
+      <div class="seance-add-form-header">
+        <span class="seance-form-badge">Nouveau</span>
         <span>Ajouter un exercice depuis le catalogue</span>
       </div>
-      <div class="form-grid">
-        <div class="form-group span-2">
+      <div class="sl-form-row-3">
+        <div class="sl-form-group sl-span-2">
           <label>Exercice</label>
-          <select [(ngModel)]="newExercice.exerciceId" class="select-styled">
+          <select [(ngModel)]="newExercice.exerciceId" class="sl-select">
             <option [value]="0" disabled>-- Choisir un exercice --</option>
             <option *ngFor="let ex of catalogueExercices" [value]="ex.idExercice">{{ ex.nom }} ({{ ex.type }})</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="sl-form-group">
           <label>Ordre</label>
-          <input type="number" [(ngModel)]="newExercice.ordre" min="1">
+          <input type="number" class="sl-input" [(ngModel)]="newExercice.ordre" min="1">
         </div>
       </div>
-      <div class="form-grid-4">
-        <div class="form-group">
+      <div class="sl-form-row-4">
+        <div class="sl-form-group">
           <label>Séries</label>
-          <input type="number" [(ngModel)]="newExercice.series" min="1">
+          <input type="number" class="sl-input" [(ngModel)]="newExercice.series" min="1">
         </div>
-        <div class="form-group">
+        <div class="sl-form-group">
           <label>Répétitions</label>
-          <input type="number" [(ngModel)]="newExercice.repetitions" min="0">
+          <input type="number" class="sl-input" [(ngModel)]="newExercice.repetitions" min="0">
         </div>
-        <div class="form-group">
+        <div class="sl-form-group">
           <label>Charge (kg)</label>
-          <input type="number" [(ngModel)]="newExercice.charge" min="0" step="0.5">
+          <input type="number" class="sl-input" [(ngModel)]="newExercice.charge" min="0" step="0.5">
         </div>
-        <div class="form-group">
+        <div class="sl-form-group">
           <label>Temps (s)</label>
-          <input type="number" [(ngModel)]="newExercice.tempsSecondes" min="0">
+          <input type="number" class="sl-input" [(ngModel)]="newExercice.tempsSecondes" min="0">
         </div>
       </div>
-      <div class="form-actions">
-        <button (click)="toggleAddForm()" class="btn btn-ghost">Annuler</button>
-        <button (click)="onAddExercice()" class="btn btn-primary">Ajouter à la séance</button>
+      <div class="sl-form-actions">
+        <button (click)="toggleAddForm()" class="sl-btn sl-btn--ghost">Annuler</button>
+        <button (click)="onAddExercice()" class="sl-btn sl-btn--primary">Ajouter à la séance</button>
       </div>
     </div>
 
     <!-- Exercice List -->
-    <div class="exercice-list" *ngIf="seance.exercices && seance.exercices.length > 0">
-      <div class="exercice-row" *ngFor="let ex of seance.exercices; let i = index">
-        <div class="exercice-order">{{ ex.ordre }}</div>
-        <div class="exercice-main">
-          <span class="exercice-name">{{ ex.exerciceNom }}</span>
-          <div class="exercice-params">
-            <span class="param-tag blue">{{ ex.series }} séries</span>
-            <span class="param-tag green">{{ ex.repetitions }} reps</span>
-            <span class="param-tag orange" *ngIf="ex.charge">{{ ex.charge }} kg</span>
-            <span class="param-tag purple" *ngIf="ex.tempsSecondes">{{ ex.tempsSecondes }}s</span>
+    <div class="seance-exercice-list" *ngIf="seance.exercices && seance.exercices.length > 0">
+      <div class="seance-exercice-row" *ngFor="let ex of seance.exercices; let i = index">
+        <div class="seance-exercice-order">{{ ex.ordre }}</div>
+        <div class="seance-exercice-main">
+          <span class="seance-exercice-name">{{ ex.exerciceNom }}</span>
+          <div class="seance-exercice-params">
+            <span class="seance-param-tag blue">{{ ex.series }} séries</span>
+            <span class="seance-param-tag green">{{ ex.repetitions }} reps</span>
+            <span class="seance-param-tag orange" *ngIf="ex.charge">{{ ex.charge }} kg</span>
+            <span class="seance-param-tag purple" *ngIf="ex.tempsSecondes">{{ ex.tempsSecondes }}s</span>
           </div>
         </div>
         <button *ngIf="seance.statut !== 'REALISEE'"
                 (click)="onRemoveExercice(ex.idSeanceExercice!)"
-                class="btn-remove" title="Retirer">
+                class="seance-btn-remove" title="Retirer">
           ✕
         </button>
       </div>
     </div>
 
     <!-- Empty -->
-    <div class="empty-exercices" *ngIf="!seance.exercices || seance.exercices.length === 0">
-      <div class="empty-icon-large">🏋️</div>
+    <div class="sl-empty" *ngIf="!seance.exercices || seance.exercices.length === 0">
+      <span class="sl-empty-icon">🏋️</span>
       <p>Aucun exercice programmé</p>
-      <span class="empty-hint">Ajoutez des exercices depuis le catalogue pour construire cette séance</span>
+      <span class="sl-empty-hint">Ajoutez des exercices depuis le catalogue pour construire cette séance</span>
     </div>
   </div>
 
   <!-- Suivi Section -->
-  <div class="section-card">
-    <div class="section-header">
-      <div class="section-title-group">
-        <span class="section-icon">📊</span>
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <div class="seance-section-title-group">
+        <span class="seance-section-icon">📊</span>
         <div>
           <h2>Suivi de la séance</h2>
-          <p class="section-subtitle">Ressenti et performance</p>
+          <p class="seance-section-subtitle">Ressenti et performance</p>
         </div>
       </div>
     </div>
 
-    <div class="suivi-grid" *ngIf="seance.suiviSeance">
-      <div class="suivi-card ressenti">
-        <span class="suivi-card-label">Ressenti</span>
-        <div class="suivi-card-value">
-          <span class="suivi-number">{{ seance.suiviSeance.ressenti }}</span>
-          <span class="suivi-max">/10</span>
+    <div class="seance-suivi-grid" *ngIf="seance.suiviSeance">
+      <div class="seance-suivi-card">
+        <span class="seance-suivi-card-label">Ressenti</span>
+        <div class="seance-suivi-card-value">
+          <span class="seance-suivi-number">{{ seance.suiviSeance.ressenti }}</span>
+          <span class="seance-suivi-max">/10</span>
         </div>
-        <div class="suivi-bar">
-          <div class="suivi-bar-fill" [style.width.%]="(seance.suiviSeance.ressenti || 0) * 10"></div>
-        </div>
-      </div>
-      <div class="suivi-card fatigue">
-        <span class="suivi-card-label">Fatigue</span>
-        <div class="suivi-card-value">
-          <span class="suivi-number">{{ seance.suiviSeance.fatigue }}</span>
-          <span class="suivi-max">/10</span>
-        </div>
-        <div class="suivi-bar fatigue-bar">
-          <div class="suivi-bar-fill fatigue-fill" [style.width.%]="(seance.suiviSeance.fatigue || 0) * 10"></div>
+        <div class="seance-suivi-bar">
+          <div class="seance-suivi-bar-fill" [style.width.%]="(seance.suiviSeance.ressenti || 0) * 10"></div>
         </div>
       </div>
-      <div class="suivi-card comment-card">
-        <span class="suivi-card-label">Commentaire</span>
-        <p class="suivi-comment">{{ seance.suiviSeance.commentaire || '—' }}</p>
+      <div class="seance-suivi-card seance-suivi-fatigue">
+        <span class="seance-suivi-card-label">Fatigue</span>
+        <div class="seance-suivi-card-value">
+          <span class="seance-suivi-number seance-suivi-number--fatigue">{{ seance.suiviSeance.fatigue }}</span>
+          <span class="seance-suivi-max">/10</span>
+        </div>
+        <div class="seance-suivi-bar">
+          <div class="seance-suivi-bar-fill seance-suivi-bar-fill--fatigue" [style.width.%]="(seance.suiviSeance.fatigue || 0) * 10"></div>
+        </div>
       </div>
-      <div class="suivi-card date-card">
-        <span class="suivi-card-label">Date de validation</span>
-        <span class="suivi-date">{{ seance.suiviSeance.dateValidation }}</span>
+      <div class="seance-suivi-card">
+        <span class="seance-suivi-card-label">Commentaire</span>
+        <p class="seance-suivi-comment">{{ seance.suiviSeance.commentaire || '—' }}</p>
+      </div>
+      <div class="seance-suivi-card">
+        <span class="seance-suivi-card-label">Date de validation</span>
+        <span class="seance-suivi-date">{{ seance.suiviSeance.dateValidation }}</span>
       </div>
     </div>
 
-    <div class="empty-suivi" *ngIf="!seance.suiviSeance && seance.statut === 'REALISEE'">
-      <button (click)="onAddSuivi()" class="btn btn-primary">+ Ajouter le suivi</button>
+    <div class="sl-empty" *ngIf="!seance.suiviSeance && seance.statut === 'REALISEE'">
+      <button (click)="onAddSuivi()" class="sl-btn sl-btn--primary">+ Ajouter le suivi</button>
     </div>
-    <div class="empty-suivi" *ngIf="!seance.suiviSeance && seance.statut !== 'REALISEE'">
-      <span class="empty-suivi-icon">🔒</span>
+    <div class="sl-empty" *ngIf="!seance.suiviSeance && seance.statut !== 'REALISEE'">
+      <span class="sl-empty-icon">🔒</span>
       <p>Le suivi sera disponible une fois la séance réalisée</p>
     </div>
   </div>

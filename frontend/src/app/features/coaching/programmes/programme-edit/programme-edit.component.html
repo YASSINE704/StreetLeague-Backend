@@ -1,51 +1,51 @@
-<div class="page" *ngIf="programme">
-  <div class="card">
-    <div class="card-header">
+<div class="sl-page sl-page--narrow" *ngIf="programme">
+  <div class="sl-card">
+    <div class="sl-card-header">
       <h2>Modifier le Programme</h2>
     </div>
-    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
     <form #f="ngForm" (ngSubmit)="f.valid && onSubmit()">
-      <div class="form-group">
-        <label for="titre">Titre <span class="required">*</span></label>
-        <input id="titre" [(ngModel)]="programme.titre" name="titre"
+      <div class="sl-form-group">
+        <label for="titre">Titre <span class="sl-required">*</span></label>
+        <input id="titre" class="sl-input" [(ngModel)]="programme.titre" name="titre"
                required minlength="3" maxlength="100" #titre="ngModel">
-        <div class="field-error" *ngIf="titre.invalid && titre.touched">
+        <div class="sl-field-error" *ngIf="titre.invalid && titre.touched">
           <span *ngIf="titre.errors?.['required']">Le titre est obligatoire</span>
           <span *ngIf="titre.errors?.['minlength']">Minimum 3 caractères</span>
         </div>
       </div>
-      <div class="form-group">
+      <div class="sl-form-group">
         <label for="description">Description</label>
-        <textarea id="description" [(ngModel)]="programme.description" name="description"
+        <textarea id="description" class="sl-textarea" [(ngModel)]="programme.description" name="description"
                   rows="3" maxlength="500"></textarea>
-        <div class="char-count">{{ programme.description?.length || 0 }}/500</div>
+        <div class="sl-char-count">{{ programme.description?.length || 0 }}/500</div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="dateDebut">Date Début <span class="required">*</span></label>
-          <input id="dateDebut" type="date" [(ngModel)]="programme.dateDebut" name="dateDebut"
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label for="dateDebut">Date Début <span class="sl-required">*</span></label>
+          <input id="dateDebut" class="sl-input" type="date" [(ngModel)]="programme.dateDebut" name="dateDebut"
                  required #dateDebut="ngModel">
-          <div class="field-error" *ngIf="dateDebut.invalid && dateDebut.touched">Obligatoire</div>
+          <div class="sl-field-error" *ngIf="dateDebut.invalid && dateDebut.touched">Obligatoire</div>
         </div>
-        <div class="form-group">
-          <label for="dateFin">Date Fin <span class="required">*</span></label>
-          <input id="dateFin" type="date" [(ngModel)]="programme.dateFin" name="dateFin"
+        <div class="sl-form-group">
+          <label for="dateFin">Date Fin <span class="sl-required">*</span></label>
+          <input id="dateFin" class="sl-input" type="date" [(ngModel)]="programme.dateFin" name="dateFin"
                  required [min]="programme.dateDebut" #dateFin="ngModel">
-          <div class="field-error" *ngIf="dateFin.invalid && dateFin.touched">Obligatoire</div>
-          <div class="field-error" *ngIf="programme.dateFin && programme.dateDebut && programme.dateFin < programme.dateDebut">
+          <div class="sl-field-error" *ngIf="dateFin.invalid && dateFin.touched">Obligatoire</div>
+          <div class="sl-field-error" *ngIf="programme.dateFin && programme.dateDebut && programme.dateFin < programme.dateDebut">
             La date de fin doit être après la date de début
           </div>
         </div>
       </div>
-      <div class="form-group">
+      <div class="sl-form-group">
         <label for="statut">Statut</label>
-        <select id="statut" [(ngModel)]="programme.statut" name="statut">
+        <select id="statut" class="sl-select" [(ngModel)]="programme.statut" name="statut">
           <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
         </select>
       </div>
-      <div class="form-actions">
-        <button type="button" (click)="onCancel()" class="btn btn-secondary">Annuler</button>
-        <button type="submit" class="btn btn-primary" [disabled]="f.invalid">Enregistrer</button>
+      <div class="sl-form-actions">
+        <button type="button" (click)="onCancel()" class="sl-btn sl-btn--secondary">Annuler</button>
+        <button type="submit" class="sl-btn sl-btn--primary" [disabled]="f.invalid">Enregistrer</button>
       </div>
     </form>
   </div>

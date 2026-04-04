@@ -12,8 +12,11 @@ import { ExerciceListComponent } from './exercices/exercice-list/exercice-list.c
 import { ExerciceCreateComponent } from './exercices/exercice-create/exercice-create.component';
 import { ExerciceEditComponent } from './exercices/exercice-edit/exercice-edit.component';
 import { SuiviCreateComponent } from './suivis/suivi-create/suivi-create.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
+  // Dashboard
+  { path: 'dashboard', component: DashboardComponent },
   // Programmes
   { path: 'programmes', component: ProgrammeListComponent },
   { path: 'programmes/create', component: ProgrammeCreateComponent },
@@ -32,7 +35,7 @@ const routes: Routes = [
   // Suivi
   { path: 'suivis/create/:seanceId', component: SuiviCreateComponent },
   // Default
-  { path: '', redirectTo: 'programmes', pathMatch: 'full' }
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
 @NgModule({

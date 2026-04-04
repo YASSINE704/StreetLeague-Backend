@@ -24,6 +24,9 @@ import { ExerciceEditComponent } from './exercices/exercice-edit/exercice-edit.c
 // Suivis
 import { SuiviCreateComponent } from './suivis/suivi-create/suivi-create.component';
 
+// Dashboard
+import { DashboardComponent } from './dashboard/dashboard.component';
+
 @NgModule({
   declarations: [
     ProgrammeListComponent,
@@ -37,7 +40,8 @@ import { SuiviCreateComponent } from './suivis/suivi-create/suivi-create.compone
     ExerciceListComponent,
     ExerciceCreateComponent,
     ExerciceEditComponent,
-    SuiviCreateComponent
+    SuiviCreateComponent,
+    DashboardComponent
   ],
   imports: [
     CommonModule,

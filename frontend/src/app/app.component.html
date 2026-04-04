@@ -17,6 +17,10 @@
         <div class="nav-section" *ngIf="!sidebarCollapsed">
           <span class="nav-section-title">COACHING</span>
         </div>
+        <a routerLink="/coaching/dashboard" routerLinkActive="active" class="nav-item">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Dashboard</span>
+        </a>
         <a routerLink="/coaching/programmes" routerLinkActive="active" class="nav-item">
           <span class="nav-icon">📋</span>
           <span class="nav-label" *ngIf="!sidebarCollapsed">Programmes</span>

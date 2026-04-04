@@ -1,35 +1,35 @@
-<div class="page">
-  <div class="card">
-    <div class="card-header"><h2>Ajouter un Suivi</h2></div>
-    <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+<div class="sl-page sl-page--narrow">
+  <div class="sl-card">
+    <div class="sl-card-header"><h2>Ajouter un Suivi</h2></div>
+    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
     <form #f="ngForm" (ngSubmit)="f.valid && onSubmit()">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="ressenti">Ressenti (1-10) <span class="required">*</span></label>
-          <input id="ressenti" type="number" min="1" max="10"
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label for="ressenti">Ressenti (1-10) <span class="sl-required">*</span></label>
+          <input id="ressenti" class="sl-input" type="number" min="1" max="10"
                  [(ngModel)]="suivi.ressenti" name="ressenti" required #ressenti="ngModel">
-          <div class="field-error" *ngIf="ressenti.invalid && ressenti.touched">
+          <div class="sl-field-error" *ngIf="ressenti.invalid && ressenti.touched">
             Le ressenti doit être entre 1 et 10
           </div>
         </div>
-        <div class="form-group">
-          <label for="fatigue">Fatigue (1-10) <span class="required">*</span></label>
-          <input id="fatigue" type="number" min="1" max="10"
+        <div class="sl-form-group">
+          <label for="fatigue">Fatigue (1-10) <span class="sl-required">*</span></label>
+          <input id="fatigue" class="sl-input" type="number" min="1" max="10"
                  [(ngModel)]="suivi.fatigue" name="fatigue" required #fatigue="ngModel">
-          <div class="field-error" *ngIf="fatigue.invalid && fatigue.touched">
+          <div class="sl-field-error" *ngIf="fatigue.invalid && fatigue.touched">
             La fatigue doit être entre 1 et 10
           </div>
         </div>
       </div>
-      <div class="form-group">
+      <div class="sl-form-group">
         <label for="commentaire">Commentaire</label>
-        <textarea id="commentaire" [(ngModel)]="suivi.commentaire" name="commentaire"
+        <textarea id="commentaire" class="sl-textarea" [(ngModel)]="suivi.commentaire" name="commentaire"
                   rows="4" maxlength="500" #comm="ngModel"></textarea>
-        <div class="char-count">{{ suivi.commentaire?.length || 0 }}/500</div>
+        <div class="sl-char-count">{{ suivi.commentaire?.length || 0 }}/500</div>
       </div>
-      <div class="form-actions">
-        <button type="button" (click)="onCancel()" class="btn btn-secondary">Annuler</button>
-        <button type="submit" class="btn btn-primary" [disabled]="f.invalid">Enregistrer</button>
+      <div class="sl-form-actions">
+        <button type="button" (click)="onCancel()" class="sl-btn sl-btn--secondary">Annuler</button>
+        <button type="submit" class="sl-btn sl-btn--primary" [disabled]="f.invalid">Enregistrer</button>
       </div>
     </form>
   </div>
