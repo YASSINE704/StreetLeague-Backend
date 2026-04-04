@@ -1,0 +1,27 @@
+<div class="client-page">
+  <h1>🏟️ Trouvez votre terrain</h1>
+  <p class="subtitle">Cliquez sur un marqueur pour voir les détails et réserver</p>
+
+  <div id="client-map" class="map-full"></div>
+
+  <div class="endroits-list" *ngIf="endroits.length > 0">
+    <h2>Endroits disponibles</h2>
+    <div class="cards">
+      <div class="card" *ngFor="let e of endroits">
+        <div (click)="navigateTo(e.id!)">
+          <img *ngIf="e.imageUrl" [src]="'http://localhost:8080' + e.imageUrl" class="card-img" alt="{{ e.nom }}">
+          <div class="card-img placeholder" *ngIf="!e.imageUrl">🏟️</div>
+          <div class="card-body">
+            <h3>{{ e.nom }}</h3>
+            <p>{{ e.type }} · {{ e.ville }}</p>
+            <p>👥 {{ e.capacite }}</p>
+            <span class="badge" [ngClass]="getStatutClass(e.statut)">{{ e.statut }}</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-details" (click)="navigateTo(e.id!)">🔍 Voir détails</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

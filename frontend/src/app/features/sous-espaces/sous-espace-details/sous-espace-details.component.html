@@ -1,0 +1,74 @@
+<div *ngIf="se" class="details-page">
+  <div class="header">
+    <div>
+      <h1>{{ se.nom }}</h1>
+      <p class="subtitle">{{ se.type }} · Capacité: {{ se.capacite }}</p>
+    </div>
+    <div class="header-actions">
+      <span class="badge" [ngClass]="getStatutClass(se.statut)">{{ se.statut }}</span>
+      <a *ngIf="se.endroitId" [routerLink]="['/endroits', se.endroitId]" class="btn btn-secondary">← Endroit: {{ se.endroitNom }}</a>
+      <a routerLink="/sous-espaces" class="btn btn-secondary">Retour</a>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMsg" class="alert alert-error">⚠️ {{ errorMsg }} <button class="alert-close" (click)="clearMessages()">✕</button></div>
+  <div *ngIf="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
+
+  <!-- Equipements -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Équipements</h2>
+      <button class="btn btn-primary" (click)="showEquipementForm = !showEquipementForm">
+        {{ showEquipementForm ? 'Annuler' : '+ Ajouter' }}
+      </button>
+    </div>
+    <form *ngIf="showEquipementForm" [formGroup]="equipementForm" (ngSubmit)="addEquipement()" class="inline-form">
+      <input formControlName="nom" placeholder="Nom de l'équipement">
+      <input type="number" formControlName="quantite" placeholder="Quantité">
+      <span class="error-msg" *ngIf="equipementForm.get('quantite')?.value < 0">Quantité négative</span>
+      <button type="submit" class="btn btn-primary" [disabled]="equipementForm.invalid">Créer</button>
+    </form>
+    <div *ngIf="se.equipements && se.equipements.length === 0 && !showEquipementForm" class="empty">Aucun équipement</div>
+    <table *ngIf="se.equipements && se.equipements.length > 0">
+      <thead><tr><th>Nom</th><th>Quantité</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let eq of se.equipements">
+          <td>{{ eq.nom }}</td>
+          <td>{{ eq.quantite }}</td>
+          <td><button class="btn-sm btn-danger" (click)="deleteEquipement(eq.id!)">✕</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Reservations -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Réservations</h2>
+      <button class="btn btn-primary" (click)="showReservationForm = !showReservationForm">
+        {{ showReservationForm ? 'Annuler' : '+ Réserver' }}
+      </button>
+    </div>
+    <form *ngIf="showReservationForm" [formGroup]="reservationForm" (ngSubmit)="addReservation()" class="inline-form">
+      <input type="datetime-local" formControlName="dateDebut">
+      <input type="datetime-local" formControlName="dateFin">
+      <button type="submit" class="btn btn-primary" [disabled]="reservationForm.invalid">Créer</button>
+    </form>
+    <div *ngIf="se.reservations && se.reservations.length === 0 && !showReservationForm" class="empty">Aucune réservation</div>
+    <table *ngIf="se.reservations && se.reservations.length > 0">
+      <thead><tr><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let r of se.reservations">
+          <td>{{ r.dateDebut | date:'short' }}</td>
+          <td>{{ r.dateFin | date:'short' }}</td>
+          <td><span class="badge" [ngClass]="getStatutClass(r.statut!)">{{ r.statut }}</span></td>
+          <td>
+            <button *ngIf="r.statut === 'EN_ATTENTE'" class="btn-sm btn-success" (click)="confirmerReservation(r.id!)">✓</button>
+            <button *ngIf="r.statut !== 'ANNULEE'" class="btn-sm btn-danger" (click)="annulerReservation(r.id!)">✕</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

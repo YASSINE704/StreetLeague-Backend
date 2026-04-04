@@ -1,0 +1,79 @@
+<div *ngIf="endroit" class="client-detail">
+  <a routerLink="/client" class="back-link">← Retour à la carte</a>
+
+  <div class="hero">
+    <img *ngIf="endroit.imageUrl" [src]="'http://localhost:8080' + endroit.imageUrl" class="hero-img" alt="{{ endroit.nom }}">
+    <div class="hero-img placeholder" *ngIf="!endroit.imageUrl">🏟️</div>
+    <div class="hero-info">
+      <h1>{{ endroit.nom }}</h1>
+      <p>{{ endroit.type }} · {{ endroit.ville }}</p>
+      <p>📍 {{ endroit.adresse }}</p>
+      <p>👥 Capacité: {{ endroit.capacite }}</p>
+      <span class="badge" [ngClass]="getStatutClass(endroit.statut)">{{ endroit.statut }}</span>
+      <p class="desc" *ngIf="endroit.description">{{ endroit.description }}</p>
+
+      <!-- Capacity gauge -->
+      <div class="capacity-section">
+        <div class="capacity-bar">
+          <div class="capacity-fill" [style.width.%]="endroit.capacite ? (reservationsActives / endroit.capacite * 100) : 0"
+               [class.full]="isComplet"></div>
+        </div>
+        <p class="capacity-text">
+          {{ reservationsActives }} / {{ endroit.capacite }} réservations actives
+          <span *ngIf="!isComplet"> · {{ capaciteRestante }} places restantes</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLET banner -->
+  <div *ngIf="isComplet" class="complet-banner">
+    🚫 Cet endroit est complet — Plus de places disponibles
+  </div>
+
+  <h2>Sous-Espaces disponibles</h2>
+  <div *ngIf="sousEspaces.length === 0" class="empty">Aucun sous-espace disponible</div>
+
+  <div class="se-card" *ngFor="let se of sousEspaces">
+    <div class="se-top">
+      <div>
+        <h3>{{ se.nom }}</h3>
+        <span class="se-info">{{ se.type }} · Capacité: {{ se.capacite }}</span>
+        <span class="badge" [ngClass]="getStatutClass(se.statut)">{{ se.statut }}</span>
+      </div>
+      <button class="btn btn-primary" (click)="openForm(se.id!)" *ngIf="se.statut === 'DISPONIBLE'">
+        {{ showFormForSe === se.id ? 'Annuler' : '📅 Réserver' }}
+      </button>
+    </div>
+
+    <!-- Success / Error -->
+    <div *ngIf="successMsg[se.id!]" class="alert alert-success">✅ {{ successMsg[se.id!] }}</div>
+    <div *ngIf="errorMsg[se.id!]" class="alert alert-error">⚠️ {{ errorMsg[se.id!] }}</div>
+
+    <!-- Reservation Form -->
+    <div *ngIf="showFormForSe === se.id" class="reservation-form">
+      <form [formGroup]="reservationForm" (ngSubmit)="reserver(se.id!)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date début</label>
+            <input type="datetime-local" formControlName="dateDebut">
+          </div>
+          <div class="form-group">
+            <label>Date fin</label>
+            <input type="datetime-local" formControlName="dateFin">
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="reservationForm.invalid">Confirmer</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Existing reservations -->
+    <div *ngIf="se.reservations && se.reservations.length > 0" class="existing-res">
+      <p class="res-title">Réservations existantes:</p>
+      <div class="res-item" *ngFor="let r of se.reservations">
+        <span>{{ r.dateDebut | date:'short' }} → {{ r.dateFin | date:'short' }}</span>
+        <span class="badge" [ngClass]="getStatutClass(r.statut!)">{{ r.statut }}</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,39 @@
-<p>field-list works!</p>
+<div class="page-header">
+  <h1>Gestion des Endroits</h1>
+  <a routerLink="create" class="btn btn-primary">+ Ajouter un endroit</a>
+</div>
+
+<div *ngIf="loading" class="loading">Chargement...</div>
+
+<div *ngIf="!loading && endroits.length === 0" class="empty-state">
+  Aucun endroit trouvé. Commencez par en créer un.
+</div>
+
+<div class="table-container" *ngIf="!loading && endroits.length > 0">
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Ville</th>
+        <th>Capacité</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let endroit of endroits">
+        <td class="name-cell">{{ endroit.nom }}</td>
+        <td>{{ getTypeLabel(endroit.type) }}</td>
+        <td>📍 {{ endroit.ville }}</td>
+        <td>👥 {{ endroit.capacite }}</td>
+        <td><span class="badge" [ngClass]="getStatutClass(endroit.statut)">{{ endroit.statut }}</span></td>
+        <td class="actions-cell">
+          <a [routerLink]="[endroit.id]" class="btn-sm btn-info">Détails</a>
+          <a [routerLink]="[endroit.id, 'edit']" class="btn-sm btn-warning">Modifier</a>
+          <button (click)="deleteEndroit(endroit.id!)" class="btn-sm btn-danger">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

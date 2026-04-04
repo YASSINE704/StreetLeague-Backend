@@ -1,1 +1,58 @@
-<p>edit-field works!</p>
+<div class="form-container">
+  <h2>Modifier l'Endroit</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nom">Nom</label>
+        <input id="nom" formControlName="nom">
+      </div>
+      <div class="form-group">
+        <label for="type">Type</label>
+        <select id="type" formControlName="type">
+          <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="adresse">Adresse</label>
+        <input id="adresse" formControlName="adresse">
+      </div>
+      <div class="form-group">
+        <label for="ville">Ville</label>
+        <input id="ville" formControlName="ville">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="capacite">Capacité</label>
+        <input id="capacite" type="number" formControlName="capacite">
+        <span class="error-msg" *ngIf="form.get('capacite')?.value < 0">La capacité ne peut pas être négative</span>
+      </div>
+      <div class="form-group">
+        <label for="statut">Statut</label>
+        <select id="statut" formControlName="statut">
+          <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group full">
+      <label>Localisation (cliquez sur la carte)</label>
+      <div id="map-edit" class="map-container"></div>
+      <p class="coords">📍 Lat: {{ form.get('latitude')?.value }} · Lng: {{ form.get('longitude')?.value }}</p>
+    </div>
+    <div class="form-group full">
+      <label for="image">Image</label>
+      <img *ngIf="currentImageUrl" [src]="'http://localhost:8080' + currentImageUrl" class="current-image" alt="Image actuelle">
+      <input id="image" type="file" accept="image/*" (change)="onFileSelected($event)">
+    </div>
+    <div class="form-group full">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="3"></textarea>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Sauvegarder</button>
+      <a routerLink="/endroits" class="btn btn-secondary">Annuler</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,48 @@
+<div class="page-header">
+  <h1>Sous-Espaces</h1>
+  <div class="filters">
+    <input type="text" placeholder="🔍 Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+    <select [(ngModel)]="typeFilter" (change)="applyFilters()">
+      <option value="">Tous les types</option>
+      <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+    </select>
+  </div>
+</div>
+
+<div *ngIf="loading" class="loading">Chargement...</div>
+
+<div *ngIf="!loading && filtered.length === 0" class="empty-state">
+  Aucun sous-espace trouvé.
+</div>
+
+<div class="table-container" *ngIf="!loading && filtered.length > 0">
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Capacité</th>
+        <th>Statut</th>
+        <th>Endroit</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let se of filtered">
+        <td class="name-cell">{{ getTypeIcon(se.type) }} {{ se.nom }}</td>
+        <td>{{ se.type }}</td>
+        <td>👥 {{ se.capacite }}</td>
+        <td><span class="badge" [ngClass]="getStatutClass(se.statut)">{{ se.statut }}</span></td>
+        <td>
+          <a *ngIf="se.endroitId" [routerLink]="['/endroits', se.endroitId]" class="link">
+            {{ se.endroitNom }}
+          </a>
+          <span *ngIf="!se.endroitId">—</span>
+        </td>
+        <td>
+          <a [routerLink]="['/sous-espaces', se.id]" class="btn btn-info">Détails</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

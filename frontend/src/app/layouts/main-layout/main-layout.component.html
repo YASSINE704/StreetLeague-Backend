@@ -1,1 +1,15 @@
-<p>main-layout works!</p>
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a routerLink="/">⚽ StreetLeague</a>
+  </div>
+  <ul class="navbar-nav">
+    <li><a routerLink="/endroits" routerLinkActive="active">Endroits</a></li>
+    <li><a routerLink="/sous-espaces" routerLinkActive="active">Sous-Espaces</a></li>
+    <li class="nav-separator">|</li>
+    <li><a routerLink="/client" routerLinkActive="active" class="client-link">🏟️ Espace Client</a></li>
+    <li><a routerLink="/client/reservations" routerLinkActive="active" class="client-link">📋 Mes Réservations</a></li>
+  </ul>
+</nav>
+<div class="main-content">
+  <router-outlet></router-outlet>
+</div>
