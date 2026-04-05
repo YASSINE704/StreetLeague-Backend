@@ -1,0 +1,37 @@
+<div class="sl-page sl-page--narrow" *ngIf="exercice">
+  <div class="sl-card">
+    <div class="sl-card-header"><h2>Modifier l'Exercice</h2></div>
+    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <form #f="ngForm" (ngSubmit)="f.valid && onSubmit()">
+      <div class="sl-form-group">
+        <label for="nom">Nom <span class="sl-required">*</span></label>
+        <input id="nom" class="sl-input" [(ngModel)]="exercice.nom" name="nom" required minlength="2" maxlength="100" #nom="ngModel">
+        <div class="sl-field-error" *ngIf="nom.invalid && nom.touched">
+          <span *ngIf="nom.errors?.['required']">Le nom est obligatoire</span>
+          <span *ngIf="nom.errors?.['minlength']">Minimum 2 caractères</span>
+        </div>
+      </div>
+      <div class="sl-form-group">
+        <label for="description">Description</label>
+        <textarea id="description" class="sl-textarea" [(ngModel)]="exercice.description" name="description" rows="3" maxlength="500"></textarea>
+        <div class="sl-char-count">{{ exercice.description?.length || 0 }}/500</div>
+      </div>
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label for="type">Type</label>
+          <select id="type" class="sl-select" [(ngModel)]="exercice.type" name="type">
+            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="sl-form-group">
+          <label for="videoUrl">URL Vidéo</label>
+          <input id="videoUrl" class="sl-input" [(ngModel)]="exercice.videoUrl" name="videoUrl" maxlength="500">
+        </div>
+      </div>
+      <div class="sl-form-actions">
+        <button type="button" (click)="onCancel()" class="sl-btn sl-btn--secondary">Annuler</button>
+        <button type="submit" class="sl-btn sl-btn--primary" [disabled]="f.invalid">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>

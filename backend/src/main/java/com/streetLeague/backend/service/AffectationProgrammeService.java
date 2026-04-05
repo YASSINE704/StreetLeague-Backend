@@ -1,0 +1,96 @@
+package com.streetLeague.backend.service;
+
+import com.streetLeague.backend.dto.AffectationProgrammeDTO;
+import com.streetLeague.backend.entity.AffectationProgramme;
+import com.streetLeague.backend.entity.ProgrammeEntrainement;
+import com.streetLeague.backend.entity.User;
+import com.streetLeague.backend.exception.BusinessRuleException;
+import com.streetLeague.backend.exception.ResourceNotFoundException;
+import com.streetLeague.backend.mapper.AffectationMapper;
+import com.streetLeague.backend.repository.AffectationProgrammeRepository;
+import com.streetLeague.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class AffectationProgrammeService {
+
+    private final AffectationProgrammeRepository affectationRepository;
+    private final ProgrammeEntrainementService programmeService;
+    private final UserRepository userRepository;
+
+    public AffectationProgrammeDTO.Response create(AffectationProgrammeDTO.Request dto) {
+        ProgrammeEntrainement programme = programmeService.findOrThrow(dto.getProgrammeId());
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User non trouvé avec id: " + dto.getUserId()));
+
+        validateSingleAffectationByType(dto.getProgrammeId(), dto.getType(), null);
+
+        AffectationProgramme affectation = AffectationProgramme.builder()
+                .type(dto.getType())
+                .dateAffectation(LocalDateTime.now())
+                .user(user)
+                .programme(programme)
+                .build();
+        return AffectationMapper.toResponse(affectationRepository.save(affectation));
+    }
+
+    @Transactional(readOnly = true)
+    public List<AffectationProgrammeDTO.Response> getAll() {
+        return affectationRepository.findAll().stream().map(AffectationMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public AffectationProgrammeDTO.Response getById(Integer id) {
+        return AffectationMapper.toResponse(findOrThrow(id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<AffectationProgrammeDTO.Response> getByProgramme(Integer programmeId) {
+        return affectationRepository.findByProgrammeIdProgramme(programmeId).stream()
+                .map(AffectationMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AffectationProgrammeDTO.Response> getByUser(Integer userId) {
+        return affectationRepository.findByUserIdUser(userId).stream()
+                .map(AffectationMapper::toResponse).toList();
+    }
+
+    public AffectationProgrammeDTO.Response update(Integer id, AffectationProgrammeDTO.Request dto) {
+        AffectationProgramme affectation = findOrThrow(id);
+        ProgrammeEntrainement programme = programmeService.findOrThrow(dto.getProgrammeId());
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User non trouvé avec id: " + dto.getUserId()));
+
+        validateSingleAffectationByType(dto.getProgrammeId(), dto.getType(), id);
+
+        affectation.setProgramme(programme);
+        affectation.setUser(user);
+        affectation.setType(dto.getType());
+        return AffectationMapper.toResponse(affectationRepository.save(affectation));
+    }
+
+    public void delete(Integer id) {
+        affectationRepository.delete(findOrThrow(id));
+    }
+
+    private AffectationProgramme findOrThrow(Integer id) {
+        return affectationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Affectation non trouvée avec id: " + id));
+    }
+
+    private void validateSingleAffectationByType(Integer programmeId, com.streetLeague.backend.enums.TypeAffectationProgramme type, Integer currentId) {
+        affectationRepository.findByProgrammeIdProgrammeAndType(programmeId, type)
+                .filter(existing -> !existing.getIdAffectation().equals(currentId))
+                .ifPresent(existing -> {
+                    throw new BusinessRuleException("Une affectation de type " + type + " existe déjà pour ce programme");
+                });
+    }
+}

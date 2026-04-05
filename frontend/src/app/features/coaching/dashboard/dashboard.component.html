@@ -1,0 +1,194 @@
+<div class="sl-page">
+
+  <!-- Hero Banner -->
+  <div class="db-hero">
+    <div class="db-hero__gfx"></div>
+    <div class="db-hero__left">
+      <p class="db-hero__label">MODULE COACHING</p>
+      <h1 class="db-hero__title">Tableau de Bord</h1>
+      <div class="db-hero__chips">
+        <span class="db-hero__chip">📋 {{ totalProgrammes }} programmes</span>
+        <span class="db-hero__chip">🏋️ {{ totalSeances }} séances</span>
+        <span class="db-hero__chip">💪 {{ totalExercices }} exercices</span>
+      </div>
+      <div class="db-hero__progress">
+        <div class="db-hero__progress-label">
+          <span>Progression globale</span>
+          <strong>{{ tauxCompletion }}%</strong>
+        </div>
+        <div class="db-hero__progress-track">
+          <div class="db-hero__progress-fill" [style.width.%]="tauxCompletion"></div>
+        </div>
+      </div>
+    </div>
+    <div class="db-hero__right">
+      <div class="db-hero__ring">
+        <span class="db-hero__ring-value">{{ tauxCompletion }}%</span>
+        <span class="db-hero__ring-label">Complétion</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="db-stats">
+    <div class="db-stat db-stat--blue">
+      <div class="db-stat__icon">📋</div>
+      <div class="db-stat__body">
+        <span class="db-stat__value">{{ totalProgrammes }}</span>
+        <span class="db-stat__label">Programmes</span>
+      </div>
+      <span class="db-stat__sub">{{ programmesActifs }} actifs</span>
+    </div>
+    <div class="db-stat db-stat--green">
+      <div class="db-stat__icon">✅</div>
+      <div class="db-stat__body">
+        <span class="db-stat__value">{{ seancesRealisees }}</span>
+        <span class="db-stat__label">Réalisées</span>
+      </div>
+      <span class="db-stat__sub">sur {{ totalSeances }} séances</span>
+    </div>
+    <div class="db-stat db-stat--orange">
+      <div class="db-stat__icon">⏳</div>
+      <div class="db-stat__body">
+        <span class="db-stat__value">{{ seancesPrevues }}</span>
+        <span class="db-stat__label">Prévues</span>
+      </div>
+      <span class="db-stat__sub">à venir</span>
+    </div>
+    <div class="db-stat db-stat--violet">
+      <div class="db-stat__icon">💪</div>
+      <div class="db-stat__body">
+        <span class="db-stat__value">{{ totalExercices }}</span>
+        <span class="db-stat__label">Exercices</span>
+      </div>
+      <span class="db-stat__sub">dans le catalogue</span>
+    </div>
+  </div>
+
+  <!-- Two columns -->
+  <div class="db-two-col">
+
+    <!-- Left: Séances progress + Exercices by type -->
+    <div class="db-col">
+      <!-- Séances Breakdown -->
+      <div class="sl-card">
+        <div class="sl-card-header">
+          <h3>📊 Répartition des séances</h3>
+        </div>
+        <div class="db-breakdown">
+          <div class="db-breakdown__item">
+            <div class="db-breakdown__header">
+              <span class="db-breakdown__label">Réalisées</span>
+              <span class="db-breakdown__count">{{ seancesRealisees }}</span>
+            </div>
+            <div class="db-bar"><div class="db-bar__fill db-bar__fill--green" [style.width.%]="totalSeances ? (seancesRealisees/totalSeances)*100 : 0"></div></div>
+          </div>
+          <div class="db-breakdown__item">
+            <div class="db-breakdown__header">
+              <span class="db-breakdown__label">Prévues</span>
+              <span class="db-breakdown__count">{{ seancesPrevues }}</span>
+            </div>
+            <div class="db-bar"><div class="db-bar__fill db-bar__fill--blue" [style.width.%]="totalSeances ? (seancesPrevues/totalSeances)*100 : 0"></div></div>
+          </div>
+          <div class="db-breakdown__item">
+            <div class="db-breakdown__header">
+              <span class="db-breakdown__label">Annulées</span>
+              <span class="db-breakdown__count">{{ seancesAnnulees }}</span>
+            </div>
+            <div class="db-bar"><div class="db-bar__fill db-bar__fill--red" [style.width.%]="totalSeances ? (seancesAnnulees/totalSeances)*100 : 0"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exercices by type -->
+      <div class="sl-card" *ngIf="exercicesByType.length > 0">
+        <div class="sl-card-header">
+          <h3>💪 Exercices par type</h3>
+        </div>
+        <div class="db-type-grid">
+          <div class="db-type-card" *ngFor="let t of exercicesByType" [style.border-left-color]="t.color">
+            <span class="db-type-icon">{{ t.icon }}</span>
+            <div class="db-type-info">
+              <span class="db-type-count">{{ t.count }}</span>
+              <span class="db-type-name">{{ t.type }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Suivi averages + Quick actions -->
+    <div class="db-col">
+      <!-- Suivi Moyennes -->
+      <div class="sl-card">
+        <div class="sl-card-header">
+          <h3>🎯 Moyennes Suivi</h3>
+        </div>
+        <div class="db-avg-grid">
+          <div class="db-avg-card db-avg-card--blue">
+            <span class="db-avg-emoji">😊</span>
+            <span class="db-avg-value">{{ moyenneRessenti }}</span>
+            <span class="db-avg-label">Ressenti /10</span>
+          </div>
+          <div class="db-avg-card db-avg-card--orange">
+            <span class="db-avg-emoji">😓</span>
+            <span class="db-avg-value">{{ moyenneFatigue }}</span>
+            <span class="db-avg-label">Fatigue /10</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="sl-card">
+        <div class="sl-card-header">
+          <h3>⚡ Actions rapides</h3>
+        </div>
+        <div class="db-quick-actions">
+          <a routerLink="/coaching/programmes/create" class="db-action-btn">
+            <span class="db-action-icon">📋</span>
+            <span>Nouveau programme</span>
+          </a>
+          <a routerLink="/coaching/exercices/create" class="db-action-btn">
+            <span class="db-action-icon">💪</span>
+            <span>Nouvel exercice</span>
+          </a>
+          <a routerLink="/coaching/programmes" class="db-action-btn">
+            <span class="db-action-icon">📊</span>
+            <span>Voir programmes</span>
+          </a>
+          <a routerLink="/coaching/exercices" class="db-action-btn">
+            <span class="db-action-icon">🔍</span>
+            <span>Catalogue exercices</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Séances -->
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <h3>🕐 Dernières séances</h3>
+      <a routerLink="/coaching/programmes" class="db-view-all">Voir tout →</a>
+    </div>
+    <table class="sl-table" *ngIf="recentSeances.length > 0">
+      <thead>
+        <tr><th>Titre</th><th>Programme</th><th>Date</th><th>Durée</th><th>Intensité</th><th>Statut</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of recentSeances">
+          <td class="sl-td-title">{{ s.titreSeance }}</td>
+          <td>{{ s.programmeTitre }}</td>
+          <td>{{ s.dateSeance }}</td>
+          <td>{{ s.dureeMinutes }} min</td>
+          <td><span class="sl-badge sl-badge--orange">{{ s.intensite }}</span></td>
+          <td><span class="sl-badge" [ngClass]="{'sl-badge--blue':s.statut==='PREVUE','sl-badge--green':s.statut==='REALISEE','sl-badge--red':s.statut==='ANNULEE'}">{{ s.statut }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="sl-empty" *ngIf="recentSeances.length === 0">
+      <span class="sl-empty-icon">🏋️</span>
+      <p>Aucune séance pour le moment</p>
+    </div>
+  </div>
+</div>
