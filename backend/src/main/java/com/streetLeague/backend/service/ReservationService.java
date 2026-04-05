@@ -15,6 +15,7 @@ import java.util.List;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final SousEspaceService sousEspaceService;
+    private final NotificationService notificationService;
 
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
@@ -54,7 +55,10 @@ public class ReservationService {
         reservation.setSousEspace(sousEspace);
         reservation.setDateCreation(LocalDateTime.now());
         reservation.setStatut(StatutReservation.EN_ATTENTE);
-        return reservationRepository.save(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+        notificationService.notifyReservationCreated(saved.getId(), sousEspace.getNom(),
+            sousEspace.getEndroit() != null ? sousEspace.getEndroit().getNom() : "");
+        return saved;
     }
 
     public Reservation updateReservation(Long id, Reservation reservationDetails) {
@@ -102,13 +106,21 @@ public class ReservationService {
         }
 
         reservation.setStatut(StatutReservation.CONFIRMEE);
-        return reservationRepository.save(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+        notificationService.notifyReservationConfirmed(saved.getId(),
+            reservation.getSousEspace().getNom(),
+            reservation.getSousEspace().getEndroit() != null ? reservation.getSousEspace().getEndroit().getNom() : "");
+        return saved;
     }
 
     public Reservation annulerReservation(Long id, String motif) {
         Reservation reservation = getReservationById(id);
         reservation.setStatut(StatutReservation.ANNULEE);
         reservation.setMotifAnnulation(motif);
-        return reservationRepository.save(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+        notificationService.notifyReservationCancelled(saved.getId(),
+            reservation.getSousEspace().getNom(),
+            reservation.getSousEspace().getEndroit() != null ? reservation.getSousEspace().getEndroit().getNom() : "");
+        return saved;
     }
 }

@@ -1,6 +1,7 @@
 package com.streetLeague.backend.controller;
 
-import com.streetLeague.backend.entity.Reservation;
+import com.streetLeague.backend.dto.DtoMapper;
+import com.streetLeague.backend.dto.ReservationDTO;
 import com.streetLeague.backend.enums.StatutReservation;
 import com.streetLeague.backend.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -16,25 +17,27 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ReservationController {
     private final ReservationService reservationService;
+    private final DtoMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<Reservation>> getAllReservations() {
-        return ResponseEntity.ok(reservationService.getAllReservations());
+    public ResponseEntity<List<ReservationDTO>> getAllReservations() {
+        return ResponseEntity.ok(reservationService.getAllReservations().stream().map(mapper::toReservationDTO).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
-        return ResponseEntity.ok(reservationService.getReservationById(id));
+    public ResponseEntity<ReservationDTO> getReservationById(@PathVariable Long id) {
+        return ResponseEntity.ok(mapper.toReservationDTO(reservationService.getReservationById(id)));
     }
 
     @PostMapping("/sous-espace/{sousEspaceId}")
-    public ResponseEntity<Reservation> createReservation(@PathVariable Long sousEspaceId, @RequestBody Reservation reservation) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(reservationService.createReservation(sousEspaceId, reservation));
+    public ResponseEntity<ReservationDTO> createReservation(@PathVariable Long sousEspaceId, @RequestBody ReservationDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(mapper.toReservationDTO(reservationService.createReservation(sousEspaceId, mapper.toReservation(dto))));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody Reservation reservation) {
-        return ResponseEntity.ok(reservationService.updateReservation(id, reservation));
+    public ResponseEntity<ReservationDTO> updateReservation(@PathVariable Long id, @RequestBody ReservationDTO dto) {
+        return ResponseEntity.ok(mapper.toReservationDTO(reservationService.updateReservation(id, mapper.toReservation(dto))));
     }
 
     @DeleteMapping("/{id}")
@@ -44,22 +47,22 @@ public class ReservationController {
     }
 
     @GetMapping("/sous-espace/{sousEspaceId}")
-    public ResponseEntity<List<Reservation>> getReservationsBySousEspaceId(@PathVariable Long sousEspaceId) {
-        return ResponseEntity.ok(reservationService.getReservationsBySousEspaceId(sousEspaceId));
+    public ResponseEntity<List<ReservationDTO>> getReservationsBySousEspaceId(@PathVariable Long sousEspaceId) {
+        return ResponseEntity.ok(reservationService.getReservationsBySousEspaceId(sousEspaceId).stream().map(mapper::toReservationDTO).toList());
     }
 
     @GetMapping("/statut/{statut}")
-    public ResponseEntity<List<Reservation>> getReservationsByStatut(@PathVariable StatutReservation statut) {
-        return ResponseEntity.ok(reservationService.getReservationsByStatut(statut));
+    public ResponseEntity<List<ReservationDTO>> getReservationsByStatut(@PathVariable StatutReservation statut) {
+        return ResponseEntity.ok(reservationService.getReservationsByStatut(statut).stream().map(mapper::toReservationDTO).toList());
     }
 
     @PatchMapping("/{id}/confirmer")
-    public ResponseEntity<Reservation> confirmerReservation(@PathVariable Long id) {
-        return ResponseEntity.ok(reservationService.confirmerReservation(id));
+    public ResponseEntity<ReservationDTO> confirmerReservation(@PathVariable Long id) {
+        return ResponseEntity.ok(mapper.toReservationDTO(reservationService.confirmerReservation(id)));
     }
 
     @PatchMapping("/{id}/annuler")
-    public ResponseEntity<Reservation> annulerReservation(@PathVariable Long id, @RequestParam String motif) {
-        return ResponseEntity.ok(reservationService.annulerReservation(id, motif));
+    public ResponseEntity<ReservationDTO> annulerReservation(@PathVariable Long id, @RequestParam String motif) {
+        return ResponseEntity.ok(mapper.toReservationDTO(reservationService.annulerReservation(id, motif)));
     }
 }

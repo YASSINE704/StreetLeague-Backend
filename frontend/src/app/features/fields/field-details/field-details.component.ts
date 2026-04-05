@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FieldService } from '../../../core/services/field.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
   Endroit, SousEspace, Equipement, Reservation,
   TypeSousEspace, StatutEndroit
@@ -36,6 +37,7 @@ export class FieldDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fieldService: FieldService,
+    private notifService: NotificationService,
     private fb: FormBuilder
   ) {
     this.sousEspaceForm = this.fb.group({
@@ -158,6 +160,7 @@ export class FieldDetailsComponent implements OnInit {
       next: () => {
         this.loadReservations(se);
         this.reservationSuccess[se.id!] = 'Réservation confirmée';
+        this.notifService.addNotification('RESERVATION_CONFIRMEE', 'Votre réservation pour ' + se.nom + ' a été confirmée ✅');
         setTimeout(() => delete this.reservationSuccess[se.id!], 4000);
       },
       error: (err) => {
@@ -174,6 +177,7 @@ export class FieldDetailsComponent implements OnInit {
         next: () => {
           this.loadReservations(se);
           this.reservationSuccess[se.id!] = 'Réservation annulée';
+          this.notifService.addNotification('RESERVATION_ANNULEE', 'Votre réservation pour ' + se.nom + ' a été annulée ❌');
           setTimeout(() => delete this.reservationSuccess[se.id!], 4000);
         },
         error: (err) => {
@@ -189,6 +193,15 @@ export class FieldDetailsComponent implements OnInit {
       case 'INDISPONIBLE': case 'ANNULEE': return 'badge-danger';
       case 'MAINTENANCE': case 'EN_ATTENTE': return 'badge-warning';
       default: return '';
+    }
+  }
+
+  getStatutBadge(statut: string): string {
+    switch (statut) {
+      case 'DISPONIBLE': case 'CONFIRMEE': return 'sl-badge--green';
+      case 'INDISPONIBLE': case 'ANNULEE': return 'sl-badge--red';
+      case 'MAINTENANCE': case 'EN_ATTENTE': return 'sl-badge--orange';
+      default: return 'sl-badge--gray';
     }
   }
 }

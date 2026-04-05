@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FieldService } from '../../../core/services/field.service';
-import { Endroit } from '../../../core/models/endroit.model';
+import { Endroit, SousEspace } from '../../../core/models/endroit.model';
 import * as L from 'leaflet';
 
 @Component({
@@ -11,7 +11,18 @@ import * as L from 'leaflet';
 })
 export class ClientMapComponent implements OnInit, AfterViewInit {
   endroits: Endroit[] = [];
+  filteredEndroits: Endroit[] = [];
+  sousEspaces: SousEspace[] = [];
+  filteredSousEspaces: SousEspace[] = [];
+  activeTab: 'endroits' | 'sous-espaces' = 'endroits';
+
+  searchTerm = '';
+  typeFilter = '';
+  villeFilter = '';
+  statutFilter = '';
+  villes: string[] = [];
   private map!: L.Map;
+  private markers: L.Marker[] = [];
   private icon = L.icon({
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
@@ -23,7 +34,13 @@ export class ClientMapComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.fieldService.getAllEndroits().subscribe(data => {
       this.endroits = data;
+      this.filteredEndroits = data;
+      this.villes = [...new Set(data.map(e => e.ville).filter(v => v))];
       this.addMarkers();
+    });
+    this.fieldService.getAllSousEspaces().subscribe(data => {
+      this.sousEspaces = data;
+      this.filteredSousEspaces = data;
     });
   }
 
@@ -36,34 +53,73 @@ export class ClientMapComponent implements OnInit, AfterViewInit {
 
   private addMarkers(): void {
     if (!this.map) return;
-    this.endroits.forEach(e => {
+    this.markers.forEach(m => m.remove());
+    this.markers = [];
+    this.filteredEndroits.forEach(e => {
       if (e.latitude && e.longitude) {
         const popup = `
           <div style="min-width:180px">
             <strong>${e.nom}</strong><br>
             <span>${e.type} · ${e.ville}</span><br>
             <span>👥 Capacité: ${e.capacite}</span><br>
-            <span class="badge-${e.statut === 'DISPONIBLE' ? 'ok' : 'no'}">${e.statut}</span><br>
+            <span>${e.statut}</span><br>
             <a href="/client/${e.id}" style="color:#e94560;font-weight:600">Voir & Réserver →</a>
           </div>`;
-        L.marker([e.latitude, e.longitude], { icon: this.icon })
+        const marker = L.marker([e.latitude, e.longitude], { icon: this.icon })
           .addTo(this.map)
           .bindPopup(popup);
+        this.markers.push(marker);
       }
     });
-    if (this.endroits.length > 0) {
-      const bounds = this.endroits
-        .filter(e => e.latitude && e.longitude)
-        .map(e => [e.latitude, e.longitude] as [number, number]);
-      if (bounds.length > 0) this.map.fitBounds(bounds, { padding: [50, 50] });
-    }
+  }
+
+  applyFilters(): void {
+    const term = this.searchTerm.toLowerCase();
+
+    this.filteredEndroits = this.endroits.filter(e => {
+      const matchSearch = !term || e.nom.toLowerCase().includes(term) || e.adresse?.toLowerCase().includes(term);
+      const matchType = !this.typeFilter || e.type === this.typeFilter;
+      const matchVille = !this.villeFilter || e.ville === this.villeFilter;
+      const matchStatut = !this.statutFilter || e.statut === this.statutFilter;
+      return matchSearch && matchType && matchVille && matchStatut;
+    });
+
+    this.filteredSousEspaces = this.sousEspaces.filter(se => {
+      const matchSearch = !term || se.nom.toLowerCase().includes(term) || (se.endroitNom && se.endroitNom.toLowerCase().includes(term));
+      const matchStatut = !this.statutFilter || se.statut === this.statutFilter;
+      return matchSearch && matchStatut;
+    });
+
+    this.addMarkers();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.typeFilter = '';
+    this.villeFilter = '';
+    this.statutFilter = '';
+    this.filteredEndroits = this.endroits;
+    this.filteredSousEspaces = this.sousEspaces;
+    this.addMarkers();
   }
 
   getStatutClass(statut: string): string {
     return statut === 'DISPONIBLE' ? 'badge-success' : statut === 'MAINTENANCE' ? 'badge-warning' : 'badge-danger';
   }
 
+  getStatutBadge(statut: string): string {
+    switch (statut) {
+      case 'DISPONIBLE': return 'sl-badge--green';
+      case 'MAINTENANCE': return 'sl-badge--orange';
+      default: return 'sl-badge--red';
+    }
+  }
+
   navigateTo(id: number): void {
     this.router.navigate(['/client', id]);
+  }
+
+  navigateToSe(id: number): void {
+    this.router.navigate(['/client/sous-espace', id]);
   }
 }

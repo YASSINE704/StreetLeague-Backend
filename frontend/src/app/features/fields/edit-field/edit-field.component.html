@@ -1,58 +1,60 @@
-<div class="form-container">
-  <h2>Modifier l'Endroit</h2>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="form-row">
-      <div class="form-group">
-        <label for="nom">Nom</label>
-        <input id="nom" formControlName="nom">
+<div class="sl-page--narrow">
+  <div class="sl-card">
+    <div class="sl-card-header"><h2>Modifier l'Endroit</h2></div>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label>Nom</label>
+          <input class="sl-input" formControlName="nom">
+        </div>
+        <div class="sl-form-group">
+          <label>Type</label>
+          <select class="sl-select" formControlName="type">
+            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="type">Type</label>
-        <select id="type" formControlName="type">
-          <option *ngFor="let t of types" [value]="t">{{ t }}</option>
-        </select>
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label>Adresse</label>
+          <input class="sl-input" formControlName="adresse">
+        </div>
+        <div class="sl-form-group">
+          <label>Ville</label>
+          <input class="sl-input" formControlName="ville">
+        </div>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="adresse">Adresse</label>
-        <input id="adresse" formControlName="adresse">
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label>Capacité</label>
+          <input class="sl-input" type="number" formControlName="capacite">
+          <span class="sl-field-error" *ngIf="form.get('capacite')?.value < 0">La capacité ne peut pas être négative</span>
+        </div>
+        <div class="sl-form-group">
+          <label>Statut</label>
+          <select class="sl-select" formControlName="statut">
+            <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="ville">Ville</label>
-        <input id="ville" formControlName="ville">
+      <div class="sl-form-group">
+        <label>Localisation</label>
+        <div id="map-edit" class="sl-map"></div>
+        <small class="sl-char-count">📍 {{ form.get('latitude')?.value }}, {{ form.get('longitude')?.value }}</small>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="capacite">Capacité</label>
-        <input id="capacite" type="number" formControlName="capacite">
-        <span class="error-msg" *ngIf="form.get('capacite')?.value < 0">La capacité ne peut pas être négative</span>
+      <div class="sl-form-group">
+        <label>Image</label>
+        <img *ngIf="currentImageUrl" [src]="'http://localhost:8080' + currentImageUrl" class="sl-preview-img" alt="">
+        <input class="sl-input" type="file" accept="image/*" (change)="onFileSelected($event)">
       </div>
-      <div class="form-group">
-        <label for="statut">Statut</label>
-        <select id="statut" formControlName="statut">
-          <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
-        </select>
+      <div class="sl-form-group">
+        <label>Description</label>
+        <textarea class="sl-textarea" formControlName="description" rows="3"></textarea>
       </div>
-    </div>
-    <div class="form-group full">
-      <label>Localisation (cliquez sur la carte)</label>
-      <div id="map-edit" class="map-container"></div>
-      <p class="coords">📍 Lat: {{ form.get('latitude')?.value }} · Lng: {{ form.get('longitude')?.value }}</p>
-    </div>
-    <div class="form-group full">
-      <label for="image">Image</label>
-      <img *ngIf="currentImageUrl" [src]="'http://localhost:8080' + currentImageUrl" class="current-image" alt="Image actuelle">
-      <input id="image" type="file" accept="image/*" (change)="onFileSelected($event)">
-    </div>
-    <div class="form-group full">
-      <label for="description">Description</label>
-      <textarea id="description" formControlName="description" rows="3"></textarea>
-    </div>
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Sauvegarder</button>
-      <a routerLink="/endroits" class="btn btn-secondary">Annuler</a>
-    </div>
-  </form>
+      <div class="sl-form-actions">
+        <a routerLink="/endroits" class="sl-btn sl-btn--secondary">Annuler</a>
+        <button type="submit" class="sl-btn sl-btn--primary" [disabled]="form.invalid">Sauvegarder</button>
+      </div>
+    </form>
+  </div>
 </div>

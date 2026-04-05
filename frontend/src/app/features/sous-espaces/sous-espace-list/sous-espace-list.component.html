@@ -1,47 +1,31 @@
-<div class="page-header">
-  <h1>Sous-Espaces</h1>
-  <div class="filters">
-    <input type="text" placeholder="🔍 Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()">
-    <select [(ngModel)]="typeFilter" (change)="applyFilters()">
+<div class="sl-card">
+  <div class="sl-card-header">
+    <h2>Sous-Espaces</h2>
+  </div>
+  <div class="sl-toolbar">
+    <div class="sl-search-box">
+      <span class="sl-search-icon">🔍</span>
+      <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+    </div>
+    <select class="sl-filter-select" [(ngModel)]="typeFilter" (change)="applyFilters()">
       <option value="">Tous les types</option>
       <option *ngFor="let t of types" [value]="t">{{ t }}</option>
     </select>
   </div>
-</div>
 
-<div *ngIf="loading" class="loading">Chargement...</div>
+  <div *ngIf="loading" class="sl-empty"><p>Chargement...</p></div>
+  <div *ngIf="!loading && filtered.length === 0" class="sl-empty"><span class="sl-empty-icon">📍</span><p>Aucun sous-espace trouvé</p></div>
 
-<div *ngIf="!loading && filtered.length === 0" class="empty-state">
-  Aucun sous-espace trouvé.
-</div>
-
-<div class="table-container" *ngIf="!loading && filtered.length > 0">
-  <table>
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Type</th>
-        <th>Capacité</th>
-        <th>Statut</th>
-        <th>Endroit</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
+  <table class="sl-table" *ngIf="!loading && filtered.length > 0">
+    <thead><tr><th>Nom</th><th>Type</th><th>Capacité</th><th>Statut</th><th>Endroit</th><th>Actions</th></tr></thead>
     <tbody>
       <tr *ngFor="let se of filtered">
-        <td class="name-cell">{{ getTypeIcon(se.type) }} {{ se.nom }}</td>
+        <td class="sl-td-title">{{ getTypeIcon(se.type) }} {{ se.nom }}</td>
         <td>{{ se.type }}</td>
-        <td>👥 {{ se.capacite }}</td>
-        <td><span class="badge" [ngClass]="getStatutClass(se.statut)">{{ se.statut }}</span></td>
-        <td>
-          <a *ngIf="se.endroitId" [routerLink]="['/endroits', se.endroitId]" class="link">
-            {{ se.endroitNom }}
-          </a>
-          <span *ngIf="!se.endroitId">—</span>
-        </td>
-        <td>
-          <a [routerLink]="['/sous-espaces', se.id]" class="btn btn-info">Détails</a>
-        </td>
+        <td>{{ se.capacite }}</td>
+        <td><span class="sl-badge" [ngClass]="getStatutBadge(se.statut)">{{ se.statut }}</span></td>
+        <td><a *ngIf="se.endroitId" [routerLink]="['/endroits', se.endroitId]" style="color:var(--sl-blue);font-weight:500">{{ se.endroitNom }}</a><span *ngIf="!se.endroitId">—</span></td>
+        <td><a [routerLink]="['/sous-espaces', se.id]" class="sl-btn sl-btn--secondary sl-btn--xs">Détails</a></td>
       </tr>
     </tbody>
   </table>

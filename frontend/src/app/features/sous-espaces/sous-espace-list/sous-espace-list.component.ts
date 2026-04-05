@@ -52,6 +52,15 @@ export class SousEspaceListComponent implements OnInit {
     }
   }
 
+  getStatutBadge(statut: string): string {
+    switch (statut) {
+      case 'DISPONIBLE': return 'sl-badge--green';
+      case 'INDISPONIBLE': return 'sl-badge--red';
+      case 'MAINTENANCE': return 'sl-badge--orange';
+      default: return 'sl-badge--gray';
+    }
+  }
+
   getTypeIcon(type: string): string {
     switch (type) {
       case 'TERRAIN': return '⚽';

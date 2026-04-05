@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldService } from '../../../core/services/field.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Reservation } from '../../../core/models/endroit.model';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-client-reservations',
@@ -13,7 +16,7 @@ export class ClientReservationsComponent implements OnInit {
   loading = true;
   statutFilter = '';
 
-  constructor(private fieldService: FieldService) {}
+  constructor(private fieldService: FieldService, private notifService: NotificationService) {}
 
   ngOnInit(): void {
     this.fieldService.getAllReservations().subscribe({
@@ -43,13 +46,53 @@ export class ClientReservationsComponent implements OnInit {
     }
   }
 
+  getStatutBadge(statut: string): string {
+    switch (statut) {
+      case 'CONFIRMEE': return 'sl-badge--green';
+      case 'ANNULEE': return 'sl-badge--red';
+      case 'EN_ATTENTE': return 'sl-badge--orange';
+      default: return 'sl-badge--gray';
+    }
+  }
+
   annuler(id: number): void {
     const motif = prompt('Motif d\'annulation:');
     if (motif) {
       this.fieldService.annulerReservation(id, motif).subscribe(() => {
         const r = this.reservations.find(res => res.id === id);
-        if (r) { r.statut = 'ANNULEE' as any; r.motifAnnulation = motif; }
+        if (r) {
+          r.statut = 'ANNULEE' as any;
+          r.motifAnnulation = motif;
+          this.notifService.addNotification('RESERVATION_ANNULEE', 'Réservation pour ' + (r.sousEspaceNom || '') + ' annulée');
+        }
       });
     }
+  }
+
+  exportPDF(): void {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('StreetLeague - Mes Réservations', 14, 22);
+    doc.setFontSize(10);
+    doc.text('Généré le ' + new Date().toLocaleDateString('fr-FR'), 14, 30);
+
+    const rows = this.filtered.map(r => [
+      r.endroitNom || '-',
+      r.sousEspaceNom || '-',
+      new Date(r.dateDebut).toLocaleString('fr-FR'),
+      new Date(r.dateFin).toLocaleString('fr-FR'),
+      r.statut || '-',
+      r.motifAnnulation || '-'
+    ]);
+
+    autoTable(doc, {
+      head: [['Endroit', 'Sous-Espace', 'Début', 'Fin', 'Statut', 'Motif annulation']],
+      body: rows,
+      startY: 36,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [26, 26, 46] }
+    });
+
+    doc.save('mes-reservations.pdf');
   }
 }

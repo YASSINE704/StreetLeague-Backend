@@ -1,137 +1,102 @@
-<div *ngIf="endroit" class="details-page">
-  <div class="header">
-    <div>
-      <h1>{{ endroit.nom }}</h1>
-      <p class="subtitle">{{ endroit.type }} · {{ endroit.ville }}</p>
+<div *ngIf="endroit">
+  <div class="sl-card" style="margin-bottom:1.5rem">
+    <div class="sl-card-header">
+      <div>
+        <h2>{{ endroit.nom }}</h2>
+        <small style="color:var(--sl-text3)">{{ endroit.type }} · {{ endroit.ville }}</small>
+      </div>
+      <div style="display:flex;gap:0.5rem">
+        <a [routerLink]="['/endroits', endroit.id, 'edit']" class="sl-btn sl-btn--secondary sl-btn--sm">✏️ Modifier</a>
+        <a routerLink="/endroits" class="sl-btn sl-btn--ghost sl-btn--sm">← Retour</a>
+      </div>
     </div>
-    <div class="header-actions">
-      <a [routerLink]="['/endroits', endroit.id, 'edit']" class="btn btn-warning">Modifier</a>
-      <a routerLink="/endroits" class="btn btn-secondary">Retour</a>
+    <div class="sl-info-grid">
+      <div class="sl-info-item"><span class="sl-info-label">Adresse</span><span class="sl-info-value">{{ endroit.adresse }}, {{ endroit.ville }}</span></div>
+      <div class="sl-info-item"><span class="sl-info-label">Capacité</span><span class="sl-info-value">{{ endroit.capacite }}</span></div>
+      <div class="sl-info-item"><span class="sl-info-label">Statut</span><span class="sl-badge" [ngClass]="getStatutBadge(endroit.statut)">{{ endroit.statut }}</span></div>
+      <div class="sl-info-item" *ngIf="endroit.imageUrl"><span class="sl-info-label">Image</span><img [src]="'http://localhost:8080' + endroit.imageUrl" style="max-width:180px;border-radius:var(--sl-radius-md)" alt=""></div>
     </div>
+    <p *ngIf="endroit.description" style="margin-top:1rem;color:var(--sl-text3)">{{ endroit.description }}</p>
   </div>
-
-  <div class="info-grid">
-    <div class="info-card">
-      <span class="label">Adresse</span>
-      <span>📍 {{ endroit.adresse }}, {{ endroit.ville }}</span>
-    </div>
-    <div class="info-card">
-      <span class="label">Capacité</span>
-      <span>👥 {{ endroit.capacite }}</span>
-    </div>
-    <div class="info-card">
-      <span class="label">Statut</span>
-      <span class="badge" [ngClass]="getStatutClass(endroit.statut)">{{ endroit.statut }}</span>
-    </div>
-    <div class="info-card" *ngIf="endroit.imageUrl">
-      <span class="label">Image</span>
-      <img [src]="'http://localhost:8080' + endroit.imageUrl" class="endroit-image" alt="{{ endroit.nom }}">
-    </div>
-  </div>
-
-  <p class="description" *ngIf="endroit.description">{{ endroit.description }}</p>
 
   <!-- Sous-Espaces -->
-  <div class="section">
-    <div class="section-header">
-      <h2>Sous-Espaces</h2>
-      <button class="btn btn-primary" (click)="showSousEspaceForm = !showSousEspaceForm">
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <h3>Sous-Espaces</h3>
+      <button class="sl-btn sl-btn--primary sl-btn--sm" (click)="showSousEspaceForm = !showSousEspaceForm">
         {{ showSousEspaceForm ? 'Annuler' : '+ Ajouter' }}
       </button>
     </div>
 
-    <form *ngIf="showSousEspaceForm" [formGroup]="sousEspaceForm" (ngSubmit)="addSousEspace()" class="inline-form">
-      <input formControlName="nom" placeholder="Nom">
-      <select formControlName="type">
-        <option *ngFor="let t of typesSousEspace" [value]="t">{{ t }}</option>
-      </select>
-      <input type="number" formControlName="capacite" placeholder="Capacité">
-      <span class="error-msg" *ngIf="sousEspaceForm.get('capacite')?.value < 0">La capacité ne peut pas être négative</span>
-      <select formControlName="statut">
-        <option *ngFor="let s of statutsEndroit" [value]="s">{{ s }}</option>
-      </select>
-      <button type="submit" class="btn btn-primary" [disabled]="sousEspaceForm.invalid">Créer</button>
+    <form *ngIf="showSousEspaceForm" [formGroup]="sousEspaceForm" (ngSubmit)="addSousEspace()" class="sl-form-row-4" style="margin-bottom:1rem">
+      <div class="sl-form-group"><input class="sl-input" formControlName="nom" placeholder="Nom"></div>
+      <div class="sl-form-group"><select class="sl-select" formControlName="type"><option *ngFor="let t of typesSousEspace" [value]="t">{{ t }}</option></select></div>
+      <div class="sl-form-group">
+        <input class="sl-input" type="number" formControlName="capacite" placeholder="Capacité">
+        <span class="sl-field-error" *ngIf="sousEspaceForm.get('capacite')?.value < 0">Capacité négative</span>
+      </div>
+      <div class="sl-form-group" style="flex-direction:row;gap:0.5rem;align-items:center">
+        <select class="sl-select" formControlName="statut"><option *ngFor="let s of statutsEndroit" [value]="s">{{ s }}</option></select>
+        <button type="submit" class="sl-btn sl-btn--primary sl-btn--sm" [disabled]="sousEspaceForm.invalid">OK</button>
+      </div>
     </form>
 
-    <div *ngIf="sousEspaceError" class="alert alert-error">
-      ⚠️ {{ sousEspaceError }}
-      <button class="alert-close" (click)="sousEspaceError = ''">✕</button>
-    </div>
+    <div *ngIf="sousEspaceError" class="sl-error-banner">⚠️ {{ sousEspaceError }} <button class="sl-error-close" (click)="sousEspaceError = ''">✕</button></div>
+    <div *ngIf="sousEspaces.length === 0 && !showSousEspaceForm" class="sl-empty"><p>Aucun sous-espace</p></div>
 
-    <div *ngIf="sousEspaces.length === 0 && !showSousEspaceForm" class="empty">Aucun sous-espace</div>
-
-    <div class="se-card" *ngFor="let se of sousEspaces">
-      <div class="se-header">
-        <div>
-          <strong>{{ se.nom }}</strong>
-          <span class="badge" [ngClass]="getStatutClass(se.statut)">{{ se.statut }}</span>
-          <span class="se-type">{{ se.type }} · Capacité: {{ se.capacite }}</span>
-        </div>
-        <div class="se-actions">
-          <button class="btn-sm btn-info" (click)="loadEquipements(se)">Équipements</button>
-          <button class="btn-sm btn-info" (click)="loadReservations(se)">Réservations</button>
-          <button class="btn-sm btn-danger" (click)="deleteSousEspace(se.id!)">✕</button>
+    <div class="sl-se-card" *ngFor="let se of sousEspaces">
+      <div class="sl-se-header">
+        <div><strong>{{ se.nom }}</strong> <span class="sl-badge" [ngClass]="getStatutBadge(se.statut)">{{ se.statut }}</span> <small style="color:var(--sl-text3);margin-left:8px">{{ se.type }} · {{ se.capacite }}</small></div>
+        <div class="sl-actions">
+          <button class="sl-btn-icon" (click)="loadEquipements(se)" title="Équipements">🏋️</button>
+          <button class="sl-btn-icon" (click)="loadReservations(se)" title="Réservations">📅</button>
+          <button class="sl-btn-icon sl-btn-icon--danger" (click)="deleteSousEspace(se.id!)">🗑</button>
         </div>
       </div>
 
-      <!-- Equipements -->
-      <div *ngIf="se.equipements" class="sub-section">
-        <div class="sub-header">
-          <h4>Équipements</h4>
-          <button class="btn-sm btn-primary" (click)="showEquipementForm = se.id!">+ Ajouter</button>
+      <div *ngIf="se.equipements" style="padding:0.8rem 1.2rem;border-top:1px solid var(--sl-border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+          <strong style="font-size:0.85rem;color:var(--sl-text2)">Équipements</strong>
+          <button class="sl-btn sl-btn--primary sl-btn--xs" (click)="showEquipementForm = se.id!">+ Ajouter</button>
         </div>
-        <form *ngIf="showEquipementForm === se.id" [formGroup]="equipementForm" (ngSubmit)="addEquipement(se.id!)" class="inline-form small">
-          <input formControlName="nom" placeholder="Nom">
-          <input type="number" formControlName="quantite" placeholder="Qté">
-          <span class="error-msg" *ngIf="equipementForm.get('quantite')?.value < 0">La quantité ne peut pas être négative</span>
-          <button type="submit" class="btn-sm btn-primary" [disabled]="equipementForm.invalid">OK</button>
+        <form *ngIf="showEquipementForm === se.id" [formGroup]="equipementForm" (ngSubmit)="addEquipement(se.id!)" style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
+          <input class="sl-input" formControlName="nom" placeholder="Nom" style="flex:1">
+          <input class="sl-input" type="number" formControlName="quantite" placeholder="Qté" style="width:80px">
+          <button type="submit" class="sl-btn sl-btn--primary sl-btn--xs" [disabled]="equipementForm.invalid">OK</button>
         </form>
-        <table *ngIf="se.equipements.length > 0">
-          <thead><tr><th>Nom</th><th>Quantité</th><th></th></tr></thead>
-          <tbody>
-            <tr *ngFor="let eq of se.equipements">
-              <td>{{ eq.nom }}</td>
-              <td>{{ eq.quantite }}</td>
-              <td><button class="btn-sm btn-danger" (click)="deleteEquipement(eq.id!, se)">✕</button></td>
-            </tr>
-          </tbody>
+        <table class="sl-table" *ngIf="se.equipements.length > 0">
+          <thead><tr><th>Nom</th><th>Qté</th><th></th></tr></thead>
+          <tbody><tr *ngFor="let eq of se.equipements"><td>{{ eq.nom }}</td><td>{{ eq.quantite }}</td><td><button class="sl-btn-icon sl-btn-icon--danger" (click)="deleteEquipement(eq.id!, se)">✕</button></td></tr></tbody>
         </table>
-        <p *ngIf="se.equipements.length === 0" class="empty-sm">Aucun équipement</p>
+        <div *ngIf="se.equipements.length === 0" class="sl-empty" style="padding:0.5rem"><p style="font-size:0.82rem">Aucun</p></div>
       </div>
 
-      <!-- Reservations -->
-      <div *ngIf="se.reservations" class="sub-section">
-        <div class="sub-header">
-          <h4>Réservations</h4>
-          <button class="btn-sm btn-primary" (click)="showReservationForm = se.id!">+ Réserver</button>
+      <div *ngIf="se.reservations" style="padding:0.8rem 1.2rem;border-top:1px solid var(--sl-border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+          <strong style="font-size:0.85rem;color:var(--sl-text2)">Réservations</strong>
+          <button class="sl-btn sl-btn--primary sl-btn--xs" (click)="showReservationForm = se.id!">+ Réserver</button>
         </div>
-        <div *ngIf="reservationError[se.id!]" class="alert alert-error">
-          ⚠️ {{ reservationError[se.id!] }}
-          <button class="alert-close" (click)="clearMessages(se.id!)">✕</button>
-        </div>
-        <div *ngIf="reservationSuccess[se.id!]" class="alert alert-success">
-          ✅ {{ reservationSuccess[se.id!] }}
-        </div>
-        <form *ngIf="showReservationForm === se.id" [formGroup]="reservationForm" (ngSubmit)="addReservation(se.id!)" class="inline-form small">
-          <input type="datetime-local" formControlName="dateDebut">
-          <input type="datetime-local" formControlName="dateFin">
-          <button type="submit" class="btn-sm btn-primary" [disabled]="reservationForm.invalid">OK</button>
+        <div *ngIf="reservationError[se.id!]" class="sl-error-banner">⚠️ {{ reservationError[se.id!] }} <button class="sl-error-close" (click)="clearMessages(se.id!)">✕</button></div>
+        <div *ngIf="reservationSuccess[se.id!]" class="sl-toast">✅ {{ reservationSuccess[se.id!] }}</div>
+        <form *ngIf="showReservationForm === se.id" [formGroup]="reservationForm" (ngSubmit)="addReservation(se.id!)" style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
+          <input class="sl-input" type="datetime-local" formControlName="dateDebut" style="flex:1">
+          <input class="sl-input" type="datetime-local" formControlName="dateFin" style="flex:1">
+          <button type="submit" class="sl-btn sl-btn--primary sl-btn--xs" [disabled]="reservationForm.invalid">OK</button>
         </form>
-        <table *ngIf="se.reservations.length > 0">
+        <table class="sl-table" *ngIf="se.reservations.length > 0">
           <thead><tr><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr></thead>
           <tbody>
             <tr *ngFor="let r of se.reservations">
-              <td>{{ r.dateDebut | date:'short' }}</td>
-              <td>{{ r.dateFin | date:'short' }}</td>
-              <td><span class="badge" [ngClass]="getStatutClass(r.statut!)">{{ r.statut }}</span></td>
-              <td>
-                <button *ngIf="r.statut === 'EN_ATTENTE'" class="btn-sm btn-success" (click)="confirmerReservation(r.id!, se)">✓</button>
-                <button *ngIf="r.statut !== 'ANNULEE'" class="btn-sm btn-danger" (click)="annulerReservation(r.id!, se)">✕</button>
+              <td>{{ r.dateDebut | date:'short' }}</td><td>{{ r.dateFin | date:'short' }}</td>
+              <td><span class="sl-badge" [ngClass]="getStatutBadge(r.statut!)">{{ r.statut }}</span></td>
+              <td class="sl-actions">
+                <button *ngIf="r.statut === 'EN_ATTENTE'" class="sl-btn-icon" (click)="confirmerReservation(r.id!, se)">✓</button>
+                <button *ngIf="r.statut !== 'ANNULEE'" class="sl-btn-icon sl-btn-icon--danger" (click)="annulerReservation(r.id!, se)">✕</button>
               </td>
             </tr>
           </tbody>
         </table>
-        <p *ngIf="se.reservations.length === 0" class="empty-sm">Aucune réservation</p>
+        <div *ngIf="se.reservations.length === 0" class="sl-empty" style="padding:0.5rem"><p style="font-size:0.82rem">Aucune</p></div>
       </div>
     </div>
   </div>

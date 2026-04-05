@@ -1,0 +1,7 @@
+.sl-bar-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.7rem; }
+.sl-bar-label { width: 110px; font-size: 0.82rem; color: var(--sl-text3); flex-shrink: 0; }
+.sl-bar-count { font-weight: 700; color: var(--sl-text); font-size: 0.85rem; width: 28px; text-align: right; }
+.sl-top-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0; border-bottom: 1px solid var(--sl-surface2); }
+.sl-top-rank { width: 24px; height: 24px; background: var(--sl-text); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
+.sl-top-name { flex: 1; font-size: 0.88rem; color: var(--sl-text2); }
+.sl-top-count { font-weight: 600; color: var(--sl-blue); font-size: 0.85rem; }

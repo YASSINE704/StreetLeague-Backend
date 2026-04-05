@@ -1,5 +1,7 @@
 package com.streetLeague.backend.controller;
 
+import com.streetLeague.backend.dto.DtoMapper;
+import com.streetLeague.backend.dto.EndroitDTO;
 import com.streetLeague.backend.entity.Endroit;
 import com.streetLeague.backend.enums.StatutEndroit;
 import com.streetLeague.backend.enums.TypeEndroit;
@@ -23,26 +25,28 @@ import java.util.UUID;
 @CrossOrigin(origins = "*")
 public class EndroitController {
     private final EndroitService endroitService;
+    private final DtoMapper mapper;
     private static final String UPLOAD_DIR = "uploads/";
 
     @GetMapping
-    public ResponseEntity<List<Endroit>> getAllEndroits() {
-        return ResponseEntity.ok(endroitService.getAllEndroits());
+    public ResponseEntity<List<EndroitDTO>> getAllEndroits() {
+        return ResponseEntity.ok(endroitService.getAllEndroits().stream().map(mapper::toEndroitDTO).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Endroit> getEndroitById(@PathVariable Long id) {
-        return ResponseEntity.ok(endroitService.getEndroitById(id));
+    public ResponseEntity<EndroitDTO> getEndroitById(@PathVariable Long id) {
+        return ResponseEntity.ok(mapper.toEndroitDTO(endroitService.getEndroitById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<Endroit> createEndroit(@RequestBody Endroit endroit) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(endroitService.createEndroit(endroit));
+    public ResponseEntity<EndroitDTO> createEndroit(@RequestBody EndroitDTO dto) {
+        Endroit saved = endroitService.createEndroit(mapper.toEndroit(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toEndroitDTO(saved));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Endroit> updateEndroit(@PathVariable Long id, @RequestBody Endroit endroit) {
-        return ResponseEntity.ok(endroitService.updateEndroit(id, endroit));
+    public ResponseEntity<EndroitDTO> updateEndroit(@PathVariable Long id, @RequestBody EndroitDTO dto) {
+        return ResponseEntity.ok(mapper.toEndroitDTO(endroitService.updateEndroit(id, mapper.toEndroit(dto))));
     }
 
     @DeleteMapping("/{id}")
@@ -52,30 +56,28 @@ public class EndroitController {
     }
 
     @PostMapping("/{id}/image")
-    public ResponseEntity<Endroit> uploadImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<EndroitDTO> uploadImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException {
         Path uploadPath = Paths.get(UPLOAD_DIR);
         if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Files.copy(file.getInputStream(), uploadPath.resolve(filename));
-
         Endroit endroit = endroitService.getEndroitById(id);
         endroit.setImageUrl("/uploads/" + filename);
-        return ResponseEntity.ok(endroitService.updateEndroit(id, endroit));
+        return ResponseEntity.ok(mapper.toEndroitDTO(endroitService.updateEndroit(id, endroit)));
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<Endroit>> getEndroitsByType(@PathVariable TypeEndroit type) {
-        return ResponseEntity.ok(endroitService.getEndroitsByType(type));
+    public ResponseEntity<List<EndroitDTO>> getEndroitsByType(@PathVariable TypeEndroit type) {
+        return ResponseEntity.ok(endroitService.getEndroitsByType(type).stream().map(mapper::toEndroitDTO).toList());
     }
 
     @GetMapping("/statut/{statut}")
-    public ResponseEntity<List<Endroit>> getEndroitsByStatut(@PathVariable StatutEndroit statut) {
-        return ResponseEntity.ok(endroitService.getEndroitsByStatut(statut));
+    public ResponseEntity<List<EndroitDTO>> getEndroitsByStatut(@PathVariable StatutEndroit statut) {
+        return ResponseEntity.ok(endroitService.getEndroitsByStatut(statut).stream().map(mapper::toEndroitDTO).toList());
     }
 
     @GetMapping("/ville/{ville}")
-    public ResponseEntity<List<Endroit>> getEndroitsByVille(@PathVariable String ville) {
-        return ResponseEntity.ok(endroitService.getEndroitsByVille(ville));
+    public ResponseEntity<List<EndroitDTO>> getEndroitsByVille(@PathVariable String ville) {
+        return ResponseEntity.ok(endroitService.getEndroitsByVille(ville).stream().map(mapper::toEndroitDTO).toList());
     }
 }

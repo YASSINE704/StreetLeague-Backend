@@ -1,15 +1,46 @@
-<nav class="navbar">
-  <div class="navbar-brand">
-    <a routerLink="/">⚽ StreetLeague</a>
-  </div>
-  <ul class="navbar-nav">
-    <li><a routerLink="/endroits" routerLinkActive="active">Endroits</a></li>
-    <li><a routerLink="/sous-espaces" routerLinkActive="active">Sous-Espaces</a></li>
-    <li class="nav-separator">|</li>
-    <li><a routerLink="/client" routerLinkActive="active" class="client-link">🏟️ Espace Client</a></li>
-    <li><a routerLink="/client/reservations" routerLinkActive="active" class="client-link">📋 Mes Réservations</a></li>
+<nav class="sl-navbar">
+  <a routerLink="/" class="sl-navbar-brand">⚽ StreetLeague</a>
+  <ul class="sl-nav">
+    <li><a routerLink="/dashboard" routerLinkActive="sl-nav-active">📊 Dashboard</a></li>
+    <li><a routerLink="/endroits" routerLinkActive="sl-nav-active">Endroits</a></li>
+    <li><a routerLink="/sous-espaces" routerLinkActive="sl-nav-active">Sous-Espaces</a></li>
+    <li class="sl-nav-sep">|</li>
+    <li><a routerLink="/client" routerLinkActive="sl-nav-active" class="sl-nav-client">🏟️ Client</a></li>
+    <li><a routerLink="/client/reservations" routerLinkActive="sl-nav-active" class="sl-nav-client">📋 Réservations</a></li>
   </ul>
+  <div class="sl-notif-area">
+    <button class="sl-btn-icon" (click)="toggleNotifs()">
+      🔔
+      <span class="sl-notif-count" *ngIf="notifService.unreadCount > 0">{{ notifService.unreadCount }}</span>
+    </button>
+    <div class="sl-notif-dropdown" *ngIf="showNotifs">
+      <div class="sl-notif-header">
+        <span>Notifications</span>
+        <button class="sl-btn--ghost sl-btn--xs" (click)="notifService.markAllRead()">Tout lire</button>
+      </div>
+      <div *ngIf="notifService.notifications.length === 0" class="sl-empty" style="padding:1.5rem"><p>Aucune notification</p></div>
+      <div class="sl-notif-list">
+        <div class="sl-notif-item" *ngFor="let n of notifService.notifications; let i = index"
+             [class.unread]="!n.read"
+             [class.notif-created]="n.type === 'NOUVELLE_RESERVATION'"
+             [class.notif-confirmed]="n.type === 'RESERVATION_CONFIRMEE'"
+             [class.notif-cancelled]="n.type === 'RESERVATION_ANNULEE'"
+             (click)="notifService.markRead(i)">
+          <span class="sl-notif-icon" [ngSwitch]="n.type">
+            <span *ngSwitchCase="'NOUVELLE_RESERVATION'">📅</span>
+            <span *ngSwitchCase="'RESERVATION_CONFIRMEE'">✅</span>
+            <span *ngSwitchCase="'RESERVATION_ANNULEE'">❌</span>
+            <span *ngSwitchDefault>🔔</span>
+          </span>
+          <div class="sl-notif-content">
+            <p>{{ n.message }}</p>
+            <small>{{ n.timestamp | date:'short' }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </nav>
-<div class="main-content">
+<div class="sl-page">
   <router-outlet></router-outlet>
 </div>

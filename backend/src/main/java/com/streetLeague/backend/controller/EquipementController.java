@@ -1,6 +1,7 @@
 package com.streetLeague.backend.controller;
 
-import com.streetLeague.backend.entity.Equipement;
+import com.streetLeague.backend.dto.DtoMapper;
+import com.streetLeague.backend.dto.EquipementDTO;
 import com.streetLeague.backend.service.EquipementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,25 +16,27 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class EquipementController {
     private final EquipementService equipementService;
+    private final DtoMapper mapper;
 
     @GetMapping
-    public ResponseEntity<List<Equipement>> getAllEquipements() {
-        return ResponseEntity.ok(equipementService.getAllEquipements());
+    public ResponseEntity<List<EquipementDTO>> getAllEquipements() {
+        return ResponseEntity.ok(equipementService.getAllEquipements().stream().map(mapper::toEquipementDTO).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Equipement> getEquipementById(@PathVariable Long id) {
-        return ResponseEntity.ok(equipementService.getEquipementById(id));
+    public ResponseEntity<EquipementDTO> getEquipementById(@PathVariable Long id) {
+        return ResponseEntity.ok(mapper.toEquipementDTO(equipementService.getEquipementById(id)));
     }
 
     @PostMapping("/sous-espace/{sousEspaceId}")
-    public ResponseEntity<Equipement> createEquipement(@PathVariable Long sousEspaceId, @RequestBody Equipement equipement) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(equipementService.createEquipement(sousEspaceId, equipement));
+    public ResponseEntity<EquipementDTO> createEquipement(@PathVariable Long sousEspaceId, @RequestBody EquipementDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(mapper.toEquipementDTO(equipementService.createEquipement(sousEspaceId, mapper.toEquipement(dto))));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Equipement> updateEquipement(@PathVariable Long id, @RequestBody Equipement equipement) {
-        return ResponseEntity.ok(equipementService.updateEquipement(id, equipement));
+    public ResponseEntity<EquipementDTO> updateEquipement(@PathVariable Long id, @RequestBody EquipementDTO dto) {
+        return ResponseEntity.ok(mapper.toEquipementDTO(equipementService.updateEquipement(id, mapper.toEquipement(dto))));
     }
 
     @DeleteMapping("/{id}")
@@ -43,7 +46,7 @@ public class EquipementController {
     }
 
     @GetMapping("/sous-espace/{sousEspaceId}")
-    public ResponseEntity<List<Equipement>> getEquipementsBySousEspaceId(@PathVariable Long sousEspaceId) {
-        return ResponseEntity.ok(equipementService.getEquipementsBySousEspaceId(sousEspaceId));
+    public ResponseEntity<List<EquipementDTO>> getEquipementsBySousEspaceId(@PathVariable Long sousEspaceId) {
+        return ResponseEntity.ok(equipementService.getEquipementsBySousEspaceId(sousEspaceId).stream().map(mapper::toEquipementDTO).toList());
     }
 }

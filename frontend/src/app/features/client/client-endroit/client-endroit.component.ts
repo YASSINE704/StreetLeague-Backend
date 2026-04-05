@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FieldService } from '../../../core/services/field.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Endroit, SousEspace } from '../../../core/models/endroit.model';
 
 @Component({
@@ -22,6 +23,7 @@ export class ClientEndroitComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private fieldService: FieldService,
+    private notifService: NotificationService,
     private fb: FormBuilder
   ) {
     this.reservationForm = this.fb.group({
@@ -64,6 +66,7 @@ export class ClientEndroitComponent implements OnInit {
           this.showFormForSe = null;
           this.reservationForm.reset();
           this.successMsg[seId] = 'Réservation envoyée avec succès !';
+          this.notifService.addNotification('NOUVELLE_RESERVATION', 'Réservation créée pour ' + (this.endroit?.nom || ''));
           setTimeout(() => delete this.successMsg[seId], 5000);
         },
         error: (err) => {
