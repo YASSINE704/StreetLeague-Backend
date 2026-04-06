@@ -1,0 +1,292 @@
+/* ── Hero Banner (component-specific) ── */
+.seance-hero-banner {
+  background: var(--sl-surface);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-lg);
+  box-shadow: var(--sl-shadow-xs);
+  padding: 2rem;
+}
+
+.seance-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.seance-hero-title {
+  margin: 0 0 1rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--sl-text);
+}
+
+.seance-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.seance-meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--sl-surface2);
+  border: 1px solid var(--sl-border);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--sl-text2);
+  font-weight: 500;
+}
+
+.seance-meta-icon { font-size: 1rem; }
+
+.seance-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--sl-border);
+}
+
+.seance-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.seance-stat-number {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--sl-blue);
+}
+
+.seance-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--sl-border);
+}
+
+/* ── Section title group ── */
+.seance-section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.seance-section-icon { font-size: 1.5rem; }
+
+.seance-section-title-group h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--sl-text);
+}
+
+.seance-section-subtitle {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--sl-text4);
+}
+
+/* ── Add Form Panel ── */
+.seance-add-form-panel {
+  background: var(--sl-surface2);
+  border: 1.5px solid var(--sl-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.seance-add-form-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--sl-text2);
+  font-weight: 500;
+}
+
+.seance-form-badge {
+  background: var(--sl-blue);
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ── Exercice List (component-specific) ── */
+.seance-exercice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.seance-exercice-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--sl-surface2);
+  border: 1px solid var(--sl-border);
+  border-radius: 14px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.seance-exercice-row:hover {
+  transform: translateX(4px);
+  box-shadow: var(--sl-shadow-xs);
+}
+
+.seance-exercice-order {
+  width: 36px;
+  height: 36px;
+  background: var(--sl-blue);
+  color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.seance-exercice-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.seance-exercice-name {
+  font-weight: 600;
+  color: var(--sl-text);
+  font-size: 0.95rem;
+}
+
+.seance-exercice-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.seance-param-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.seance-param-tag.blue { background: var(--sl-blue-l); color: var(--sl-blue); }
+.seance-param-tag.green { background: var(--sl-green-l); color: var(--sl-green); }
+.seance-param-tag.orange { background: var(--sl-orange-l); color: var(--sl-orange); }
+.seance-param-tag.purple { background: var(--sl-violet-l); color: var(--sl-violet); }
+
+.seance-btn-remove {
+  background: var(--sl-surface2);
+  border: 1px solid var(--sl-border);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sl-text4);
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.seance-btn-remove:hover {
+  background: var(--sl-red-l);
+  border-color: var(--sl-red);
+  color: var(--sl-red);
+}
+
+/* ── Suivi Grid (component-specific progress bars) ── */
+.seance-suivi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.seance-suivi-card {
+  background: var(--sl-surface2);
+  border: 1px solid var(--sl-border);
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+
+.seance-suivi-card-label {
+  font-size: 0.8rem;
+  color: var(--sl-text3);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.seance-suivi-card-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.seance-suivi-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--sl-blue);
+}
+
+.seance-suivi-number--fatigue { color: var(--sl-orange); }
+
+.seance-suivi-max {
+  font-size: 0.9rem;
+  color: var(--sl-text4);
+  font-weight: 500;
+}
+
+.seance-suivi-bar {
+  height: 6px;
+  background: var(--sl-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.seance-suivi-bar-fill {
+  height: 100%;
+  background: var(--sl-blue);
+  border-radius: 3px;
+  transition: width 0.6s ease-out;
+}
+
+.seance-suivi-bar-fill--fatigue {
+  background: var(--sl-orange);
+}
+
+.seance-suivi-comment {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sl-text2);
+  line-height: 1.5;
+}
+
+.seance-suivi-date {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--sl-text);
+}
+
+@media (max-width: 768px) {
+  .seance-hero-banner { padding: 1.25rem; }
+  .seance-stats-bar { gap: 1rem; flex-wrap: wrap; }
+  .seance-suivi-grid { grid-template-columns: 1fr; }
+}

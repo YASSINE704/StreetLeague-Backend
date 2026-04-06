@@ -38,6 +38,12 @@ export class LoginComponent implements OnInit {
       label: 'Administrateur',
       icon: '🛡️',
       desc: 'Gère l\'ensemble de la plateforme'
+    },
+    {
+      value: 'COACH',
+      label: 'Coach',
+      icon: '🏆',
+      desc: 'Gère les programmes et exercices'
     }
   ];
 

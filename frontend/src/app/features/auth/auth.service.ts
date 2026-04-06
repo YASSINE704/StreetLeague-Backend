@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
-export type UserRole = 'JOUEUR' | 'TERRAIN_MANAGER' | 'ADMIN';
+export type UserRole = 'JOUEUR' | 'TERRAIN_MANAGER' | 'ADMIN' | 'COACH';
 
 export interface AuthUser {
   id: string;
@@ -16,6 +16,7 @@ export interface AuthUser {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(this.loadUser());
   currentUser$ = this.currentUserSubject.asObservable();
+  private readonly storageKey = 'streetleague-basic-auth';
 
   constructor(private router: Router) {}
 
@@ -47,7 +48,7 @@ export class AuthService {
   /**
    * Mock login — replace with real HTTP call when backend is ready.
    */
-  login(email: string, password: string, role: UserRole): boolean {
+  login(email: string, password: string, role: UserRole = 'JOUEUR'): boolean {
     // Simulated credential check
     const mockUser: AuthUser = {
       id: crypto.randomUUID(),
@@ -58,6 +59,11 @@ export class AuthService {
     };
     localStorage.setItem('sl_user', JSON.stringify(mockUser));
     this.currentUserSubject.next(mockUser);
+    
+    // Basic auth logic from coaching module
+    const token = btoa(`${email}:${password}`);
+    localStorage.setItem(this.storageKey, token);
+
     return true;
   }
 
@@ -79,6 +85,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('sl_user');
+    localStorage.removeItem(this.storageKey);
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
@@ -91,8 +98,15 @@ export class AuthService {
       this.router.navigate(['/terrain-manager-dashboard']);
     } else if (role === 'JOUEUR') {
       this.router.navigate(['/player-dashboard']);
+    } else if (role === 'COACH') {
+      this.router.navigate(['/coaching/programmes']);
     } else {
       this.router.navigate(['/auth/login']);
     }
+  }
+
+  getAuthorizationHeader(): string | null {
+    const token = localStorage.getItem(this.storageKey);
+    return token ? `Basic ${token}` : null;
   }
 }

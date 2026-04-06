@@ -28,6 +28,10 @@ const routes: Routes = [
         m => m.TerrainManagerDashboardModule
       )
   },
+  {
+    path: 'coaching',
+    loadChildren: () => import('./features/coaching/coaching.module').then(m => m.CoachingModule)
+  },
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' }
 ];
 
@@ -35,4 +39,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
