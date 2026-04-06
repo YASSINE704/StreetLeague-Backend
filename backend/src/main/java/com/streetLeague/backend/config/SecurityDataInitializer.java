@@ -24,28 +24,34 @@ public class SecurityDataInitializer {
             }
 
             userRepository.save(User.builder()
-                    .nom("Admin")
-                    .prenom("System")
+                    .nom("Admin").prenom("System")
                     .email("admin@streetleague.tn")
                     .motDePasse(passwordEncoder.encode("admin123"))
-                    .role(Role.ADMIN)
-                    .build());
+                    .role(Role.ADMIN).build());
 
             userRepository.save(User.builder()
-                    .nom("Coach")
-                    .prenom("Demo")
+                    .nom("Coach").prenom("Demo")
                     .email("coach@streetleague.tn")
                     .motDePasse(passwordEncoder.encode("coach123"))
-                    .role(Role.COACH)
-                    .build());
+                    .role(Role.COACH).build());
 
             userRepository.save(User.builder()
-                    .nom("Sportif")
-                    .prenom("Demo")
+                    .nom("Sportif").prenom("Demo")
                     .email("sportif@streetleague.tn")
                     .motDePasse(passwordEncoder.encode("sportif123"))
-                    .role(Role.SPORTIF)
-                    .build());
+                    .role(Role.SPORTIF).build());
+
+            userRepository.save(User.builder()
+                    .nom("Joueur").prenom("Demo")
+                    .email("joueur@streetleague.tn")
+                    .motDePasse(passwordEncoder.encode("joueur123"))
+                    .role(Role.JOUEUR).build());
+
+            userRepository.save(User.builder()
+                    .nom("Manager").prenom("Terrain")
+                    .email("manager@streetleague.tn")
+                    .motDePasse(passwordEncoder.encode("manager123"))
+                    .role(Role.TERRAIN_MANAGER).build());
         };
     }
 }

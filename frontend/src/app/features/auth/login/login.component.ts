@@ -21,30 +21,11 @@ export class LoginComponent implements OnInit {
   registerForm!: FormGroup;
 
   roles: { value: UserRole; label: string; icon: string; desc: string }[] = [
-    {
-      value: 'JOUEUR',
-      label: 'Joueur',
-      icon: '⚽',
-      desc: 'Rejoins une équipe, participe aux matchs'
-    },
-    {
-      value: 'TERRAIN_MANAGER',
-      label: 'Terrain Manager',
-      icon: '🏟️',
-      desc: 'Gère les terrains et les disponibilités'
-    },
-    {
-      value: 'ADMIN',
-      label: 'Administrateur',
-      icon: '🛡️',
-      desc: 'Gère l\'ensemble de la plateforme'
-    },
-    {
-      value: 'COACH',
-      label: 'Coach',
-      icon: '🏆',
-      desc: 'Gère les programmes et exercices'
-    }
+    { value: 'JOUEUR',           label: 'Joueur',           icon: '⚽', desc: 'Rejoins une équipe, participe aux matchs' },
+    { value: 'TERRAIN_MANAGER',  label: 'Terrain Manager',  icon: '🏟️', desc: 'Gère les terrains et les disponibilités' },
+    { value: 'ADMIN',            label: 'Administrateur',   icon: '🛡️', desc: 'Gère l\'ensemble de la plateforme' },
+    { value: 'COACH',            label: 'Coach',            icon: '🏆', desc: 'Gère les programmes et exercices' },
+    { value: 'SPORTIF',          label: 'Sportif',          icon: '🏃', desc: 'Suit ses séances d\'entraînement' }
   ];
 
   constructor(
@@ -100,29 +81,19 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     const { email, password } = this.loginForm.value;
 
-    // Use real backend for COACH and ADMIN; mock for other roles
-    if (this.selectedRole === 'COACH' || this.selectedRole === 'ADMIN') {
-      this.authService.loginWithBackend(email, password).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.authService.redirectAfterLogin();
-        },
-        error: () => {
-          this.isLoading = false;
-          this.errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
-        }
-      });
-    } else {
-      setTimeout(() => {
-        const ok = this.authService.login(email, password, this.selectedRole);
+    this.authService.loginWithBackend(email, password).subscribe({
+      next: () => {
         this.isLoading = false;
-        if (ok) {
-          this.authService.redirectAfterLogin();
-        } else {
-          this.errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
-        }
-      }, 800);
-    }
+        this.authService.redirectAfterLogin();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const msg = err?.error?.error;
+        this.errorMessage = msg === 'Invalid credentials'
+          ? 'Identifiants incorrects. Veuillez réessayer.'
+          : 'Erreur de connexion. Vérifiez vos identifiants.';
+      }
+    });
   }
 
   onRegister(): void {
@@ -134,15 +105,19 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     const { username, email, password } = this.registerForm.value;
 
-    setTimeout(() => {
-      const ok = this.authService.register(username, email, password, this.selectedRole);
-      this.isLoading = false;
-      if (ok) {
+    this.authService.registerWithBackend(username, email, password, this.selectedRole).subscribe({
+      next: () => {
+        this.isLoading = false;
         this.authService.redirectAfterLogin();
-      } else {
-        this.errorMessage = 'Erreur lors de l\'inscription. Veuillez réessayer.';
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const msg = err?.error?.error;
+        this.errorMessage = msg === 'Email already in use'
+          ? 'Cet email est déjà utilisé.'
+          : 'Erreur lors de l\'inscription. Veuillez réessayer.';
       }
-    }, 800);
+    });
   }
 
   hasError(form: FormGroup, field: string, error: string): boolean {

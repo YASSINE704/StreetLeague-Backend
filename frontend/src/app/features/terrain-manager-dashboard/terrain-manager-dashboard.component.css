@@ -399,3 +399,33 @@
 .tm-modal p { color: #64748b; font-size: 0.95rem; line-height: 1.6; margin: 0 0 2rem; }
 .tm-modal p strong { color: #1e293b; }
 .tm-modal-footer { display: flex; gap: 1rem; justify-content: center; }
+
+/* Error banner */
+.tm-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+.tm-error-banner button {
+  background: none;
+  border: none;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 0.25rem;
+}
+
+/* Loading state */
+.tm-loading {
+  color: #64748b;
+  font-size: 0.875rem;
+  padding: 1rem 0;
+  text-align: center;
+}

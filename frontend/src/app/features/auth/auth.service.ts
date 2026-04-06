@@ -24,7 +24,7 @@ interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:8080/api/auth';
+  private readonly API = 'http://localhost:18080/api/auth';
   private readonly storageKey = 'streetleague-basic-auth';
   private readonly userKey = 'sl_user';
 
@@ -65,17 +65,18 @@ export class AuthService {
   loginWithBackend(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API}/login`, { email, password }).pipe(
       tap((res) => {
-        // Map backend role to frontend UserRole
         const roleMap: Record<string, UserRole> = {
           ADMIN: 'ADMIN',
           COACH: 'COACH',
-          SPORTIF: 'JOUEUR'
+          SPORTIF: 'SPORTIF',
+          JOUEUR: 'JOUEUR',
+          TERRAIN_MANAGER: 'TERRAIN_MANAGER'
         };
         const role: UserRole = roleMap[res.role] ?? 'JOUEUR';
 
         const user: AuthUser = {
           id: res.id,
-          username: `${res.prenom} ${res.nom}`,
+          username: `${res.prenom} ${res.nom}`.trim(),
           email: res.email,
           role,
           token: res.token
@@ -89,8 +90,35 @@ export class AuthService {
     );
   }
 
+  registerWithBackend(username: string, email: string, password: string, role: UserRole): Observable<LoginResponse> {
+    const [prenom, ...rest] = username.split(' ');
+    const nom = rest.join(' ') || prenom;
+    return this.http.post<LoginResponse>(`${this.API}/register`, {
+      nom, prenom, email, password, role
+    }).pipe(
+      tap((res) => {
+        const roleMap: Record<string, UserRole> = {
+          ADMIN: 'ADMIN', COACH: 'COACH', SPORTIF: 'SPORTIF',
+          JOUEUR: 'JOUEUR', TERRAIN_MANAGER: 'TERRAIN_MANAGER'
+        };
+        const mappedRole: UserRole = roleMap[res.role] ?? 'JOUEUR';
+        const user: AuthUser = {
+          id: res.id,
+          username: `${res.prenom} ${res.nom}`.trim(),
+          email: res.email,
+          role: mappedRole,
+          token: res.token
+        };
+        localStorage.setItem(this.userKey, JSON.stringify(user));
+        localStorage.setItem(this.storageKey, res.token);
+        this.currentUserSubject.next(user);
+      }),
+      catchError((err) => throwError(() => err))
+    );
+  }
+
   /**
-   * Fallback mock login (kept for JOUEUR / TERRAIN_MANAGER roles not yet in backend)
+   * @deprecated Use loginWithBackend instead
    */
   login(email: string, password: string, role: UserRole = 'JOUEUR'): boolean {
     const mockUser: AuthUser = {

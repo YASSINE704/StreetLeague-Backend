@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
+import { TeamService } from '../../core/services/team.service';
+import { MatchService } from '../../core/services/match.service';
+import { TerrainService } from '../../core/services/terrain.service';
+import { PlayerService } from '../../core/services/player.service';
+import { TeamDTO, MatchDTO, TerrainDTO } from '../../shared/models/sports.model';
 
 export type TabType = 'overview' | 'bracket' | 'teams' | 'standings' | 'stadium-mgmt' | 'player-mgmt' | 'match-mgmt';
 
@@ -120,7 +125,7 @@ export interface ActivityItem {
   templateUrl: './tournament-dashboard.component.html',
   styleUrls: ['./tournament-dashboard.component.css']
 })
-export class TournamentDashboardComponent {
+export class TournamentDashboardComponent implements OnInit {
   get tournamentName(): string { return this.activeBracket?.name || 'Tournament Hub'; }
 
   get currentRound(): string {
@@ -355,108 +360,203 @@ export class TournamentDashboardComponent {
     return matches;
   }
 
-  teams: Team[] = [
-    { id:1, name:'Fury FC', logo:'F', color:'linear-gradient(135deg,#f97316,#ef4444)', players:[
-      { id:1,  name:'Marcus Webb',     number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:2,  name:'Devon Osei',      number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:3,  name:'Tyler Asante',    number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:4,  name:'Jalen Brooks',    number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:5,  name:'Kofi Mensah',     number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:6,  name:'Elijah Cruz',     number:8,  position:'CDM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:7,  name:'Jordan Patel',    number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:8,  name:'André Fontaine',  number:7,  position:'LW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:9,  name:'Dante Rivera',    number:11, position:'RW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:10, name:'Kwame Okonkwo',   number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-    { id:2, name:'Street Kings', logo:'S', color:'linear-gradient(135deg,#0ea5e9,#2563eb)', players:[
-      { id:11, name:'Isaiah Clarke',   number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:12, name:'Caleb Nwosu',     number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:13, name:'Finn Adeyemi',    number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:14, name:'Leon Mbeki',      number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:15, name:'Marcus Haynes',   number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:16, name:'Theo Grant',      number:6,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:17, name:'Kai Solomon',     number:8,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:18, name:'Zion Baptiste',   number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:19, name:'Nate Williams',   number:11, position:'LW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:20, name:'Rico Ferreira',   number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-    { id:3, name:'Urban Wolves', logo:'U', color:'linear-gradient(135deg,#10b981,#059669)', players:[
-      { id:21, name:'Tobias Müller',   number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:22, name:'Sam Okoro',       number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:23, name:'Aaron Diallo',    number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:24, name:'Luca Ferrero',    number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:25, name:'Ben Achebe',      number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:26, name:'Sven Larsson',    number:6,  position:'CDM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:27, name:'Omar Sharif',     number:8,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:28, name:'Pablo Reyes',     number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:29, name:'Yusuf Hassan',    number:7,  position:'LW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:30, name:'Victor Asante',   number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-    { id:4, name:'Concrete Boys', logo:'C', color:'linear-gradient(135deg,#6366f1,#4338ca)', players:[
-      { id:31, name:'Dion Traore',      number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:32, name:'Kyle Eze',         number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:33, name:'Jamal Osei',       number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:34, name:'Chris Ndiaye',     number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:35, name:'Ray Otieno',       number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:36, name:'Ben Addo',         number:6,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:37, name:'Ethan Kofi',       number:8,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:38, name:'Rashid Ali',       number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:39, name:'Felix Amara',      number:7,  position:'LW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:40, name:'Malik Sousa',      number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-    { id:5, name:'Blacktop Elite', logo:'B', color:'linear-gradient(135deg,#f43f5e,#e11d48)', players:[
-      { id:41, name:'Noel Kamara',      number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:42, name:'Tunde Bello',      number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:43, name:'Emeka Dike',       number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:44, name:'Joel Musa',        number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:45, name:'Kwesi Amoah',      number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:46, name:'Seun Ola',         number:6,  position:'CDM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:47, name:'Didier Yao',       number:8,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:48, name:'Tony Essien',      number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:49, name:'Bright Odion',     number:11, position:'RW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:50, name:'Samuel Boateng',   number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-    { id:6, name:'North Side FC', logo:'N', color:'linear-gradient(135deg,#8b5cf6,#7c3aed)', players:[
-      { id:51, name:'Daniel Owusu',     number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:52, name:'Kelvin Abara',     number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:53, name:'Chidi Ofor',       number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:54, name:'Drew Mensah',      number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:55, name:'Femi Igwe',        number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:56, name:'Akin Cole',        number:6,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:57, name:'Tobi Adisa',       number:8,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:58, name:'Ola Badmus',       number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:59, name:'Niyi Eze',         number:11, position:'LW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:60, name:'Obi Nwosu',        number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-    { id:7, name:'The Underdogs', logo:'T', color:'linear-gradient(135deg,#64748b,#475569)', players:[
-      { id:61, name:'Henry Oppong',     number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:62, name:'Sam Quartey',      number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:63, name:'Eric Danso',       number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:64, name:'Pete Asante',      number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:65, name:'George Acheampong',number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:66, name:'Frank Boateng',    number:6,  position:'CDM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:67, name:'Moses Tetteh',     number:8,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:68, name:'Ike Asante',       number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:69, name:'Joe Mensah',       number:7,  position:'LW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:70, name:'Ken Fordjour',     number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-    { id:8, name:'Raw Talents', logo:'R', color:'linear-gradient(135deg,#ec4899,#be185d)', players:[
-      { id:71, name:'Leo Quaye',        number:1,  position:'GK',  posGroup:'GK',  goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:72, name:'Nelson Afful',     number:4,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:73, name:'Ato Bonsu',        number:5,  position:'CB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:74, name:'Yaw Darko',        number:3,  position:'LB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:75, name:'Nana Amponsah',    number:2,  position:'RB',  posGroup:'DEF', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:76, name:'Kwame Darko',      number:6,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:77, name:'Francis Asare',    number:8,  position:'CM',  posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:78, name:'Grace Osei',       number:10, position:'CAM', posGroup:'MID', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:79, name:'Bright Asante',    number:11, position:'LW',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-      { id:80, name:'Prince Koomson',   number:9,  position:'ST',  posGroup:'FWD', goals:0, assists:0, appearances:0, rating:0.0 },
-    ]},
-  ];
+  teams: Team[] = [];
 
-  constructor(public authService: AuthService) {
-    this.initAllPlayers();
+  constructor(
+    public authService: AuthService,
+    private teamService: TeamService,
+    private matchService: MatchService,
+    private terrainService: TerrainService,
+    private playerService: PlayerService
+  ) {
     this.initMatches();
+  }
+
+  ngOnInit(): void {
+    this.loadTeams();
+    this.loadPlayers();
+    this.loadMatches();
+    this.loadTerrains();
+  }
+
+  // ── Backend Data Loading ──────────────────────────────────
+
+  private loadTeams(): void {
+    this.teamService.getAll().subscribe({
+      next: (dtos) => {
+        const gradients = [
+          'linear-gradient(135deg,#f97316,#ef4444)',
+          'linear-gradient(135deg,#0ea5e9,#2563eb)',
+          'linear-gradient(135deg,#10b981,#059669)',
+          'linear-gradient(135deg,#6366f1,#4338ca)',
+          'linear-gradient(135deg,#f43f5e,#e11d48)',
+          'linear-gradient(135deg,#8b5cf6,#7c3aed)',
+          'linear-gradient(135deg,#64748b,#475569)',
+          'linear-gradient(135deg,#ec4899,#be185d)',
+        ];
+        this.teams = dtos.map((dto, i) => ({
+          id: dto.id,
+          name: dto.nom,
+          logo: dto.nom.charAt(0).toUpperCase(),
+          color: gradients[i % gradients.length],
+          sportType: dto.typeSport,
+          players: (dto.joueurs || []).map(p => ({
+            id: p.id,
+            name: p.nom,
+            number: p.id,
+            age: p.age,
+            position: p.position,
+            posGroup: this.mapPosGroup(p.position),
+            goals: p.totalGoals,
+            assists: p.totalAssists,
+            appearances: p.matchesPlayed,
+            rating: p.averageRating || 5.0,
+            teamId: dto.id,
+            skillLevel: (p.averageRating >= 8.5 ? 'Pro' : p.averageRating >= 7.5 ? 'Intermédiaire' : 'Débutant') as SkillLevel
+          })),
+          wins: dto.statistics?.wins ?? 0,
+          draws: dto.statistics?.draws ?? 0,
+          losses: dto.statistics?.losses ?? 0,
+          goalsFor: dto.statistics?.goalsFor ?? 0,
+          goalsAgainst: dto.statistics?.goalsAgainst ?? 0
+        }));
+        this.initAllPlayers();
+      },
+      error: () => {}
+    });
+  }
+
+  private loadPlayers(): void {
+    this.playerService.getAll().subscribe({
+      next: (dtos) => {
+        this.allPlayers = dtos.map(p => ({
+          id: p.id,
+          name: p.nom,
+          number: p.id,
+          age: p.age,
+          position: p.position,
+          posGroup: this.mapPosGroup(p.position),
+          goals: p.totalGoals,
+          assists: p.totalAssists,
+          appearances: p.matchesPlayed,
+          rating: p.averageRating || 5.0,
+          teamId: p.equipeId ?? undefined,
+          skillLevel: (p.averageRating >= 8.5 ? 'Pro' : p.averageRating >= 7.5 ? 'Intermédiaire' : 'Débutant') as SkillLevel
+        }));
+      },
+      error: () => {}
+    });
+  }
+
+  private mapPosGroupToPosition(posGroup: string): string {
+    switch (posGroup) {
+      case 'GK': return 'GOALKEEPER';
+      case 'DEF': return 'DEFENDER';
+      case 'MID': return 'MIDFIELDER';
+      case 'FWD': return 'FORWARD';
+      default: return 'MIDFIELDER';
+    }
+  }
+
+  private mapSkillLevel(level: string): string {
+    switch (level) {
+      case 'Pro': return 'ADVANCED';
+      case 'Intermédiaire': return 'INTERMEDIATE';
+      default: return 'BEGINNER';
+    }
+  }
+
+  private mapPosGroup(position: string): 'GK' | 'DEF' | 'MID' | 'FWD' {
+    switch (position) {
+      case 'GOALKEEPER': return 'GK';
+      case 'DEFENDER': return 'DEF';
+      case 'MIDFIELDER': return 'MID';
+      case 'FORWARD': return 'FWD';
+      default: return 'MID';
+    }
+  }
+
+  private loadMatches(): void {
+    // Load ALL matches into _manualMatches for the match management tab
+    this.matchService.getAll().subscribe({
+      next: (dtos) => {
+        this._manualMatches = dtos.map(m => ({
+          id: m.id,
+          team1: m.homeTeamName,
+          team2: m.awayTeamName,
+          date: m.matchDate ? new Date(m.matchDate).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }) : 'TBD',
+          time: m.matchDate ? new Date(m.matchDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '18:00',
+          round: 'Match',
+          venue: m.terrainName || 'TBD',
+          status: this.mapMatchStatus(m.status),
+          score1: m.homeTeamScore ?? undefined,
+          score2: m.awayTeamScore ?? undefined,
+          durationMinutes: 90
+        }));
+      },
+      error: () => {}
+    });
+
+    // Also populate overview upcoming/recent lists
+    this.matchService.getScheduled().subscribe({
+      next: (matches) => {
+        this.upcomingMatches = matches.map(m => ({
+          id: m.id,
+          team1: m.homeTeamName,
+          team2: m.awayTeamName,
+          time: m.matchDate ? new Date(m.matchDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '18:00',
+          date: m.matchDate ? new Date(m.matchDate).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }) : 'TBD',
+          round: 'Match',
+          venue: m.terrainName || 'TBD'
+        }));
+      },
+      error: () => {}
+    });
+
+    this.matchService.getHistory().subscribe({
+      next: (matches) => {
+        this.recentResults = matches.slice(0, 6).map(m => ({
+          id: m.id,
+          team1: m.homeTeamName,
+          team2: m.awayTeamName,
+          score1: m.homeTeamScore ?? 0,
+          score2: m.awayTeamScore ?? 0,
+          date: m.matchDate ? new Date(m.matchDate).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }) : '',
+          round: 'Match'
+        }));
+      },
+      error: () => {}
+    });
+  }
+
+  private mapMatchStatus(status: string): 'tbd' | 'upcoming' | 'live' | 'completed' {
+    switch (status) {
+      case 'SCHEDULED': return 'upcoming';
+      case 'IN_PROGRESS': return 'live';
+      case 'COMPLETED': return 'completed';
+      case 'CANCELLED': return 'tbd';
+      default: return 'upcoming';
+    }
+  }
+
+  private loadTerrains(): void {
+    this.terrainService.getAll().subscribe({
+      next: (dtos) => {
+        this.stadiumsList = dtos.map((dto, i) => ({
+          id: dto.id,
+          name: dto.nom,
+          capacity: 500,
+          surface: dto.typeSport,
+          district: dto.location,
+          lighting: 'Standard',
+          yearBuilt: 2020,
+          description: `${dto.nom} — ${dto.address}`,
+          icon: ['🏟️', '⚽', '🌿', '🏃', '🥅', '🏆'][i % 6],
+          supportedSports: [dto.typeSport]
+        }));
+      },
+      error: () => {}
+    });
   }
 
   private initMatches(): void {
@@ -482,8 +582,6 @@ export class TournamentDashboardComponent {
         } as Match);
       });
     });
-
-    this._manualMatches = []; // No historical fake matches
     // Note: matchesList getter will handle merging with brackets
   }
 
@@ -531,58 +629,86 @@ export class TournamentDashboardComponent {
   savePlayer(): void {
     if (!this.editingPlayer || !this.editingPlayer.name) return;
 
-    if (this.editingPlayer.id) {
-      // Update
-      const idx = this.allPlayers.findIndex(p => p.id === this.editingPlayer!.id);
-      if (idx !== -1) {
-        const oldTeamId = this.allPlayers[idx].teamId;
-        const newTeamId = this.editingPlayer.teamId;
-
-        const updatedPlayers = [...this.allPlayers];
-        updatedPlayers[idx] = { ...this.editingPlayer } as Player;
-        this.allPlayers = updatedPlayers;
-
-        if (oldTeamId !== newTeamId) {
-          this.assignPlayerToTeam(this.editingPlayer.id, newTeamId);
-        } else if (newTeamId) {
-          const team = this.teams.find(t => t.id === newTeamId);
-          if (team) {
-            const pIdx = team.players.findIndex(p => p.id === this.editingPlayer!.id);
-            if (pIdx !== -1) {
-              const updatedRoster = [...team.players];
-              updatedRoster[pIdx] = { ...this.allPlayers[idx] };
-              team.players = updatedRoster;
-            }
-          }
-        }
-      }
-    } else {
-      // Create
-      const newId = Math.max(...this.allPlayers.map(p => p.id), 0) + 1;
-      const newPlayer = {
-        ...this.editingPlayer,
-        id: newId,
-        number: this.editingPlayer.number || Math.floor(Math.random() * 99) + 1,
-        rating: Math.floor(Math.random() * 3) + 6
-      } as Player;
-      this.allPlayers = [...this.allPlayers, newPlayer];
-      if (newPlayer.teamId) {
-        this.assignPlayerToTeam(newPlayer.id, newPlayer.teamId);
-      }
+    const payload: any = {
+      nom: this.editingPlayer.name,
+      age: this.editingPlayer.age || 20,
+      position: this.mapPosGroupToPosition(this.editingPlayer.posGroup || 'MID'),
+      niveau: this.mapSkillLevel(this.editingPlayer.skillLevel || 'Débutant')
+    };
+    if (this.editingPlayer.teamId) {
+      payload.equipe = { id: this.editingPlayer.teamId };
     }
-    this.closePlayerModal();
+
+    if (this.editingPlayer.id) {
+      // UPDATE
+      this.playerService.update(this.editingPlayer.id, payload).subscribe({
+        next: (dto) => {
+          const idx = this.allPlayers.findIndex(p => p.id === this.editingPlayer!.id);
+          if (idx !== -1) {
+            const updated: Player = {
+              ...this.allPlayers[idx],
+              name: dto.nom,
+              age: dto.age,
+              position: dto.position,
+              posGroup: this.mapPosGroup(dto.position),
+              teamId: dto.equipeId ?? undefined
+            };
+            this.allPlayers[idx] = updated;
+            // sync team roster
+            this.teams.forEach(t => {
+              const pi = t.players.findIndex(p => p.id === updated.id);
+              if (pi !== -1) t.players[pi] = updated;
+            });
+          }
+          this.closePlayerModal();
+        },
+        error: (err) => alert('Erreur mise à jour joueur: ' + (err?.error?.message || err.message))
+      });
+    } else {
+      // CREATE
+      this.playerService.create(payload).subscribe({
+        next: (dto) => {
+          const newPlayer: Player = {
+            id: dto.id,
+            name: dto.nom,
+            number: Math.floor(Math.random() * 99) + 1,
+            age: dto.age,
+            position: dto.position,
+            posGroup: this.mapPosGroup(dto.position),
+            goals: 0, assists: 0, appearances: 0,
+            rating: 5.0,
+            teamId: dto.equipeId ?? undefined,
+            skillLevel: this.mapSkillLevel(this.editingPlayer!.skillLevel || 'Débutant') as any
+          };
+          this.allPlayers = [...this.allPlayers, newPlayer];
+          if (newPlayer.teamId) {
+            const team = this.teams.find(t => t.id === newPlayer.teamId);
+            if (team) team.players = [...team.players, newPlayer];
+            // also call backend to assign player to team
+            this.teamService.addPlayer(newPlayer.teamId, newPlayer.id).subscribe({ error: () => {} });
+          }
+          this.closePlayerModal();
+        },
+        error: (err) => alert('Erreur création joueur: ' + (err?.error?.message || err.message))
+      });
+    }
   }
 
   deletePlayer(id: number): void {
     const p = this.allPlayers.find(pl => pl.id === id);
     if (!p) return;
-    if (confirm(`Voulez-vous vraiment supprimer ${p.name}?`)) {
-      this.allPlayers = this.allPlayers.filter(pl => pl.id !== id);
-      if (p.teamId) {
-        const team = this.teams.find(t => t.id === p.teamId);
-        if (team) team.players = team.players.filter(pl => pl.id !== id);
-      }
-    }
+    if (!confirm(`Voulez-vous vraiment supprimer ${p.name}?`)) return;
+
+    this.playerService.delete(id).subscribe({
+      next: () => {
+        this.allPlayers = this.allPlayers.filter(pl => pl.id !== id);
+        if (p.teamId) {
+          const team = this.teams.find(t => t.id === p.teamId);
+          if (team) team.players = team.players.filter(pl => pl.id !== id);
+        }
+      },
+      error: (err) => alert('Erreur suppression joueur: ' + (err?.error?.message || err.message))
+    });
   }
 
   closePlayerModal(): void {
@@ -620,61 +746,90 @@ export class TournamentDashboardComponent {
 
   saveTeam(): void {
     if (!this.editingTeam || !this.editingTeam.name) return;
-    
+
+    const payload = {
+      nom: this.editingTeam.name,
+      typeSport: (this.editingTeam.sportType?.toUpperCase() || 'FOOTBALL') as any
+    };
+
     if (this.editingTeam.id) {
-      const idx = this.teams.findIndex(t => t.id === this.editingTeam!.id);
-      if (idx !== -1) {
-        const oldName = this.teams[idx].name;
-        const newName = this.editingTeam.name;
-
-        // 1. Update Team record
-        this.teams[idx] = { ...this.teams[idx], ...this.editingTeam } as Team;
-
-        // 2. Cascade Name Change to Matches
-        if (oldName !== newName) {
-          this.matchesList.forEach(m => {
-            if (m.team1 === oldName) m.team1 = newName;
-            if (m.team2 === oldName) m.team2 = newName;
-          });
-
-          // 3. Cascade to Bracket
-          Object.values(this.bracketData).forEach(slot => {
-            if (slot.team1 === oldName) slot.team1 = newName;
-            if (slot.team2 === oldName) slot.team2 = newName;
-            if (slot.winner === oldName) slot.winner = newName;
-            // Champion link
-            if (this.champion === oldName) this.champion = newName;
-          });
-        }
-      }
+      // UPDATE
+      this.teamService.update(this.editingTeam.id, payload).subscribe({
+        next: (dto) => {
+          const idx = this.teams.findIndex(t => t.id === this.editingTeam!.id);
+          if (idx !== -1) {
+            const oldName = this.teams[idx].name;
+            const newName = dto.nom;
+            this.teams[idx] = { ...this.teams[idx], name: newName };
+            // cascade name change to bracket/matches
+            if (oldName !== newName) {
+              this._manualMatches.forEach(m => {
+                if (m.team1 === oldName) m.team1 = newName;
+                if (m.team2 === oldName) m.team2 = newName;
+              });
+              Object.values(this.bracketData).forEach(slot => {
+                if (slot.team1 === oldName) slot.team1 = newName;
+                if (slot.team2 === oldName) slot.team2 = newName;
+                if (slot.winner === oldName) slot.winner = newName;
+                if (this.champion === oldName) this.champion = newName;
+              });
+            }
+          }
+          this.closeTeamModal();
+        },
+        error: (err) => alert('Erreur mise à jour équipe: ' + (err?.error?.message || err.message))
+      });
     } else {
-      const newId = Math.max(...this.teams.map(t => t.id), 0) + 1;
-      const newTeam = { ...this.editingTeam, id: newId, logo: this.editingTeam.name.charAt(0).toUpperCase(), players: [] } as Team;
-      this.teams = [...this.teams, newTeam];
+      // CREATE
+      this.teamService.create(payload).subscribe({
+        next: (dto) => {
+          const gradients = [
+            'linear-gradient(135deg,#f97316,#ef4444)',
+            'linear-gradient(135deg,#0ea5e9,#2563eb)',
+            'linear-gradient(135deg,#8b5cf6,#6366f1)',
+            'linear-gradient(135deg,#f59e0b,#d97706)',
+            'linear-gradient(135deg,#10b981,#059669)',
+            'linear-gradient(135deg,#ec4899,#db2777)'
+          ];
+          const newTeam: Team = {
+            id: dto.id,
+            name: dto.nom,
+            logo: dto.nom.charAt(0).toUpperCase(),
+            color: gradients[this.teams.length % gradients.length],
+            sportType: dto.typeSport,
+            players: [],
+            wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0
+          };
+          this.teams = [...this.teams, newTeam];
+          this.closeTeamModal();
+        },
+        error: (err) => alert('Erreur création équipe: ' + (err?.error?.message || err.message))
+      });
     }
-    this.closeTeamModal();
   }
 
   deleteTeam(id: number): void {
     const t = this.teams.find(team => team.id === id);
     if (!t) return;
-    if (confirm(`Voulez-vous vraiment supprimer l'équipe ${t.name}? Tous les matchs associés seront marqués 'TBD'.`)) {
-      const oldName = t.name;
-      this.allPlayers.forEach(p => { if (p.teamId === id) p.teamId = undefined; });
-      this.teams = this.teams.filter(team => team.id !== id);
+    if (!confirm(`Voulez-vous vraiment supprimer l'équipe ${t.name}?`)) return;
 
-      // Cleanup matches
-      this.matchesList.forEach(m => {
-        if (m.team1 === oldName) { m.team1 = 'TBD'; m.status = 'tbd'; }
-        if (m.team2 === oldName) { m.team2 = 'TBD'; m.status = 'tbd'; }
-      });
-      // Cleanup bracket
-      Object.values(this.bracketData).forEach(slot => {
-        if (slot.team1 === oldName) { slot.team1 = null; slot.status = 'tbd'; }
-        if (slot.team2 === oldName) { slot.team2 = null; slot.status = 'tbd'; }
-        if (slot.winner === oldName) { slot.winner = null; slot.status = 'tbd'; }
-      });
-    }
+    this.teamService.delete(id).subscribe({
+      next: () => {
+        const oldName = t.name;
+        this.allPlayers.forEach(p => { if (p.teamId === id) p.teamId = undefined; });
+        this.teams = this.teams.filter(team => team.id !== id);
+        this._manualMatches.forEach(m => {
+          if (m.team1 === oldName) { m.team1 = 'TBD'; m.status = 'tbd'; }
+          if (m.team2 === oldName) { m.team2 = 'TBD'; m.status = 'tbd'; }
+        });
+        Object.values(this.bracketData).forEach(slot => {
+          if (slot.team1 === oldName) { slot.team1 = null; slot.status = 'tbd'; }
+          if (slot.team2 === oldName) { slot.team2 = null; slot.status = 'tbd'; }
+          if (slot.winner === oldName) { slot.winner = null; slot.status = 'tbd'; }
+        });
+      },
+      error: (err) => alert('Erreur suppression équipe: ' + (err?.error?.message || err.message))
+    });
   }
 
   closeTeamModal(): void {
@@ -759,18 +914,8 @@ export class TournamentDashboardComponent {
 
   // activityFeed is now handled by a getter below
 
-  upcomingMatches = [
-    { id:1, team1:'Fury FC',       team2:'Urban Wolves',   time:'18:00', date:'Mar 14', round:'QF', venue:'Terrain Nord'  },
-    { id:2, team1:'Street Kings',  team2:'Blacktop Elite', time:'20:00', date:'Mar 14', round:'QF', venue:'The Cage'      },
-    { id:3, team1:'Concrete Boys', team2:'Raw Talents',    time:'15:00', date:'Mar 15', round:'QF', venue:'Urban Arena'   },
-    { id:4, team1:'North Side FC', team2:'The Underdogs',  time:'17:30', date:'Mar 15', round:'QF', venue:'Terrain Sud'   },
-  ];
-  recentResults = [
-    { id:5, team1:'Fury FC',        team2:'North Side FC',  score1:3, score2:1, date:'Mar 10', round:'R16' },
-    { id:6, team1:'Urban Wolves',   team2:'The Underdogs',  score1:4, score2:0, date:'Mar 10', round:'R16' },
-    { id:7, team1:'Street Kings',   team2:'Concrete Boys',  score1:2, score2:2, date:'Mar 11', round:'R16' },
-    { id:8, team1:'Blacktop Elite', team2:'Raw Talents',    score1:1, score2:3, date:'Mar 11', round:'R16' },
-  ];
+  upcomingMatches: { id: number; team1: string; team2: string; time: string; date: string; round: string; venue: string }[] = [];
+  recentResults: { id: number; team1: string; team2: string; score1: number; score2: number; date: string; round: string }[] = [];
 
   // ── Bracket helpers ──────────────────────────────────────
   get qfPair1(): BracketSlot[] { return [this.bracketData['qf1'], this.bracketData['qf2']]; }
@@ -1046,24 +1191,61 @@ export class TournamentDashboardComponent {
 
   saveStadium(): void {
     if (!this.editingStadium || !this.editingStadium.name) return;
+
+    const payload = {
+      nom: this.editingStadium.name,
+      typeSport: (this.editingStadium.supportedSports?.[0]?.toUpperCase() || 'FOOTBALL') as any,
+      location: this.editingStadium.district || this.editingStadium.name,
+      address: this.editingStadium.description || this.editingStadium.name
+    };
+
     if (this.editingStadium.id) {
-      const idx = this.stadiumsList.findIndex(s => s.id === this.editingStadium!.id);
-      if (idx !== -1) {
-        const updated = [...this.stadiumsList];
-        updated[idx] = { ...this.editingStadium } as Stadium;
-        this.stadiumsList = updated;
-      }
+      this.terrainService.update(this.editingStadium.id, payload).subscribe({
+        next: (dto) => {
+          const idx = this.stadiumsList.findIndex(s => s.id === this.editingStadium!.id);
+          if (idx !== -1) {
+            this.stadiumsList[idx] = {
+              ...this.stadiumsList[idx],
+              name: dto.nom,
+              district: dto.location,
+              description: dto.address
+            };
+          }
+          this.closeStadiumModal();
+        },
+        error: (err) => alert('Erreur mise à jour terrain: ' + (err?.error?.message || err?.error?.error || err.message))
+      });
     } else {
-      const newId = Math.max(...this.stadiumsList.map(s => s.id), 0) + 1;
-      this.stadiumsList = [...this.stadiumsList, { ...this.editingStadium, id: newId } as Stadium];
+      this.terrainService.create(payload).subscribe({
+        next: (dto) => {
+          const newStadium: Stadium = {
+            id: dto.id,
+            name: dto.nom,
+            capacity: this.editingStadium!.capacity || 500,
+            surface: this.editingStadium!.surface || 'Synthetic',
+            district: dto.location,
+            lighting: this.editingStadium!.lighting || 'Standard',
+            yearBuilt: this.editingStadium!.yearBuilt || new Date().getFullYear(),
+            description: dto.address,
+            icon: this.editingStadium!.icon || '🏟️',
+            supportedSports: [dto.typeSport]
+          };
+          this.stadiumsList = [...this.stadiumsList, newStadium];
+          this.closeStadiumModal();
+        },
+        error: (err) => alert('Erreur création terrain: ' + (err?.error?.message || err?.error?.error || err.message))
+      });
     }
-    this.closeStadiumModal();
   }
 
   deleteStadium(id: number): void {
-    if (confirm('Voulez-vous vraiment supprimer ce terrain ?')) {
-      this.stadiumsList = this.stadiumsList.filter(s => s.id !== id);
-    }
+    if (!confirm('Voulez-vous vraiment supprimer ce terrain ?')) return;
+    this.terrainService.delete(id).subscribe({
+      next: () => {
+        this.stadiumsList = this.stadiumsList.filter(s => s.id !== id);
+      },
+      error: (err) => alert('Erreur suppression terrain: ' + (err?.error?.message || err?.error?.error || err.message))
+    });
   }
 
   closeStadiumModal(): void {
@@ -1134,10 +1316,13 @@ export class TournamentDashboardComponent {
   // ── Match CRUD Methods ───────────────────────────────
   
   openAddMatch(): void {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toISOString().split('T')[0];
     this.editingMatch = {
-      team1: '',
-      team2: '',
-      date: new Date().toISOString().split('T')[0],
+      team1: this.teams[0]?.name || '',
+      team2: this.teams[1]?.name || '',
+      date: dateStr,
       time: '18:00',
       round: 'Regular',
       venue: this.stadiumsList[0]?.name || '',
@@ -1154,69 +1339,87 @@ export class TournamentDashboardComponent {
 
   saveMatch(): void {
     if (!this.editingMatch || !this.editingMatch.team1 || !this.editingMatch.team2) return;
-    
-    // CONFLICT CHECK
-    const conflict = this.matchesList.find(m => 
-      m.id !== this.editingMatch?.id &&
-      m.venue === this.editingMatch?.venue &&
-      this.isTimeOverlap(m, this.editingMatch as Match)
-    );
 
-    if (conflict) {
-      alert(`⚠️ Conflict Detected! ${this.editingMatch.venue} is already occupied by ${conflict.team1} vs ${conflict.team2} during this period.`);
+    // Resolve team IDs from names
+    const homeTeam = this.teams.find(t => t.name === this.editingMatch!.team1);
+    const awayTeam = this.teams.find(t => t.name === this.editingMatch!.team2);
+    const terrain = this.stadiumsList.find(s => s.name === this.editingMatch!.venue);
+
+    if (!homeTeam || !awayTeam) {
+      alert('⚠️ Équipes introuvables. Assurez-vous que les équipes existent dans la base de données.');
+      return;
+    }
+    if (!terrain) {
+      alert('⚠️ Terrain introuvable. Assurez-vous que le terrain existe dans la base de données.');
       return;
     }
 
-    let savedMatch: Match;
-    if (this.editingMatch.id) {
-      const idx = this.matchesList.findIndex(m => m.id === this.editingMatch!.id);
-      if (idx !== -1) {
-        this.matchesList[idx] = { ...this.editingMatch } as Match;
-        savedMatch = this.matchesList[idx];
-      } else return;
-    } else {
-      const newId = Math.max(...this.matchesList.map(m => m.id), 0) + 1;
-      savedMatch = { ...this.editingMatch, id: newId } as Match;
-      this.matchesList = [...this.matchesList, savedMatch];
-    }
+    // Build ISO datetime from date + time fields
+    const matchDate = `${this.editingMatch.date}T${this.editingMatch.time || '18:00'}:00`;
 
-    // SYNC TO BRACKET if applicable
-    if (savedMatch.bracketSlotId) {
-      const slot = this.bracketData[savedMatch.bracketSlotId];
-      if (slot) {
-        slot.team1 = savedMatch.team1;
-        slot.team2 = savedMatch.team2;
-        slot.score1 = savedMatch.score1 ?? null;
-        slot.score2 = savedMatch.score2 ?? null;
-        slot.date = savedMatch.date;
-        slot.time = savedMatch.time;
-        slot.venue = savedMatch.venue;
-        slot.status = savedMatch.status === 'completed' ? 'completed' : (slot.team1 && slot.team2 ? 'upcoming' : 'tbd');
-        
-        // If status changed to completed, we need to advance the winner manually
-        if (savedMatch.status === 'completed' && savedMatch.score1 !== undefined && savedMatch.score2 !== undefined) {
-          const winner = savedMatch.score1 > savedMatch.score2 ? savedMatch.team1 : savedMatch.team2;
-          slot.winner = winner;
-          if (slot.nextMatchId) {
-            const next = this.bracketData[slot.nextMatchId];
-            if (slot.nextSlot === 1) next.team1 = winner; else next.team2 = winner;
-            // Update next match in list too
-            const nextInList = this.matchesList.find(m => m.bracketSlotId === slot.nextMatchId);
-            if (nextInList) {
-              if (slot.nextSlot === 1) nextInList.team1 = winner; else nextInList.team2 = winner;
-            }
+    const payload = {
+      homeTeam: { id: homeTeam.id },
+      awayTeam: { id: awayTeam.id },
+      terrain: { id: terrain.id },
+      matchDate
+    };
+
+    if (this.editingMatch.id && !String(this.editingMatch.id).startsWith('1000')) {
+      // UPDATE — only for real backend matches (not bracket-generated IDs)
+      this.matchService.update(this.editingMatch.id, payload as any).subscribe({
+        next: (dto) => {
+          const idx = this._manualMatches.findIndex(m => m.id === this.editingMatch!.id);
+          if (idx !== -1) {
+            this._manualMatches[idx] = {
+              ...this._manualMatches[idx],
+              team1: dto.homeTeamName,
+              team2: dto.awayTeamName,
+              venue: dto.terrainName,
+              date: dto.matchDate ? new Date(dto.matchDate).toLocaleDateString('fr-FR') : '',
+              time: dto.matchDate ? new Date(dto.matchDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''
+            };
           }
-          if (savedMatch.bracketSlotId === 'f1') this.champion = winner;
-        }
-      }
+          this.closeMatchModal();
+        },
+        error: (err) => alert('Erreur mise à jour match: ' + (err?.error?.message || err?.error?.error || err.message))
+      });
+    } else {
+      // CREATE
+      this.matchService.create(payload as any).subscribe({
+        next: (dto) => {
+          const newMatch: Match = {
+            id: dto.id,
+            team1: dto.homeTeamName,
+            team2: dto.awayTeamName,
+            date: dto.matchDate ? new Date(dto.matchDate).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }) : '',
+            time: dto.matchDate ? new Date(dto.matchDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '',
+            round: this.editingMatch!.round || 'Regular',
+            venue: dto.terrainName,
+            status: 'upcoming',
+            durationMinutes: 90
+          };
+          this._manualMatches = [...this._manualMatches, newMatch];
+          this.closeMatchModal();
+        },
+        error: (err) => alert('Erreur création match: ' + (err?.error?.message || err?.error?.error || err.message))
+      });
     }
-
-    this.closeMatchModal();
   }
 
   deleteMatch(id: number): void {
-    if (confirm('Voulez-vous supprimer ce match ?')) {
-      this.matchesList = this.matchesList.filter(m => m.id !== id);
+    if (!confirm('Voulez-vous supprimer ce match ?')) return;
+    // Only delete real backend matches (not bracket-generated ones)
+    const match = this._manualMatches.find(m => m.id === id);
+    if (match) {
+      this.matchService.delete(id).subscribe({
+        next: () => {
+          this._manualMatches = this._manualMatches.filter(m => m.id !== id);
+        },
+        error: (err) => alert('Erreur suppression match: ' + (err?.error?.message || err?.error?.error || err.message))
+      });
+    } else {
+      // Bracket match — just remove from bracket display
+      this._manualMatches = this._manualMatches.filter(m => m.id !== id);
     }
   }
 
@@ -1244,14 +1447,7 @@ export class TournamentDashboardComponent {
   }
   get stadiumsList(): Stadium[] { return this._stadiums; }
   set stadiumsList(val: Stadium[]) { this._stadiums = val; }
-  private _stadiums: Stadium[] = [
-    { id:1, name:'Terrain Nord', capacity:1200, surface:'Synthetic Turf (3G)', district:'North District', lighting:'Full Floodlights', yearBuilt:2019, description:'A modern synthetic arena...', icon:'🏟️', supportedSports:['Football'] },
-    { id:2, name:'The Cage', capacity:800, surface:'Asphalt (Street)', district:'Downtown Core', lighting:'LED Panels', yearBuilt:2014, description:'Iconic street-court...', icon:'⛓️', supportedSports:['Football', 'Basketball'] },
-    { id:3, name:'Urban Arena', capacity:1500, surface:'Compact Grass', district:'East Side', lighting:'Floodlights', yearBuilt:2021, description:'The largest open ground...', icon:'🌿', supportedSports:['Football'] },
-    { id:4, name:'Terrain Sud', capacity:950, surface:'Synthetic Turf (2G)', district:'South Quarter', lighting:'Standard Pylons', yearBuilt:2016, description:'A community-built pitch...', icon:'🏟️', supportedSports:['Football'] },
-    { id:5, name:'Stade Central', capacity:3000, surface:'Natural Grass', district:'City Centre', lighting:'Stadium-Grade LED', yearBuilt:2018, description:'The crown jewel...', icon:'🌟', supportedSports:['Football'] },
-    { id:6, name:'Grand Stade', capacity:5000, surface:'Premium Natural Grass', district:'Grand Boulevard', lighting:'Pro-Grade Broadcast', yearBuilt:2022, description:'The final destination...', icon:'🏆', supportedSports:['Football'] }
-  ];
+  private _stadiums: Stadium[] = [];
 
   getStadium(venueName: string): Stadium | null {
     return this.stadiumsList.find(s => s.name === venueName) ?? null;
