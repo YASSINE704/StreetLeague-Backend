@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth -> auth
+                        // Auth endpoint - public
+                        .requestMatchers("/api/auth/**").permitAll()
                         // Module Coaching - ouvert pour dev/test (sera protégé après intégration auth)
                         .requestMatchers("/api/programmes/**").permitAll()
                         .requestMatchers("/api/seances/**").permitAll()

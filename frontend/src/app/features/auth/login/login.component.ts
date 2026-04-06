@@ -100,15 +100,29 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     const { email, password } = this.loginForm.value;
 
-    setTimeout(() => {
-      const ok = this.authService.login(email, password, this.selectedRole);
-      this.isLoading = false;
-      if (ok) {
-        this.authService.redirectAfterLogin();
-      } else {
-        this.errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
-      }
-    }, 800);
+    // Use real backend for COACH and ADMIN; mock for other roles
+    if (this.selectedRole === 'COACH' || this.selectedRole === 'ADMIN') {
+      this.authService.loginWithBackend(email, password).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.authService.redirectAfterLogin();
+        },
+        error: () => {
+          this.isLoading = false;
+          this.errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+        }
+      });
+    } else {
+      setTimeout(() => {
+        const ok = this.authService.login(email, password, this.selectedRole);
+        this.isLoading = false;
+        if (ok) {
+          this.authService.redirectAfterLogin();
+        } else {
+          this.errorMessage = 'Identifiants incorrects. Veuillez réessayer.';
+        }
+      }, 800);
+    }
   }
 
   onRegister(): void {

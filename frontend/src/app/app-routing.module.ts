@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 
 const routes: Routes = [
   {
     path: 'auth',
-    loadChildren: () =>
-      import('./features/auth/auth.module').then(m => m.AuthModule)
+    loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
   },
   {
     path: 'tournament',
@@ -32,7 +32,8 @@ const routes: Routes = [
     path: 'coaching',
     loadChildren: () => import('./features/coaching/coaching.module').then(m => m.CoachingModule)
   },
-  { path: '', redirectTo: 'auth/login', pathMatch: 'full' }
+  { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
+  { path: '**', redirectTo: 'auth/login' }
 ];
 
 @NgModule({
