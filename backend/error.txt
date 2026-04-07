@@ -1,0 +1,75 @@
+﻿[ERROR] COMPILATION ERROR : 
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[5,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[7,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[8,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[9,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[10,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[11,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[13,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[14,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[15,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[16,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[19,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[20,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[22,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,1] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,3] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,5] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,7] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[82,1] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[81,22] ';' expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,1] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,4] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,7] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,10] ';' expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,49] ';' expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[174,2] reached end of file while parsing
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[3,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[5,1] illegal start of type
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[6,43] <identifier> expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[7,1] illegal start of type
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[7,62] <identifier> expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[24,1] illegal start of type
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[24,49] <identifier> expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[28,2] reached end of file while parsing
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile (default-compile) on project backend: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[5,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[7,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[8,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[9,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[10,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[11,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[13,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[14,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[15,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[16,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[19,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[20,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[22,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,1] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,3] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,5] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[70,7] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[82,1] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[81,22] ';' expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,1] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,4] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,7] illegal start of expression
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,10] ';' expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[172,49] ';' expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/GlobalExceptionHandler.java:[174,2] reached end of file while parsing
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[3,1] class, interface, enum, or record expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[5,1] illegal start of type
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[6,43] <identifier> expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[7,1] illegal start of type
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[7,62] <identifier> expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[24,1] illegal start of type
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[24,49] <identifier> expected
+[ERROR] /C:/Users/BLADE/Desktop/ALL/PI/PI_StreetLeague/backend/src/main/java/com/streetLeague/backend/exception/ResourceNotFoundException.java:[28,2] reached end of file while parsing
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

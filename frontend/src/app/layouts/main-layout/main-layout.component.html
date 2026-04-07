@@ -1,1 +1,122 @@
-<p>main-layout works!</p>
+<div class="layout-shell">
+
+  <!-- ── HEADER ── -->
+  <header class="sl-header">
+    <div class="sl-header__inner">
+
+      <a class="sl-logo" [routerLink]="dashboardLink">
+        <div class="sl-logo__mark">⚡</div>
+        <span class="sl-logo__text">Street<strong>League</strong></span>
+      </a>
+
+      <nav class="sl-nav">
+        <a class="sl-nav__link" [routerLink]="dashboardLink" routerLinkActive="sl-nav__link--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a class="sl-nav__link" routerLink="/tournament" routerLinkActive="sl-nav__link--active" *ngIf="role === 'ADMIN'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          Tournois
+        </a>
+        <a class="sl-nav__link" routerLink="/terrain-manager-dashboard" routerLinkActive="sl-nav__link--active" *ngIf="role === 'TERRAIN_MANAGER'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Mes Terrains
+        </a>
+        <a class="sl-nav__link" routerLink="/player-dashboard" routerLinkActive="sl-nav__link--active" *ngIf="role === 'JOUEUR'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Mon Profil
+        </a>
+      </nav>
+
+      <div class="sl-header__right">
+        <div class="sl-role-badge">
+          <span class="sl-role-dot"></span>
+          {{ roleLabel }}
+        </div>
+        <div class="sl-divider"></div>
+        <div class="sl-user">
+          <div class="sl-user__avatar">{{ username.charAt(0).toUpperCase() }}</div>
+          <span class="sl-user__name">{{ username }}</span>
+        </div>
+        <button class="sl-logout" (click)="authService.logout()" title="Déconnexion">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Logout
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ── PAGE CONTENT ── -->
+  <main class="layout-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="sl-footer">
+    <div class="sl-footer__top">
+      <div class="sl-footer__inner">
+
+        <div class="sl-footer__col sl-footer__col--brand">
+          <div class="sl-footer__logo">
+            <div class="sl-footer__logo-mark">⚡</div>
+            <span>Street<strong>League</strong></span>
+          </div>
+          <p class="sl-footer__desc">La plateforme numéro 1 du street football. Rejoins des centaines de joueurs et terrains partenaires.</p>
+          <div class="sl-footer__socials">
+            <a href="#" class="sl-social" title="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+            </a>
+            <a href="#" class="sl-social" title="Twitter/X">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="#" class="sl-social" title="TikTok">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="sl-footer__col">
+          <h4>Plateforme</h4>
+          <a href="#">Comment ça marche</a>
+          <a href="#">Trouver un terrain</a>
+          <a href="#">Rejoindre une équipe</a>
+          <a href="#">Tournois</a>
+        </div>
+
+        <div class="sl-footer__col">
+          <h4>Compte</h4>
+          <a href="#">Mon profil</a>
+          <a href="#">Mes matchs</a>
+          <a href="#">Statistiques</a>
+          <a href="#">Paramètres</a>
+        </div>
+
+        <div class="sl-footer__col">
+          <h4>Support</h4>
+          <a href="#">Centre d'aide</a>
+          <a href="#">Nous contacter</a>
+          <a href="#">Mentions légales</a>
+          <a href="#">Confidentialité</a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sl-footer__bottom">
+      <div class="sl-footer__inner">
+        <p>© 2025 StreetLeague. Tous droits réservés.</p>
+        <div class="sl-footer__stats">
+          <span>⚽ 2 400+ Joueurs</span>
+          <span>🏟️ 180+ Terrains</span>
+          <span>🏆 640+ Matchs</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>

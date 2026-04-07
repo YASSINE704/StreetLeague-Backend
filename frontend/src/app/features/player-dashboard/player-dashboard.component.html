@@ -1,0 +1,282 @@
+<div class="pd-root">
+  <div class="pd-decoration pd-decor-1"></div>
+  <div class="pd-decoration pd-decor-2"></div>
+
+  <!-- Error banner -->
+  <div class="pd-error-banner" *ngIf="error">
+    ⚠️ {{ error }}
+    <button (click)="dismissError()">✕</button>
+  </div>
+
+  <header class="pd-header">
+    <div class="pd-header__left">
+      <div class="pd-logo">SPL</div>
+      <div class="pd-brand">
+        <h1>Player Interface</h1>
+        <div class="pd-status">
+          <span class="live-dot"></span>
+          <span>StreetLeague Official Player Profile</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pd-header__right">
+      <div class="pd-user-summary">
+        <div class="pd-user-avatar">{{ authService.user?.username?.charAt(0) || 'J' }}</div>
+        <div class="pd-user-info">
+          <p class="pd-user-name">{{ authService.user?.username }}</p>
+          <p class="pd-user-role">{{ playerData?.position || 'Joueur' }}</p>
+        </div>
+      </div>
+      <button class="pd-logout-btn" (click)="authService.logout()" title="Déconnexion">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="pd-main">
+    <!-- Loading -->
+    <div *ngIf="loading" class="pd-loading">Chargement des données...</div>
+
+    <!-- Top Stats Cards -->
+    <section class="pd-stats-grid" *ngIf="!loading">
+      <div class="pd-stat-card glass" *ngFor="let s of [
+        { label: 'Matchs Joués', value: stats.matchesPlayed, icon: '⚽' },
+        { label: 'Buts', value: stats.goals, icon: '🥅' },
+        { label: 'Assists', value: stats.assists, icon: '👟' },
+        { label: 'Rating Global', value: stats.rating + '/10', icon: '⭐' }
+      ]">
+        <div class="pd-stat-content">
+          <span class="pd-stat-label">{{ s.label }}</span>
+          <span class="pd-stat-value">{{ s.value }}</span>
+        </div>
+        <span class="pd-stat-icon">{{ s.icon }}</span>
+      </div>
+    </section>
+
+    <div class="pd-two-col" *ngIf="!loading">
+      <!-- Sidebar -->
+      <aside class="pd-sidebar glass">
+        <nav class="pd-nav">
+          <button class="pd-nav-item" [class.active]="activeTab === 'OVERVIEW'" (click)="activeTab = 'OVERVIEW'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Aperçu Global
+          </button>
+          <button class="pd-nav-item" [class.active]="activeTab === 'PROFILE'" (click)="activeTab = 'PROFILE'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Édition de Profil
+          </button>
+          <button class="pd-nav-item" [class.active]="activeTab === 'INVITATIONS'" (click)="activeTab = 'INVITATIONS'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-5 0a5 5 0 0 1-10 0"/></svg>
+            Matchs ({{ invitations.length }})
+          </button>
+          <button class="pd-nav-item" [class.active]="activeTab === 'STATS'" (click)="activeTab = 'STATS'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Performances
+          </button>
+        </nav>
+
+        <!-- Team squad -->
+        <div class="pd-squad-mini mt-6" *ngIf="myTeam">
+          <p class="pd-squad-title">Mon Équipe : <span>{{ myTeam.nom }}</span></p>
+          <div class="pd-squad-list">
+            <div class="pd-member" *ngFor="let m of myTeam.joueurs | slice:0:5">
+              <div class="pd-member-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8)">
+                {{ m.nom.charAt(0) }}
+              </div>
+              <span class="pd-member-name">{{ m.nom }}</span>
+              <span class="pd-member-role">{{ m.position }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="pd-squad-mini mt-6" *ngIf="!myTeam">
+          <p class="pd-squad-title">Aucune équipe assignée</p>
+        </div>
+      </aside>
+
+      <!-- Content Area -->
+      <section class="pd-content glass">
+
+        <!-- OVERVIEW TAB -->
+        <div *ngIf="activeTab === 'OVERVIEW'" class="pd-tab-panel">
+          <div class="pd-overview-layout">
+
+            <!-- Next match hero -->
+            <div class="pd-next-match-hero" *ngIf="invitations.length > 0">
+              <div class="pd-hero-tag">PROCHAIN MATCH</div>
+              <div class="pd-hero-match">
+                <div class="pd-hero-team">{{ invitations[0].homeTeamName }}</div>
+                <div class="pd-hero-vs">VS</div>
+                <div class="pd-hero-team">{{ invitations[0].awayTeamName }}</div>
+              </div>
+              <div class="pd-hero-info">
+                <span>{{ invitations[0].terrainName }}</span>
+                <span>{{ invitations[0].matchDate | date:'dd MMM yyyy, HH:mm' }}</span>
+              </div>
+            </div>
+            <div class="pd-next-match-hero" *ngIf="invitations.length === 0">
+              <div class="pd-hero-tag">PROCHAIN MATCH</div>
+              <p style="text-align:center; padding: 1rem; opacity: 0.7;">Aucun match planifié</p>
+            </div>
+
+            <!-- Activity feed -->
+            <div class="pd-activity-section">
+              <h3>Fil d'Activité</h3>
+              <div class="pd-feed" *ngIf="activityFeed.length > 0">
+                <div class="pd-feed-item" *ngFor="let f of activityFeed">
+                  <span class="pd-feed-icon">{{ f.icon }}</span>
+                  <div class="pd-feed-text">
+                    <p>{{ f.content }}</p>
+                    <span>{{ f.time }}</span>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="activityFeed.length === 0" class="pd-empty-state">
+                <p>Aucune activité récente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div *ngIf="activeTab === 'PROFILE'" class="pd-tab-panel">
+          <h2 class="pd-panel-title">Mettre à jour ton profil</h2>
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="pd-form">
+            <div class="pd-form-grid">
+              <div class="pd-form-field">
+                <label>Nom Complet</label>
+                <input type="text" formControlName="name" placeholder="Ex: Lionel Messi">
+              </div>
+              <div class="pd-form-field">
+                <label>Username</label>
+                <input type="text" formControlName="username" placeholder="@ton_pseudo">
+              </div>
+            </div>
+            <div class="pd-form-grid">
+              <div class="pd-form-field">
+                <label>Position</label>
+                <select formControlName="position">
+                  <option value="GOALKEEPER">Gardien (GK)</option>
+                  <option value="DEFENDER">Défenseur (DEF)</option>
+                  <option value="MIDFIELDER">Milieu (MID)</option>
+                  <option value="FORWARD">Attaquant (FWD)</option>
+                  <option value="UTILITY">Polyvalent</option>
+                </select>
+              </div>
+              <div class="pd-form-field">
+                <label>Pied Dominant</label>
+                <select formControlName="preferredFoot">
+                  <option value="Left">Gaucher</option>
+                  <option value="Right">Droitier</option>
+                  <option value="Both">Ambidextre</option>
+                </select>
+              </div>
+            </div>
+            <div class="pd-form-field">
+              <label>Disponibilités habituelles</label>
+              <input type="text" formControlName="availability" placeholder="Ex: Soirs & Week-ends">
+            </div>
+            <div class="pd-form-field">
+              <label>Ma Bio</label>
+              <textarea formControlName="bio" rows="4"></textarea>
+            </div>
+            <div class="pd-form-footer">
+              <button type="submit" class="pd-btn-primary" [disabled]="profileForm.invalid">Enregistrer les changements</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- INVITATIONS / MATCHES TAB -->
+        <div *ngIf="activeTab === 'INVITATIONS'" class="pd-tab-panel">
+          <h2 class="pd-panel-title">Matchs à venir</h2>
+          <div class="pd-inv-list">
+            <div *ngFor="let m of invitations" class="pd-inv-card">
+              <div class="pd-inv-header" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8)">
+                <span class="pd-inv-logo">⚽</span>
+                <div class="pd-inv-team-info">
+                  <h3>{{ m.homeTeamName }} vs {{ m.awayTeamName }}</h3>
+                  <span>{{ m.status }}</span>
+                </div>
+                <div class="pd-inv-status-chip" [attr.data-status]="m.status">{{ m.status }}</div>
+              </div>
+              <div class="pd-inv-body">
+                <div class="pd-inv-detail">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  {{ m.terrainName }} — {{ m.terrainAddress }}
+                </div>
+                <div class="pd-inv-detail">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  {{ m.matchDate | date:'dd MMM yyyy, HH:mm' }}
+                </div>
+              </div>
+            </div>
+            <div *ngIf="invitations.length === 0" class="pd-empty-state">
+              <p>Aucun match planifié pour le moment.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS TAB -->
+        <div *ngIf="activeTab === 'STATS'" class="pd-tab-panel">
+          <h2 class="pd-panel-title">Tes performances détaillées</h2>
+          <div class="pd-stats-visuals">
+            <div class="pd-attributes-grid">
+              <div class="pd-attr-card" *ngFor="let a of attributes">
+                <div class="pd-attr-header">
+                  <span>{{ a.label }}</span>
+                  <span [style.color]="a.color">{{ a.value }}</span>
+                </div>
+                <div class="pd-attr-bar">
+                  <div class="pd-attr-fill" [style.width.%]="a.value" [style.background]="a.color"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pd-stats-summary mt-8">
+              <div class="pd-summary-item">
+                <span class="label">Taux de Victoire</span>
+                <span class="value">{{ stats.winRate }}%</span>
+                <div class="progress"><div class="progress-fill" [style.width.%]="stats.winRate"></div></div>
+              </div>
+            </div>
+
+            <!-- Per-match stats table -->
+            <div class="pd-match-stats" *ngIf="playerStats.length > 0">
+              <h3>Historique par match</h3>
+              <table class="pd-stats-table">
+                <thead>
+                  <tr>
+                    <th>Adversaire</th>
+                    <th>Date</th>
+                    <th>Buts</th>
+                    <th>Assists</th>
+                    <th>Min</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let s of playerStats">
+                    <td>{{ s.opponent }}</td>
+                    <td>{{ s.matchDate | date:'dd/MM/yy' }}</td>
+                    <td>{{ s.goals }}</td>
+                    <td>{{ s.assists }}</td>
+                    <td>{{ s.minutesPlayed }}'</td>
+                    <td>{{ s.performanceRating | number:'1.1-1' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div *ngIf="playerStats.length === 0" class="pd-empty-state">
+              <p>Aucune statistique de match disponible.</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+</div>
