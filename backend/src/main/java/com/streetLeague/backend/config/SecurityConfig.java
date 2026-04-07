@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth -> auth
+                        // Auth endpoint - public
+                        .requestMatchers("/api/auth/**").permitAll()
                         // Module Coaching - ouvert pour dev/test (sera protégé après intégration auth)
                         .requestMatchers("/api/programmes/**").permitAll()
                         .requestMatchers("/api/seances/**").permitAll()
@@ -35,7 +37,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/suivis/**").permitAll()
                         .requestMatchers("/api/affectations/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        // Tout le reste reste protégé pour les autres modules
+                        // Sports module - open for dev/test
+                        .requestMatchers("/players/**").permitAll()
+                        .requestMatchers("/teams/**").permitAll()
+                        .requestMatchers("/terrains/**").permitAll()
+                        .requestMatchers("/matches/**").permitAll()
+                        .requestMatchers("/player-stats/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
@@ -54,7 +61,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

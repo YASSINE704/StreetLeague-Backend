@@ -5,7 +5,7 @@ import { AffectationProgramme } from '../../shared/models/programme-entrainement
 
 @Injectable({ providedIn: 'root' })
 export class AffectationService {
-  private apiUrl = 'http://localhost:8080/api/affectations';
+  private apiUrl = 'http://localhost:18080/api/affectations';
 
   constructor(private http: HttpClient) {}
 
