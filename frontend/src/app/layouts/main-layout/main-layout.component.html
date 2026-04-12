@@ -1,46 +1,96 @@
-<nav class="sl-navbar">
-  <a routerLink="/" class="sl-navbar-brand">⚽ StreetLeague</a>
-  <ul class="sl-nav">
-    <li><a routerLink="/dashboard" routerLinkActive="sl-nav-active">📊 Dashboard</a></li>
-    <li><a routerLink="/endroits" routerLinkActive="sl-nav-active">Endroits</a></li>
-    <li><a routerLink="/sous-espaces" routerLinkActive="sl-nav-active">Sous-Espaces</a></li>
-    <li class="sl-nav-sep">|</li>
-    <li><a routerLink="/client" routerLinkActive="sl-nav-active" class="sl-nav-client">🏟️ Client</a></li>
-    <li><a routerLink="/client/reservations" routerLinkActive="sl-nav-active" class="sl-nav-client">📋 Réservations</a></li>
-  </ul>
-  <div class="sl-notif-area">
-    <button class="sl-btn-icon" (click)="toggleNotifs()">
-      🔔
-      <span class="sl-notif-count" *ngIf="notifService.unreadCount > 0">{{ notifService.unreadCount }}</span>
-    </button>
-    <div class="sl-notif-dropdown" *ngIf="showNotifs">
-      <div class="sl-notif-header">
-        <span>Notifications</span>
-        <button class="sl-btn--ghost sl-btn--xs" (click)="notifService.markAllRead()">Tout lire</button>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.collapsed]="collapsed">
+    <div class="sidebar-header">
+      <div class="logo" *ngIf="!collapsed">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Street<strong>League</strong></span>
       </div>
-      <div *ngIf="notifService.notifications.length === 0" class="sl-empty" style="padding:1.5rem"><p>Aucune notification</p></div>
-      <div class="sl-notif-list">
-        <div class="sl-notif-item" *ngFor="let n of notifService.notifications; let i = index"
-             [class.unread]="!n.read"
-             [class.notif-created]="n.type === 'NOUVELLE_RESERVATION'"
-             [class.notif-confirmed]="n.type === 'RESERVATION_CONFIRMEE'"
-             [class.notif-cancelled]="n.type === 'RESERVATION_ANNULEE'"
-             (click)="notifService.markRead(i)">
-          <span class="sl-notif-icon" [ngSwitch]="n.type">
-            <span *ngSwitchCase="'NOUVELLE_RESERVATION'">📅</span>
-            <span *ngSwitchCase="'RESERVATION_CONFIRMEE'">✅</span>
-            <span *ngSwitchCase="'RESERVATION_ANNULEE'">❌</span>
-            <span *ngSwitchDefault>🔔</span>
-          </span>
-          <div class="sl-notif-content">
-            <p>{{ n.message }}</p>
-            <small>{{ n.timestamp | date:'short' }}</small>
-          </div>
+      <span class="logo-icon" *ngIf="collapsed">⚡</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ng-container *ngFor="let link of navLinks">
+        <div class="nav-section" *ngIf="!collapsed && link.section">
+          <span class="nav-section-title">{{ link.section }}</span>
+        </div>
+        <a [routerLink]="link.path" routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: link.path === '/dashboard'}"
+           class="nav-item" [title]="link.label">
+          <span class="nav-icon">{{ link.icon }}</span>
+          <span class="nav-label" *ngIf="!collapsed">{{ link.label }}</span>
+        </a>
+      </ng-container>
+    </nav>
+
+    <!-- User footer -->
+    <div class="sidebar-footer" *ngIf="!collapsed">
+      <div class="user-info">
+        <div class="user-avatar">{{ avatarInitial }}</div>
+        <div class="user-details">
+          <span class="user-name">{{ username || 'Utilisateur' }}</span>
+          <span class="user-role">{{ roleLabel }}</span>
         </div>
       </div>
+      <button class="logout-btn" (click)="authService.logout()" *ngIf="authService.isLoggedIn" title="Déconnexion">
+        🚪
+      </button>
     </div>
+
+    <button class="sidebar-toggle" (click)="collapsed = !collapsed">
+      {{ collapsed ? '→' : '←' }}
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrapper" [class.sidebar-collapsed]="collapsed">
+
+    <!-- Top header -->
+    <header class="top-header">
+      <div class="header-left">
+        <span class="header-subtitle">STREETLEAGUE PLATFORM</span>
+        <h1 class="header-title">{{ pageTitle }}</h1>
+      </div>
+      <div class="header-right">
+        <!-- Notifications -->
+        <div class="notif-area">
+          <button class="notif-btn" (click)="toggleNotifs()">
+            🔔
+            <span class="notif-count" *ngIf="notifService.unreadCount > 0">{{ notifService.unreadCount }}</span>
+          </button>
+          <div class="notif-dropdown" *ngIf="showNotifs">
+            <div class="notif-header">
+              <span>Notifications</span>
+              <button class="notif-clear" (click)="notifService.markAllRead()">Tout lire</button>
+            </div>
+            <div *ngIf="notifService.notifications.length === 0" class="notif-empty">Aucune notification</div>
+            <div class="notif-list">
+              <div class="notif-item" *ngFor="let n of notifService.notifications; let i = index"
+                   [class.unread]="!n.read" (click)="notifService.markRead(i)">
+                <span class="notif-icon" [ngSwitch]="n.type">
+                  <span *ngSwitchCase="'NOUVELLE_RESERVATION'">📅</span>
+                  <span *ngSwitchCase="'RESERVATION_CONFIRMEE'">✅</span>
+                  <span *ngSwitchCase="'RESERVATION_ANNULEE'">❌</span>
+                  <span *ngSwitchDefault>🔔</span>
+                </span>
+                <div class="notif-content">
+                  <p>{{ n.message }}</p>
+                  <small>{{ n.timestamp | date:'short' }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-badge" *ngIf="role">{{ roleLabel }}</div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
   </div>
-</nav>
-<div class="sl-page">
-  <router-outlet></router-outlet>
+
 </div>

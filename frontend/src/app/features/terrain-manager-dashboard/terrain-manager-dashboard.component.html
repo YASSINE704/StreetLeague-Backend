@@ -1,0 +1,302 @@
+<div class="tm-root">
+  <div class="tm-decoration tm-decor-1"></div>
+  <div class="tm-decoration tm-decor-2"></div>
+
+  <!-- Error banner -->
+  <div class="tm-error-banner" *ngIf="error">
+    ⚠️ {{ error }}
+    <button (click)="dismissError()">✕</button>
+  </div>
+
+  <!-- Header -->
+  <header class="tm-header">
+    <div class="tm-header__left">
+      <div class="tm-logo">TM</div>
+      <div class="tm-brand">
+        <h1>Terrain Manager</h1>
+        <div class="tm-status">
+          <span class="live-dot"></span>
+          <span>StreetLeague — Gestionnaire de Terrains</span>
+        </div>
+      </div>
+    </div>
+    <div class="tm-header__right">
+      <div class="tm-user-summary">
+        <div class="tm-user-avatar">{{ authService.user?.username?.charAt(0) || 'T' }}</div>
+        <div class="tm-user-info">
+          <p class="tm-user-name">{{ authService.user?.username }}</p>
+          <p class="tm-user-role">Terrain Manager</p>
+        </div>
+      </div>
+      <button class="tm-logout-btn" (click)="authService.logout()" title="Déconnexion">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="tm-main">
+    <!-- Stats Cards -->
+    <section class="tm-stats-grid">
+      <div class="tm-stat-card" *ngFor="let s of [
+        { label: 'Total Terrains', value: stats.total, icon: '🏟️', color: '#2563eb' },
+        { label: 'Disponibles', value: stats.available, icon: '✅', color: '#10b981' },
+        { label: 'Occupés', value: stats.occupied, icon: '🔴', color: '#f59e0b' },
+        { label: 'Matchs planifiés', value: stats.pending, icon: '📬', color: '#8b5cf6' }
+      ]">
+        <div class="tm-stat-content">
+          <span class="tm-stat-label">{{ s.label }}</span>
+          <span class="tm-stat-value" [style.color]="s.color">{{ s.value }}</span>
+        </div>
+        <span class="tm-stat-icon">{{ s.icon }}</span>
+      </div>
+    </section>
+
+    <div class="tm-two-col">
+      <!-- Sidebar -->
+      <aside class="tm-sidebar tm-card">
+        <nav class="tm-nav">
+          <button class="tm-nav-item" [class.active]="activeTab === 'OVERVIEW'" (click)="activeTab = 'OVERVIEW'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Vue d'ensemble
+          </button>
+          <button class="tm-nav-item" [class.active]="activeTab === 'TERRAINS'" (click)="activeTab = 'TERRAINS'; editingTerrain = null">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Mes Terrains
+          </button>
+          <button class="tm-nav-item" [class.active]="activeTab === 'REQUESTS'" (click)="activeTab = 'REQUESTS'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-5 0a5 5 0 0 1-10 0"/></svg>
+            Matchs planifiés
+            <span class="tm-badge" *ngIf="stats.pending > 0">{{ stats.pending }}</span>
+          </button>
+          <button class="tm-nav-item" [class.active]="activeTab === 'PROFILE'" (click)="activeTab = 'PROFILE'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Mon Profil
+          </button>
+        </nav>
+
+        <!-- Quick status list -->
+        <div class="tm-quick-status">
+          <p class="tm-section-label">Statut des terrains</p>
+          <div *ngIf="loading" class="tm-loading">Chargement...</div>
+          <div class="tm-status-list">
+            <div class="tm-status-row" *ngFor="let t of terrains">
+              <span class="tm-status-dot" [attr.data-status]="t.status"></span>
+              <span class="tm-status-name">{{ t.name }}</span>
+              <span class="tm-status-chip" [attr.data-status]="t.status">{{ getStatusLabel(t.status) }}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <section class="tm-content tm-card">
+
+        <!-- OVERVIEW TAB -->
+        <div *ngIf="activeTab === 'OVERVIEW'" class="tm-tab-panel">
+          <div class="tm-overview-grid">
+
+            <!-- Terrain status cards -->
+            <div class="tm-terrain-overview-list">
+              <h3 class="tm-panel-title">Mes Terrains</h3>
+              <div *ngIf="loading" class="tm-loading">Chargement des terrains...</div>
+              <div class="tm-terrain-mini" *ngFor="let t of terrains">
+                <div class="tm-terrain-mini-icon">{{ t.image }}</div>
+                <div class="tm-terrain-mini-info">
+                  <p class="tm-terrain-mini-name">{{ t.name }}</p>
+                  <p class="tm-terrain-mini-addr">{{ t.address }}</p>
+                  <p class="tm-terrain-mini-match" *ngIf="t.currentMatch">🔴 {{ t.currentMatch }}</p>
+                </div>
+                <span class="tm-status-chip" [attr.data-status]="t.status">{{ getStatusLabel(t.status) }}</span>
+              </div>
+              <div *ngIf="!loading && terrains.length === 0" class="tm-empty-state">
+                <span>🏟️</span><p>Aucun terrain enregistré.</p>
+              </div>
+            </div>
+
+            <!-- Upcoming matches preview -->
+            <div class="tm-pending-preview">
+              <h3 class="tm-panel-title">Matchs planifiés</h3>
+              <div *ngIf="upcomingMatches.length === 0" class="tm-empty-state">
+                <span>📭</span><p>Aucun match planifié</p>
+              </div>
+              <div class="tm-req-mini" *ngFor="let m of upcomingMatches | slice:0:3">
+                <div class="tm-req-mini-header" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8)">
+                  <span>⚽</span>
+                  <div>
+                    <p>{{ m.homeTeamName }} vs {{ m.awayTeamName }}</p>
+                    <span>{{ m.terrainName }} · {{ m.matchDate | date:'dd MMM, HH:mm' }}</span>
+                  </div>
+                  <span class="tm-status-chip" [attr.data-status]="m.status">{{ m.status }}</span>
+                </div>
+              </div>
+              <button class="tm-link-btn" (click)="activeTab = 'REQUESTS'">Voir tous les matchs →</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TERRAINS TAB -->
+        <div *ngIf="activeTab === 'TERRAINS'" class="tm-tab-panel">
+          <div class="tm-panel-header">
+            <h2 class="tm-panel-title">
+              {{ editingTerrain ? 'Modifier le terrain' : showAddForm ? 'Ajouter un terrain' : 'Mes Terrains' }}
+            </h2>
+            <button class="tm-btn-add" *ngIf="!editingTerrain && !showAddForm" (click)="openAddForm()">
+              + Ajouter un terrain
+            </button>
+          </div>
+
+          <!-- Add / Edit form -->
+          <div class="tm-terrain-form-wrap" *ngIf="editingTerrain || showAddForm">
+            <form [formGroup]="terrainForm" (ngSubmit)="saveTerrain()" class="tm-form">
+              <div class="tm-form-grid">
+                <div class="tm-form-field">
+                  <label>Nom du terrain</label>
+                  <input type="text" formControlName="name" placeholder="Ex: Terrain Nord">
+                </div>
+                <div class="tm-form-field">
+                  <label>Ville / Lieu</label>
+                  <input type="text" formControlName="location" placeholder="Ex: Paris">
+                </div>
+              </div>
+              <div class="tm-form-grid">
+                <div class="tm-form-field">
+                  <label>Adresse complète</label>
+                  <input type="text" formControlName="address" placeholder="Ex: 12 Rue des Sports">
+                </div>
+                <div class="tm-form-field">
+                  <label>Type de sport</label>
+                  <select formControlName="typeSport">
+                    <option *ngFor="let s of sportTypes" [value]="s">{{ s }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="tm-form-footer">
+                <button type="button" class="tm-btn-secondary" (click)="cancelEdit()">Annuler</button>
+                <button type="submit" class="tm-btn-primary" [disabled]="terrainForm.invalid">
+                  {{ editingTerrain ? 'Enregistrer' : 'Ajouter' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Terrain cards list -->
+          <div class="tm-terrain-list" *ngIf="!editingTerrain && !showAddForm">
+            <div *ngIf="loading" class="tm-loading">Chargement...</div>
+            <div *ngIf="!loading && terrains.length === 0" class="tm-empty-state">
+              <span>🏟️</span><p>Aucun terrain ajouté. Commencez par en ajouter un !</p>
+            </div>
+            <div class="tm-terrain-card" *ngFor="let t of terrains">
+              <div class="tm-terrain-card-top">
+                <span class="tm-terrain-emoji">{{ t.image }}</span>
+                <div class="tm-terrain-card-info">
+                  <h3>{{ t.name }}</h3>
+                  <p>{{ t.address }}</p>
+                  <div class="tm-terrain-meta">
+                    <span>📍 {{ t.location }}</span>
+                    <span>🏅 {{ t.typeSport }}</span>
+                  </div>
+                  <p class="tm-terrain-match" *ngIf="t.currentMatch">🔴 {{ t.currentMatch }}</p>
+                </div>
+                <div class="tm-terrain-card-actions">
+                  <span class="tm-status-chip" [attr.data-status]="t.status">{{ getStatusLabel(t.status) }}</span>
+                  <button class="tm-edit-btn" (click)="openEditTerrain(t)">✏️ Modifier</button>
+                  <button class="tm-delete-btn" (click)="confirmDelete(t)">🗑️ Supprimer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETE CONFIRM MODAL -->
+        <div class="tm-modal-overlay" *ngIf="terrainToDelete" (click)="cancelDelete()">
+          <div class="tm-modal" (click)="$event.stopPropagation()">
+            <div class="tm-modal-icon">🗑️</div>
+            <h3>Supprimer ce terrain ?</h3>
+            <p>Le terrain <strong>{{ terrainToDelete.name }}</strong> sera supprimé définitivement.</p>
+            <div class="tm-modal-footer">
+              <button class="tm-btn-secondary" (click)="cancelDelete()">Annuler</button>
+              <button class="tm-btn-danger" (click)="removeTerrain()">Supprimer</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- REQUESTS / MATCHES TAB -->
+        <div *ngIf="activeTab === 'REQUESTS'" class="tm-tab-panel">
+          <h2 class="tm-panel-title">Matchs planifiés</h2>
+          <div class="tm-req-list">
+            <div *ngIf="upcomingMatches.length === 0" class="tm-empty-state">
+              <span>📭</span><p>Aucun match planifié pour le moment.</p>
+            </div>
+            <div class="tm-req-card" *ngFor="let m of upcomingMatches">
+              <div class="tm-req-header" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8)">
+                <span class="tm-req-logo">⚽</span>
+                <div class="tm-req-team-info">
+                  <h3>{{ m.homeTeamName }} vs {{ m.awayTeamName }}</h3>
+                  <span>{{ m.terrainName }}</span>
+                </div>
+                <span class="tm-status-chip" [attr.data-status]="m.status">{{ m.status }}</span>
+              </div>
+              <div class="tm-req-body">
+                <div class="tm-req-detail">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  {{ m.terrainAddress }}
+                </div>
+                <div class="tm-req-detail">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  {{ m.matchDate | date:'dd MMM yyyy, HH:mm' }}
+                </div>
+                <div class="tm-req-detail" *ngIf="m.homeTeamScore != null">
+                  🏆 Score: {{ m.homeTeamScore }} - {{ m.awayTeamScore }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div *ngIf="activeTab === 'PROFILE'" class="tm-tab-panel">
+          <h2 class="tm-panel-title">Mon Profil</h2>
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="tm-form">
+            <div class="tm-form-grid">
+              <div class="tm-form-field">
+                <label>Nom Complet</label>
+                <input type="text" formControlName="name" placeholder="Ex: Jean Dupont">
+              </div>
+              <div class="tm-form-field">
+                <label>Username</label>
+                <input type="text" formControlName="username" placeholder="@ton_pseudo">
+              </div>
+            </div>
+            <div class="tm-form-grid">
+              <div class="tm-form-field">
+                <label>Email</label>
+                <input type="email" formControlName="email" placeholder="ton@email.com">
+              </div>
+              <div class="tm-form-field">
+                <label>Téléphone</label>
+                <input type="tel" formControlName="phone" placeholder="+33 6 00 00 00 00">
+              </div>
+            </div>
+            <div class="tm-form-field">
+              <label>Organisation / Club</label>
+              <input type="text" formControlName="organization" placeholder="Ex: Association Sportive Paris Nord">
+            </div>
+            <div class="tm-form-field">
+              <label>Bio</label>
+              <textarea formControlName="bio" rows="4"></textarea>
+            </div>
+            <div class="tm-form-footer">
+              <button type="submit" class="tm-btn-primary" [disabled]="profileForm.invalid">Enregistrer les changements</button>
+            </div>
+          </form>
+        </div>
+
+      </section>
+    </div>
+  </main>
+</div>
