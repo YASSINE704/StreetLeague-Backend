@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*")
 public class ReservationController {
     private final ReservationService reservationService;
     private final DtoMapper mapper;

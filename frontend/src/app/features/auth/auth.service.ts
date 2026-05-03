@@ -151,7 +151,7 @@ export class AuthService {
     const role = this.userRole;
     if (role === 'ADMIN') {
       this.router.navigate(['/dashboard']);
-    } else if (role === 'JOUEUR') {
+    } else if (role === 'JOUEUR' || role === 'SPORTIF') {
       this.router.navigate(['/client']);
     } else if (role === 'TERRAIN_MANAGER') {
       this.router.navigate(['/terrain-manager-dashboard']);

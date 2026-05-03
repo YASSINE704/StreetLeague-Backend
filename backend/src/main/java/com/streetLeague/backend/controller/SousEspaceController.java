@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/sous-espaces")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*")
 public class SousEspaceController {
     private final SousEspaceService sousEspaceService;
     private final DtoMapper mapper;

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldService } from '../../core/services/field.service';
+import { ForecastService, ForecastResponse } from '../../core/services/forecast.service';
 import { Endroit, SousEspace, Reservation } from '../../core/models/endroit.model';
 
 @Component({
@@ -12,8 +13,10 @@ export class DashboardComponent implements OnInit {
   sousEspaces: SousEspace[] = [];
   reservations: Reservation[] = [];
   loading = true;
+  forecast: ForecastResponse | null = null;
+  forecastLoading = true;
 
-  constructor(private fieldService: FieldService) {}
+  constructor(private fieldService: FieldService, private forecastService: ForecastService) {}
 
   ngOnInit(): void {
     let loaded = 0;
@@ -21,6 +24,11 @@ export class DashboardComponent implements OnInit {
     this.fieldService.getAllEndroits().subscribe({ next: d => { this.endroits = d; check(); }, error: check });
     this.fieldService.getAllSousEspaces().subscribe({ next: d => { this.sousEspaces = d; check(); }, error: check });
     this.fieldService.getAllReservations().subscribe({ next: d => { this.reservations = d; check(); }, error: check });
+
+    this.forecastService.getForecast(7).subscribe({
+      next: data => { this.forecast = data; this.forecastLoading = false; },
+      error: () => { this.forecastLoading = false; }
+    });
   }
 
   get totalEndroits(): number { return this.endroits.length; }
@@ -93,5 +101,26 @@ export class DashboardComponent implements OnInit {
       case 'TERRAIN': return '⚽ Terrain';
       default: return type;
     }
+  }
+
+  getForecastBarWidth(value: number): number {
+    if (!this.forecast?.forecast?.length) return 0;
+    const max = Math.max(...this.forecast.forecast.map(f => f.predicted), 1);
+    return (value / max) * 100;
+  }
+
+  getDayLabel(dateStr: string): string {
+    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const d = new Date(dateStr);
+    return days[d.getDay()] + ' ' + d.getDate();
+  }
+
+  getForecastColor(value: number): string {
+    if (!this.forecast?.forecast?.length) return '#2563eb';
+    const max = Math.max(...this.forecast.forecast.map(f => f.predicted), 1);
+    const ratio = value / max;
+    if (ratio > 0.7) return '#ef4444';
+    if (ratio > 0.4) return '#f59e0b';
+    return '#22c55e';
   }
 }

@@ -22,12 +22,22 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/endroits")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*")
 public class EndroitController {
     private final EndroitService endroitService;
     private final DtoMapper mapper;
     private static final String UPLOAD_DIR = "uploads/";
-
+@PostMapping
+public ResponseEntity<?> createEndroit(@RequestBody EndroitDTO dto) {
+    try {
+        Endroit saved = endroitService.createEndroit(mapper.toEndroit(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toEndroitDTO(saved));
+    } catch (Exception e) {
+        e.printStackTrace(); // ← voir dans la console le vrai message
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Erreur: " + e.getMessage() + " | Cause: " + e.getCause());
+    }
+}
     @GetMapping
     public ResponseEntity<List<EndroitDTO>> getAllEndroits() {
         return ResponseEntity.ok(endroitService.getAllEndroits().stream().map(mapper::toEndroitDTO).toList());
@@ -38,12 +48,7 @@ public class EndroitController {
         return ResponseEntity.ok(mapper.toEndroitDTO(endroitService.getEndroitById(id)));
     }
 
-    @PostMapping
-    public ResponseEntity<EndroitDTO> createEndroit(@RequestBody EndroitDTO dto) {
-        Endroit saved = endroitService.createEndroit(mapper.toEndroit(dto));
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toEndroitDTO(saved));
-    }
-
+  
     @PutMapping("/{id}")
     public ResponseEntity<EndroitDTO> updateEndroit(@PathVariable Long id, @RequestBody EndroitDTO dto) {
         return ResponseEntity.ok(mapper.toEndroitDTO(endroitService.updateEndroit(id, mapper.toEndroit(dto))));

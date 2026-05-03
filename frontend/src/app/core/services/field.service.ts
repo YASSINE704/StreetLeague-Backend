@@ -106,7 +106,7 @@ export class FieldService {
   }
 
   annulerReservation(id: number, motif: string): Observable<Reservation> {
-    return this.http.patch<Reservation>(`${this.apiUrl}/reservations/${id}/annuler?motif=${motif}`, {});
+    return this.http.patch<Reservation>(`${this.apiUrl}/reservations/${id}/annuler?motif=${encodeURIComponent(motif)}`, {});
   }
 
   deleteReservation(id: number): Observable<void> {

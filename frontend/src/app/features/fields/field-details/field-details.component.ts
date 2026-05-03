@@ -164,27 +164,25 @@ export class FieldDetailsComponent implements OnInit {
         setTimeout(() => delete this.reservationSuccess[se.id!], 4000);
       },
       error: (err) => {
-        this.reservationError[se.id!] = err.error?.error || 'Erreur lors de la confirmation';
+        this.reservationError[se.id!] = err.error?.error || err.error?.message || 'Erreur lors de la confirmation';
       }
     });
   }
 
   annulerReservation(rId: number, se: SousEspace): void {
-    const motif = prompt('Motif d\'annulation:');
-    if (motif) {
-      this.clearMessages(se.id!);
-      this.fieldService.annulerReservation(rId, motif).subscribe({
-        next: () => {
-          this.loadReservations(se);
-          this.reservationSuccess[se.id!] = 'Réservation annulée';
-          this.notifService.addNotification('RESERVATION_ANNULEE', 'Votre réservation pour ' + se.nom + ' a été annulée ❌');
-          setTimeout(() => delete this.reservationSuccess[se.id!], 4000);
-        },
-        error: (err) => {
-          this.reservationError[se.id!] = err.error?.error || 'Erreur lors de l\'annulation';
-        }
-      });
-    }
+    const motif = prompt('Motif d\'annulation:') || 'Annulée par l\'administrateur';
+    this.clearMessages(se.id!);
+    this.fieldService.annulerReservation(rId, motif).subscribe({
+      next: () => {
+        this.loadReservations(se);
+        this.reservationSuccess[se.id!] = 'Réservation annulée';
+        this.notifService.addNotification('RESERVATION_ANNULEE', 'Votre réservation pour ' + se.nom + ' a été annulée ❌');
+        setTimeout(() => delete this.reservationSuccess[se.id!], 4000);
+      },
+      error: (err) => {
+        this.reservationError[se.id!] = err.error?.error || err.error?.message || 'Erreur lors de l\'annulation';
+      }
+    });
   }
 
   getStatutClass(statut: string): string {

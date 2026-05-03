@@ -2,6 +2,33 @@
   <h2 style="color:var(--sl-text);margin-bottom:0.3rem">🏟️ Trouvez votre terrain</h2>
   <p style="color:var(--sl-text3);margin-bottom:1rem;font-size:0.9rem">Cliquez sur un marqueur pour voir les détails</p>
 
+  <!-- AI Recommendations -->
+  <div class="reco-section">
+    <div class="reco-header">
+      <span class="reco-badge">🤖 IA</span>
+      <h3>Recommandé pour vous</h3>
+      <p>Suggestions personnalisées basées sur vos préférences</p>
+    </div>
+    <div *ngIf="loadingReco" style="text-align:center;padding:1rem;color:#64748b;">⏳ Chargement des recommandations...</div>
+    <div *ngIf="!loadingReco && recommendations.length === 0" style="text-align:center;padding:1rem;color:#64748b;font-size:0.9rem;">
+      Ajoutez des endroits et faites des réservations pour recevoir des suggestions personnalisées.
+    </div>
+    <div class="reco-cards" *ngIf="!loadingReco && recommendations.length > 0">
+      <div class="reco-card" *ngFor="let r of recommendations" (click)="navigateTo(r.id)">
+        <div class="reco-score">{{ r.score }}% match</div>
+        <img *ngIf="r.imageUrl" [src]="'http://localhost:8080' + r.imageUrl" class="reco-img" alt="">
+        <div class="reco-img placeholder" *ngIf="!r.imageUrl">🏟️</div>
+        <div class="reco-body">
+          <h4>{{ r.nom }}</h4>
+          <p class="reco-meta">{{ r.type }} · {{ r.ville }}</p>
+          <div class="reco-reasons">
+            <span class="reco-reason" *ngFor="let reason of r.reasons">{{ reason }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="sl-toolbar">
     <div class="sl-search-box">
       <span class="sl-search-icon">🔍</span>

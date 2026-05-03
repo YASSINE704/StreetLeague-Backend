@@ -49,7 +49,7 @@ export class MainLayoutComponent implements OnInit {
       );
     }
 
-    if (this.role === 'JOUEUR') {
+    if (this.role === 'JOUEUR' || this.role === 'SPORTIF') {
       links.push(
         { path: '/client', label: 'Explorer', icon: '🏟️', section: 'CLIENT' },
         { path: '/client/reservations', label: 'Mes Réservations', icon: '📋' },
@@ -57,7 +57,7 @@ export class MainLayoutComponent implements OnInit {
       );
     }
 
-    if (this.role === 'COACH' || this.role === 'SPORTIF') {
+    if (this.role === 'COACH') {
       links.push(
         { path: '/coaching/programmes', label: 'Programmes', icon: '📋', section: 'COACHING' },
         { path: '/coaching/exercices', label: 'Exercices', icon: '💪' }

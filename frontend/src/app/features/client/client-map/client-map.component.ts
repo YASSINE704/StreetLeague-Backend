@@ -1,6 +1,8 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FieldService } from '../../../core/services/field.service';
+import { RecommendationService, Recommendation } from '../../../core/services/recommendation.service';
+import { AuthService } from '../../auth/auth.service';
 import { Endroit, SousEspace } from '../../../core/models/endroit.model';
 import * as L from 'leaflet';
 
@@ -21,6 +23,8 @@ export class ClientMapComponent implements OnInit, AfterViewInit {
   villeFilter = '';
   statutFilter = '';
   villes: string[] = [];
+  recommendations: Recommendation[] = [];
+  loadingReco = true;
   private map!: L.Map;
   private markers: L.Marker[] = [];
   private icon = L.icon({
@@ -29,7 +33,7 @@ export class ClientMapComponent implements OnInit, AfterViewInit {
     iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
   });
 
-  constructor(private fieldService: FieldService, private router: Router) {}
+  constructor(private fieldService: FieldService, private router: Router, private recoService: RecommendationService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.fieldService.getAllEndroits().subscribe(data => {
@@ -41,6 +45,12 @@ export class ClientMapComponent implements OnInit, AfterViewInit {
     this.fieldService.getAllSousEspaces().subscribe(data => {
       this.sousEspaces = data;
       this.filteredSousEspaces = data;
+    });
+    // Load AI recommendations
+    const userId = this.authService.user?.id ? Number(this.authService.user.id) : 0;
+    this.recoService.getRecommendations(userId, 4).subscribe({
+      next: (data) => { this.recommendations = data; this.loadingReco = false; },
+      error: () => { this.loadingReco = false; }
     });
   }
 

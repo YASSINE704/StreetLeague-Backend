@@ -52,6 +52,38 @@
     </div>
   </div>
 
+  <div class="sl-card" style="margin-bottom:1.25rem">
+    <div class="sl-card-header">
+      <h3>🤖 Prévision IA — Réservations (7 prochains jours)</h3>
+      <span *ngIf="forecast" style="font-size:0.75rem;color:#64748b;background:#f1f5f9;padding:4px 10px;border-radius:12px;font-weight:600">
+        Modèle : {{ forecast.model }} · {{ forecast.historyPoints }} points historiques
+      </span>
+    </div>
+    <div *ngIf="forecastLoading" style="padding:1rem;text-align:center;color:#64748b">⏳ Calcul SARIMA en cours...</div>
+    <div *ngIf="!forecastLoading && forecast">
+      <div *ngIf="forecast.error" style="padding:0.8rem;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:0.82rem;margin-bottom:1rem">
+        ⚠️ {{ forecast.error }}
+      </div>
+      <div class="forecast-grid">
+        <div class="forecast-bar-item" *ngFor="let f of forecast.forecast">
+          <div class="forecast-bar-wrap">
+            <div class="forecast-bar-fill"
+                 [style.height.%]="getForecastBarWidth(f.predicted)"
+                 [style.background]="getForecastColor(f.predicted)">
+            </div>
+          </div>
+          <div class="forecast-value">{{ f.predicted }}</div>
+          <div class="forecast-day">{{ getDayLabel(f.date) }}</div>
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:1.5rem;font-size:0.78rem;color:#64748b">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#22c55e;border-radius:2px;margin-right:4px"></span>Faible</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px"></span>Modéré</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;margin-right:4px"></span>Élevé</span>
+      </div>
+    </div>
+  </div>
+
   <div class="sl-card">
     <div class="sl-card-header"><h3>🕐 Dernières réservations</h3></div>
     <table class="sl-table" *ngIf="recentReservations.length > 0">
