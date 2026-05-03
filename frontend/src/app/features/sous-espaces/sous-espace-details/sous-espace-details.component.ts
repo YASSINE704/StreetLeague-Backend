@@ -101,14 +101,12 @@ export class SousEspaceDetailsComponent implements OnInit {
   }
 
   annulerReservation(rId: number): void {
-    const motif = prompt('Motif d\'annulation:');
-    if (motif) {
-      this.clearMessages();
-      this.fieldService.annulerReservation(rId, motif).subscribe({
-        next: () => { this.loadReservations(); this.successMsg = 'Réservation annulée'; setTimeout(() => this.successMsg = '', 4000); },
-        error: (err) => { this.errorMsg = err.error?.error || 'Erreur'; }
-      });
-    }
+    const motif = prompt('Motif d\'annulation:') || 'Annulée par l\'administrateur';
+    this.clearMessages();
+    this.fieldService.annulerReservation(rId, motif).subscribe({
+      next: () => { this.loadReservations(); this.successMsg = 'Réservation annulée'; setTimeout(() => this.successMsg = '', 4000); },
+      error: (err) => { this.errorMsg = err.error?.error || err.error?.message || 'Erreur'; }
+    });
   }
 
   getStatutClass(statut: string): string {
@@ -117,6 +115,15 @@ export class SousEspaceDetailsComponent implements OnInit {
       case 'INDISPONIBLE': case 'ANNULEE': return 'badge-danger';
       case 'MAINTENANCE': case 'EN_ATTENTE': return 'badge-warning';
       default: return '';
+    }
+  }
+
+  getStatutBadge(statut: string): string {
+    switch (statut) {
+      case 'DISPONIBLE': case 'CONFIRMEE': return 'sl-badge--green';
+      case 'INDISPONIBLE': case 'ANNULEE': return 'sl-badge--red';
+      case 'MAINTENANCE': case 'EN_ATTENTE': return 'sl-badge--orange';
+      default: return 'sl-badge--gray';
     }
   }
 }

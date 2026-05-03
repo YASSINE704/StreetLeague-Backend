@@ -85,6 +85,15 @@ export class ClientEndroitComponent implements OnInit {
     }
   }
 
+  getStatutBadge(statut: string): string {
+    switch (statut) {
+      case 'DISPONIBLE': case 'CONFIRMEE': return 'sl-badge--green';
+      case 'INDISPONIBLE': case 'ANNULEE': return 'sl-badge--red';
+      case 'MAINTENANCE': case 'EN_ATTENTE': return 'sl-badge--orange';
+      default: return 'sl-badge--gray';
+    }
+  }
+
   get reservationsActives(): number {
     let count = 0;
     this.sousEspaces.forEach(se => {
