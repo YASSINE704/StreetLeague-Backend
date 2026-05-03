@@ -39,6 +39,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/seance-exercices/**").permitAll()
                         .requestMatchers("/api/suivis/**").permitAll()
                         .requestMatchers("/api/affectations/**").permitAll()
+                        .requestMatchers("/api/reservations-seances/**").permitAll()
+                        .requestMatchers("/api/coaching/stats/**").permitAll()
+                        .requestMatchers("/api/coaching/ai/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         // Sports module
                         .requestMatchers("/players/**").permitAll()

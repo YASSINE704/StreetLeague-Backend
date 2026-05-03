@@ -2,6 +2,7 @@ package com.streetLeague.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * StreetLeague Backend Application - Main Entry Point.
@@ -18,6 +19,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @version 1.0
  */
 @SpringBootApplication
+@EnableScheduling  // Step 5 : active les tâches planifiées (@Scheduled)
 public class StreetLeagueBackendApplication {
 
     /**

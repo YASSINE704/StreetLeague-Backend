@@ -11,4 +11,7 @@ public interface AffectationProgrammeRepository extends JpaRepository<Affectatio
     List<AffectationProgramme> findByProgrammeIdProgramme(Integer programmeId);
     List<AffectationProgramme> findByUserIdUser(Integer userId);
     Optional<AffectationProgramme> findByProgrammeIdProgrammeAndType(Integer programmeId, TypeAffectationProgramme type);
+
+    /** Step 3 : trouver tous les programmes où un utilisateur est affecté avec un type donné */
+    List<AffectationProgramme> findByUserIdUserAndType(Integer userId, TypeAffectationProgramme type);
 }

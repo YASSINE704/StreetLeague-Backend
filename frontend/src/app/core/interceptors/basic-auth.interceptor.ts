@@ -17,9 +17,19 @@ export class BasicAuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const credentials = this.authService.getAuthorizationHeader();
+    const user = this.authService.currentUser;
 
-    const authReq = credentials
-      ? req.clone({ setHeaders: { Authorization: credentials } })
+    /* Ajoute le header Authorization + X-User-Id pour le module coaching */
+    let headers: { [key: string]: string } = {};
+    if (credentials) {
+      headers['Authorization'] = credentials;
+    }
+    if (user?.id) {
+      headers['X-User-Id'] = String(user.id);
+    }
+
+    const authReq = Object.keys(headers).length > 0
+      ? req.clone({ setHeaders: headers })
       : req;
 
     return next.handle(authReq).pipe(
