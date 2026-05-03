@@ -5,7 +5,7 @@ import { TeamDTO, TeamStatisticsDTO, PlayerDTO, TeamRequest } from '../../shared
 
 @Injectable({ providedIn: 'root' })
 export class TeamService {
-  private readonly base = 'http://localhost:18080/teams';
+  private readonly base = 'http://localhost:8080/teams';
 
   constructor(private http: HttpClient) {}
 

@@ -1,0 +1,144 @@
+{
+  "info": {
+    "name": "StreetLeague API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Endroits",
+      "item": [
+        {
+          "name": "Create Endroit",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Stade Municipal\",\n  \"type\": \"STADE\",\n  \"adresse\": \"123 Rue du Sport\",\n  \"ville\": \"Tunis\",\n  \"latitude\": 36.8065,\n  \"longitude\": 10.1815,\n  \"capacite\": 5000,\n  \"statut\": \"DISPONIBLE\",\n  \"description\": \"Grand stade municipal\"\n}"
+            },
+            "url": {"raw": "http://localhost:8080/api/endroits", "host": ["localhost"], "port": "8080", "path": ["api", "endroits"]}
+          }
+        },
+        {
+          "name": "Get All Endroits",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8080/api/endroits", "host": ["localhost"], "port": "8080", "path": ["api", "endroits"]}
+          }
+        },
+        {
+          "name": "Get Endroit By ID",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8080/api/endroits/1", "host": ["localhost"], "port": "8080", "path": ["api", "endroits", "1"]}
+          }
+        },
+        {
+          "name": "Update Endroit",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Stade Municipal Rénové\",\n  \"type\": \"STADE\",\n  \"adresse\": \"123 Rue du Sport\",\n  \"ville\": \"Tunis\",\n  \"latitude\": 36.8065,\n  \"longitude\": 10.1815,\n  \"capacite\": 6000,\n  \"statut\": \"DISPONIBLE\",\n  \"description\": \"Stade rénové\"\n}"
+            },
+            "url": {"raw": "http://localhost:8080/api/endroits/1", "host": ["localhost"], "port": "8080", "path": ["api", "endroits", "1"]}
+          }
+        },
+        {
+          "name": "Delete Endroit",
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "http://localhost:8080/api/endroits/1", "host": ["localhost"], "port": "8080", "path": ["api", "endroits", "1"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "SousEspaces",
+      "item": [
+        {
+          "name": "Create SousEspace",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Terrain de Football A\",\n  \"type\": \"TERRAIN\",\n  \"capacite\": 22,\n  \"statut\": \"DISPONIBLE\"\n}"
+            },
+            "url": {"raw": "http://localhost:8080/api/sous-espaces/endroit/1", "host": ["localhost"], "port": "8080", "path": ["api", "sous-espaces", "endroit", "1"]}
+          }
+        },
+        {
+          "name": "Get All SousEspaces",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8080/api/sous-espaces", "host": ["localhost"], "port": "8080", "path": ["api", "sous-espaces"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipements",
+      "item": [
+        {
+          "name": "Create Equipement",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ballon de Football\",\n  \"quantite\": 10\n}"
+            },
+            "url": {"raw": "http://localhost:8080/api/equipements/sous-espace/1", "host": ["localhost"], "port": "8080", "path": ["api", "equipements", "sous-espace", "1"]}
+          }
+        },
+        {
+          "name": "Get All Equipements",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8080/api/equipements", "host": ["localhost"], "port": "8080", "path": ["api", "equipements"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Create Reservation",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateDebut\": \"2026-03-15T10:00:00\",\n  \"dateFin\": \"2026-03-15T12:00:00\"\n}"
+            },
+            "url": {"raw": "http://localhost:8080/api/reservations/sous-espace/1", "host": ["localhost"], "port": "8080", "path": ["api", "reservations", "sous-espace", "1"]}
+          }
+        },
+        {
+          "name": "Get All Reservations",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8080/api/reservations", "host": ["localhost"], "port": "8080", "path": ["api", "reservations"]}
+          }
+        },
+        {
+          "name": "Confirmer Reservation",
+          "request": {
+            "method": "PATCH",
+            "url": {"raw": "http://localhost:8080/api/reservations/1/confirmer", "host": ["localhost"], "port": "8080", "path": ["api", "reservations", "1", "confirmer"]}
+          }
+        },
+        {
+          "name": "Annuler Reservation",
+          "request": {
+            "method": "PATCH",
+            "url": {"raw": "http://localhost:8080/api/reservations/1/annuler?motif=Client indisponible", "host": ["localhost"], "port": "8080", "path": ["api", "reservations", "1", "annuler"], "query": [{"key": "motif", "value": "Client indisponible"}]}
+          }
+        }
+      ]
+    }
+  ]
+}

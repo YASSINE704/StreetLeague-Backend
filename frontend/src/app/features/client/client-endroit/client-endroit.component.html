@@ -1,0 +1,102 @@
+<div *ngIf="endroit">
+  <a routerLink="/client" class="sl-btn sl-btn--ghost sl-btn--sm" style="margin-bottom:1.5rem;display:inline-flex">← Retour à la carte</a>
+
+  <!-- Hero card -->
+  <div class="sl-card" style="margin-bottom:1.5rem">
+    <div class="sl-hero">
+      <img *ngIf="endroit.imageUrl" [src]="'http://localhost:8080' + endroit.imageUrl" class="sl-hero-img" alt="{{ endroit.nom }}">
+      <div class="sl-hero-img sl-hero-placeholder" *ngIf="!endroit.imageUrl">🏟️</div>
+      <div class="sl-hero-info">
+        <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.5rem;flex-wrap:wrap">
+          <h1 style="margin:0;font-size:1.6rem;font-weight:800;color:var(--sl-text)">{{ endroit.nom }}</h1>
+          <span class="sl-badge" [ngClass]="getStatutBadge(endroit.statut)">{{ endroit.statut }}</span>
+        </div>
+        <p style="color:var(--sl-text3);margin:4px 0;font-size:0.9rem">{{ endroit.type }} · {{ endroit.ville }}</p>
+        <p style="color:var(--sl-text3);margin:4px 0;font-size:0.9rem">📍 {{ endroit.adresse }}</p>
+        <p style="color:var(--sl-text3);margin:4px 0;font-size:0.9rem">👥 Capacité : {{ endroit.capacite }}</p>
+        <p *ngIf="endroit.description" style="color:var(--sl-text2);margin-top:12px;font-size:0.9rem;line-height:1.6">{{ endroit.description }}</p>
+
+        <!-- Capacity gauge -->
+        <div style="margin-top:1rem">
+          <div class="sl-progress-wrap">
+            <div class="sl-progress-fill"
+                 [style.width.%]="endroit.capacite ? (reservationsActives / endroit.capacite * 100) : 0"
+                 [style.background]="isComplet ? 'var(--sl-red)' : 'var(--sl-green)'">
+            </div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--sl-text3);margin-top:4px">
+            {{ reservationsActives }} / {{ endroit.capacite }} réservations actives
+            <span *ngIf="!isComplet"> · {{ capaciteRestante }} places restantes</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complet banner -->
+  <div *ngIf="isComplet" class="sl-error-banner" style="margin-bottom:1.5rem;font-size:1rem;justify-content:center">
+    🚫 Cet endroit est complet — Plus de places disponibles
+  </div>
+
+  <!-- Sous-espaces -->
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <h3>Sous-Espaces disponibles</h3>
+    </div>
+
+    <div *ngIf="sousEspaces.length === 0" class="sl-empty">
+      <span class="sl-empty-icon">📍</span>
+      <p>Aucun sous-espace disponible</p>
+    </div>
+
+    <div class="sl-se-list">
+      <div class="sl-se-item" *ngFor="let se of sousEspaces">
+        <div class="sl-se-header">
+          <div>
+            <strong style="color:var(--sl-text);font-size:1rem">{{ se.nom }}</strong>
+            <span style="color:var(--sl-text3);font-size:0.85rem;margin-left:8px">{{ se.type }} · Capacité : {{ se.capacite }}</span>
+            <span class="sl-badge" [ngClass]="getStatutBadge(se.statut)" style="margin-left:8px">{{ se.statut }}</span>
+          </div>
+          <button class="sl-btn sl-btn--primary sl-btn--sm"
+                  (click)="openForm(se.id!)"
+                  *ngIf="se.statut === 'DISPONIBLE' && !isComplet">
+            {{ showFormForSe === se.id ? '✕ Annuler' : '📅 Réserver' }}
+          </button>
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="successMsg[se.id!]" class="sl-toast" style="position:static;margin-top:0.8rem;animation:none">✅ {{ successMsg[se.id!] }}</div>
+        <div *ngIf="errorMsg[se.id!]" class="sl-error-banner" style="margin-top:0.8rem">⚠️ {{ errorMsg[se.id!] }}</div>
+
+        <!-- Reservation form -->
+        <div *ngIf="showFormForSe === se.id" class="sl-reco-form">
+          <form [formGroup]="reservationForm" (ngSubmit)="reserver(se.id!)">
+            <div class="sl-form-row">
+              <div class="sl-form-group">
+                <label>Date début</label>
+                <input class="sl-input" type="datetime-local" formControlName="dateDebut">
+              </div>
+              <div class="sl-form-group">
+                <label>Date fin</label>
+                <input class="sl-input" type="datetime-local" formControlName="dateFin">
+              </div>
+            </div>
+            <div class="sl-form-actions" style="margin-top:0.5rem;padding-top:0.5rem">
+              <button type="button" class="sl-btn sl-btn--secondary sl-btn--sm" (click)="openForm(se.id!)">Annuler</button>
+              <button type="submit" class="sl-btn sl-btn--primary sl-btn--sm" [disabled]="reservationForm.invalid">✅ Confirmer la réservation</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Existing reservations -->
+        <div *ngIf="se.reservations && se.reservations.length > 0" style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--sl-border)">
+          <p style="font-size:0.8rem;color:var(--sl-text3);font-weight:600;margin-bottom:0.5rem">Créneaux déjà réservés :</p>
+          <div *ngFor="let r of se.reservations" style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:0.85rem;color:var(--sl-text2)">
+            <span>{{ r.dateDebut | date:'short' }} → {{ r.dateFin | date:'short' }}</span>
+            <span class="sl-badge" [ngClass]="getStatutBadge(r.statut!)">{{ r.statut }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

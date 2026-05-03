@@ -1,6 +1,7 @@
 package com.streetLeague.backend.controller;
 
 import com.streetLeague.backend.dto.SuiviSeanceDTO;
+import com.streetLeague.backend.service.CoachingRoleService;
 import com.streetLeague.backend.service.SuiviSeanceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,18 @@ import java.util.List;
 public class SuiviSeanceController {
 
     private final SuiviSeanceService suiviService;
+    private final CoachingRoleService roleService;
 
+    /* ── CREATE : SPORTIF, COACH ou ADMIN (le sportif donne son feedback) ── */
     @PostMapping
-    public ResponseEntity<SuiviSeanceDTO.Response> create(@Valid @RequestBody SuiviSeanceDTO.Request dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(suiviService.create(dto));
+    public ResponseEntity<SuiviSeanceDTO.Response> create(
+            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
+            @Valid @RequestBody SuiviSeanceDTO.Request dto) {
+        roleService.requireSportifOrCoachOrAdmin(userId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(suiviService.create(dto, userId));
     }
 
+    /* ── READ : tout utilisateur ── */
     @GetMapping
     public ResponseEntity<List<SuiviSeanceDTO.Response>> getAll() {
         return ResponseEntity.ok(suiviService.getAll());
@@ -38,14 +45,21 @@ public class SuiviSeanceController {
         return ResponseEntity.ok(suiviService.getBySeance(seanceId));
     }
 
+    /* ── UPDATE : SPORTIF, COACH ou ADMIN ── */
     @PutMapping("/{id}")
     public ResponseEntity<SuiviSeanceDTO.Response> update(
+            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
             @PathVariable Integer id, @Valid @RequestBody SuiviSeanceDTO.Request dto) {
+        roleService.requireSportifOrCoachOrAdmin(userId);
         return ResponseEntity.ok(suiviService.update(id, dto));
     }
 
+    /* ── DELETE : COACH ou ADMIN uniquement ── */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(
+            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
+            @PathVariable Integer id) {
+        roleService.requireCoachOrAdmin(userId);
         suiviService.delete(id);
         return ResponseEntity.noContent().build();
     }

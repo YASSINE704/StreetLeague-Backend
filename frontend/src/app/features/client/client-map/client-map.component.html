@@ -1,0 +1,91 @@
+<div>
+  <h2 style="color:var(--sl-text);margin-bottom:0.3rem">🏟️ Trouvez votre terrain</h2>
+  <p style="color:var(--sl-text3);margin-bottom:1rem;font-size:0.9rem">Cliquez sur un marqueur pour voir les détails</p>
+
+  <!-- AI Recommendations -->
+  <div class="reco-section">
+    <div class="reco-header">
+      <span class="reco-badge">🤖 IA</span>
+      <h3>Recommandé pour vous</h3>
+      <p>Suggestions personnalisées basées sur vos préférences</p>
+    </div>
+    <div *ngIf="loadingReco" style="text-align:center;padding:1rem;color:#64748b;">⏳ Chargement des recommandations...</div>
+    <div *ngIf="!loadingReco && recommendations.length === 0" style="text-align:center;padding:1rem;color:#64748b;font-size:0.9rem;">
+      Ajoutez des endroits et faites des réservations pour recevoir des suggestions personnalisées.
+    </div>
+    <div class="reco-cards" *ngIf="!loadingReco && recommendations.length > 0">
+      <div class="reco-card" *ngFor="let r of recommendations" (click)="navigateTo(r.id)">
+        <div class="reco-score">{{ r.score }}% match</div>
+        <img *ngIf="r.imageUrl" [src]="'http://localhost:8080' + r.imageUrl" class="reco-img" alt="">
+        <div class="reco-img placeholder" *ngIf="!r.imageUrl">🏟️</div>
+        <div class="reco-body">
+          <h4>{{ r.nom }}</h4>
+          <p class="reco-meta">{{ r.type }} · {{ r.ville }}</p>
+          <div class="reco-reasons">
+            <span class="reco-reason" *ngFor="let reason of r.reasons">{{ reason }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl-toolbar">
+    <div class="sl-search-box">
+      <span class="sl-search-icon">🔍</span>
+      <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+    </div>
+    <select class="sl-filter-select" [(ngModel)]="typeFilter" (change)="applyFilters()">
+      <option value="">Tous les types</option>
+      <option value="STADE">Stade</option><option value="SALLE_SPORT">Salle</option><option value="TERRAIN">Terrain</option>
+    </select>
+    <select class="sl-filter-select" [(ngModel)]="villeFilter" (change)="applyFilters()">
+      <option value="">Toutes les villes</option>
+      <option *ngFor="let v of villes" [value]="v">{{ v }}</option>
+    </select>
+    <select class="sl-filter-select" [(ngModel)]="statutFilter" (change)="applyFilters()">
+      <option value="">Tous les statuts</option>
+      <option value="DISPONIBLE">Disponible</option><option value="INDISPONIBLE">Indisponible</option><option value="MAINTENANCE">Maintenance</option>
+    </select>
+    <button class="sl-btn-icon" (click)="clearFilters()" *ngIf="searchTerm || typeFilter || villeFilter || statutFilter">✕</button>
+  </div>
+
+  <div id="client-map" class="sl-map-full"></div>
+
+  <div class="sl-tabs">
+    <button [class.active]="activeTab === 'endroits'" (click)="activeTab = 'endroits'">🏟️ Endroits ({{ filteredEndroits.length }})</button>
+    <button [class.active]="activeTab === 'sous-espaces'" (click)="activeTab = 'sous-espaces'">📍 Sous-Espaces ({{ filteredSousEspaces.length }})</button>
+  </div>
+
+  <div *ngIf="activeTab === 'endroits'">
+    <div *ngIf="filteredEndroits.length === 0" class="sl-empty"><span class="sl-empty-icon">🏟️</span><p>Aucun endroit trouvé</p></div>
+    <div class="sl-cards" *ngIf="filteredEndroits.length > 0">
+      <div class="sl-card-item" *ngFor="let e of filteredEndroits">
+        <div (click)="navigateTo(e.id!)">
+          <img *ngIf="e.imageUrl" [src]="'http://localhost:8080' + e.imageUrl" class="sl-card-img" alt="">
+          <div class="sl-card-img placeholder" *ngIf="!e.imageUrl">🏟️</div>
+          <div class="sl-card-body">
+            <h3>{{ e.nom }}</h3>
+            <p>{{ e.type }} · {{ e.ville }}</p>
+            <p>👥 {{ e.capacite }}</p>
+            <span class="sl-badge" [ngClass]="getStatutBadge(e.statut)">{{ e.statut }}</span>
+          </div>
+        </div>
+        <div class="sl-card-footer">
+          <button class="sl-btn sl-btn--secondary sl-btn--sm" (click)="navigateTo(e.id!)">🔍 Voir détails</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'sous-espaces'">
+    <div *ngIf="filteredSousEspaces.length === 0" class="sl-empty"><p>Aucun sous-espace trouvé</p></div>
+    <div class="sl-se-grid" *ngIf="filteredSousEspaces.length > 0">
+      <div class="sl-se-item" *ngFor="let se of filteredSousEspaces">
+        <div class="sl-se-item-top"><h3>{{ se.nom }}</h3><span class="sl-badge" [ngClass]="getStatutBadge(se.statut)">{{ se.statut }}</span></div>
+        <p class="sl-se-meta">{{ se.type }} · Capacité: {{ se.capacite }}</p>
+        <p class="sl-se-meta" *ngIf="se.endroitNom">📍 {{ se.endroitNom }}</p>
+        <button class="sl-btn sl-btn--primary sl-btn--sm" style="margin-top:0.5rem" (click)="navigateToSe(se.id!)">🔍 Voir & Réserver</button>
+      </div>
+    </div>
+  </div>
+</div>

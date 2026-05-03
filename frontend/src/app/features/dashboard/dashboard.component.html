@@ -1,0 +1,102 @@
+<div *ngIf="!loading">
+  <h2 style="color:var(--sl-text);margin-bottom:1.5rem">📊 Dashboard</h2>
+
+  <div class="sl-stats-row" style="margin-bottom:1.5rem">
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--blue">🏟️</div>
+      <div><span class="sl-stat-value">{{ totalEndroits }}</span><span class="sl-stat-label">Endroits</span></div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--violet">📍</div>
+      <div><span class="sl-stat-value">{{ totalSousEspaces }}</span><span class="sl-stat-label">Sous-Espaces</span></div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--green">📅</div>
+      <div><span class="sl-stat-value">{{ totalReservations }}</span><span class="sl-stat-label">Réservations</span></div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--orange">📈</div>
+      <div><span class="sl-stat-value">{{ tauxOccupation }}%</span><span class="sl-stat-label">Taux confirmation</span></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+    <div class="sl-card">
+      <div class="sl-card-header"><h3>Réservations par statut</h3></div>
+      <div class="sl-bar-row"><span class="sl-bar-label">⏳ En attente</span><div class="sl-progress-wrap"><div class="sl-progress-fill" [style.width.%]="getBarWidth(resEnAttente, totalReservations)" style="background:var(--sl-orange)"></div></div><span class="sl-bar-count">{{ resEnAttente }}</span></div>
+      <div class="sl-bar-row"><span class="sl-bar-label">✅ Confirmées</span><div class="sl-progress-wrap"><div class="sl-progress-fill" [style.width.%]="getBarWidth(resConfirmees, totalReservations)" style="background:var(--sl-green)"></div></div><span class="sl-bar-count">{{ resConfirmees }}</span></div>
+      <div class="sl-bar-row"><span class="sl-bar-label">❌ Annulées</span><div class="sl-progress-wrap"><div class="sl-progress-fill" [style.width.%]="getBarWidth(resAnnulees, totalReservations)" style="background:var(--sl-red)"></div></div><span class="sl-bar-count">{{ resAnnulees }}</span></div>
+    </div>
+    <div class="sl-card">
+      <div class="sl-card-header"><h3>Endroits par type</h3></div>
+      <div class="sl-bar-row" *ngFor="let t of endroitsParType"><span class="sl-bar-label">{{ getTypeLabel(t.type) }}</span><div class="sl-progress-wrap"><div class="sl-progress-fill" [style.width.%]="getBarWidth(t.count, totalEndroits)"></div></div><span class="sl-bar-count">{{ t.count }}</span></div>
+      <div *ngIf="endroitsParType.length === 0" class="sl-empty"><p>Aucune donnée</p></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+    <div class="sl-card">
+      <div class="sl-card-header"><h3>🏆 Top endroits réservés</h3></div>
+      <div class="sl-top-item" *ngFor="let t of topEndroits; let i = index">
+        <span class="sl-top-rank">{{ i + 1 }}</span>
+        <span class="sl-top-name">{{ t.nom }}</span>
+        <span class="sl-top-count">{{ t.count }}</span>
+      </div>
+      <div *ngIf="topEndroits.length === 0" class="sl-empty"><p>Aucune réservation</p></div>
+    </div>
+    <div class="sl-card">
+      <div class="sl-card-header"><h3>Endroits par statut</h3></div>
+      <div class="sl-bar-row"><span class="sl-bar-label">🟢 Disponibles</span><div class="sl-progress-wrap"><div class="sl-progress-fill" [style.width.%]="getBarWidth(endroitsDisponibles, totalEndroits)" style="background:var(--sl-green)"></div></div><span class="sl-bar-count">{{ endroitsDisponibles }}</span></div>
+      <div class="sl-bar-row"><span class="sl-bar-label">🟡 Maintenance</span><div class="sl-progress-wrap"><div class="sl-progress-fill" [style.width.%]="getBarWidth(endroitsMaintenance, totalEndroits)" style="background:var(--sl-orange)"></div></div><span class="sl-bar-count">{{ endroitsMaintenance }}</span></div>
+      <div class="sl-bar-row"><span class="sl-bar-label">🔴 Indisponibles</span><div class="sl-progress-wrap"><div class="sl-progress-fill" [style.width.%]="getBarWidth(endroitsIndisponibles, totalEndroits)" style="background:var(--sl-red)"></div></div><span class="sl-bar-count">{{ endroitsIndisponibles }}</span></div>
+    </div>
+  </div>
+
+  <div class="sl-card" style="margin-bottom:1.25rem">
+    <div class="sl-card-header">
+      <h3>🤖 Prévision IA — Réservations (7 prochains jours)</h3>
+      <span *ngIf="forecast" style="font-size:0.75rem;color:#64748b;background:#f1f5f9;padding:4px 10px;border-radius:12px;font-weight:600">
+        Modèle : {{ forecast.model }} · {{ forecast.historyPoints }} points historiques
+      </span>
+    </div>
+    <div *ngIf="forecastLoading" style="padding:1rem;text-align:center;color:#64748b">⏳ Calcul SARIMA en cours...</div>
+    <div *ngIf="!forecastLoading && forecast">
+      <div *ngIf="forecast.error" style="padding:0.8rem;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:0.82rem;margin-bottom:1rem">
+        ⚠️ {{ forecast.error }}
+      </div>
+      <div class="forecast-grid">
+        <div class="forecast-bar-item" *ngFor="let f of forecast.forecast">
+          <div class="forecast-bar-wrap">
+            <div class="forecast-bar-fill"
+                 [style.height.%]="getForecastBarWidth(f.predicted)"
+                 [style.background]="getForecastColor(f.predicted)">
+            </div>
+          </div>
+          <div class="forecast-value">{{ f.predicted }}</div>
+          <div class="forecast-day">{{ getDayLabel(f.date) }}</div>
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:1.5rem;font-size:0.78rem;color:#64748b">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#22c55e;border-radius:2px;margin-right:4px"></span>Faible</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px"></span>Modéré</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;margin-right:4px"></span>Élevé</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl-card">
+    <div class="sl-card-header"><h3>🕐 Dernières réservations</h3></div>
+    <table class="sl-table" *ngIf="recentReservations.length > 0">
+      <thead><tr><th>Endroit</th><th>Sous-Espace</th><th>Début</th><th>Fin</th><th>Statut</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let r of recentReservations">
+          <td>{{ r.endroitNom || '-' }}</td><td>{{ r.sousEspaceNom || '-' }}</td>
+          <td>{{ r.dateDebut | date:'short' }}</td><td>{{ r.dateFin | date:'short' }}</td>
+          <td><span class="sl-badge" [ngClass]="getStatutBadge(r.statut!)">{{ r.statut }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="recentReservations.length === 0" class="sl-empty"><p>Aucune réservation</p></div>
+  </div>
+</div>
+<div *ngIf="loading" class="sl-empty"><span class="sl-empty-icon">⏳</span><p>Chargement...</p></div>

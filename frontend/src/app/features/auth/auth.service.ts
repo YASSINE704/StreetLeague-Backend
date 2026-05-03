@@ -24,7 +24,7 @@ interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:18080/api/auth';
+  private readonly API = 'http://localhost:8080/api/auth';
   private readonly storageKey = 'streetleague-basic-auth';
   private readonly userKey = 'sl_user';
 
@@ -58,10 +58,6 @@ export class AuthService {
     return this.currentUser?.role ?? null;
   }
 
-  /**
-   * Real login — calls backend POST /api/auth/login
-   * Maps backend roles (ADMIN, COACH, SPORTIF) to frontend UserRole
-   */
   loginWithBackend(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API}/login`, { email, password }).pipe(
       tap((res) => {
@@ -117,9 +113,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * @deprecated Use loginWithBackend instead
-   */
   login(email: string, password: string, role: UserRole = 'JOUEUR'): boolean {
     const mockUser: AuthUser = {
       id: crypto.randomUUID(),
@@ -157,11 +150,11 @@ export class AuthService {
   redirectAfterLogin(): void {
     const role = this.userRole;
     if (role === 'ADMIN') {
-      this.router.navigate(['/tournament']);
+      this.router.navigate(['/dashboard']);
+    } else if (role === 'JOUEUR' || role === 'SPORTIF') {
+      this.router.navigate(['/client']);
     } else if (role === 'TERRAIN_MANAGER') {
       this.router.navigate(['/terrain-manager-dashboard']);
-    } else if (role === 'JOUEUR') {
-      this.router.navigate(['/player-dashboard']);
     } else if (role === 'COACH' || role === 'SPORTIF') {
       this.router.navigate(['/coaching/programmes']);
     } else {

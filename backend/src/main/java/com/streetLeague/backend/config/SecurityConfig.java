@@ -25,19 +25,25 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(basic -> basic.disable())
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(auth -> auth
                         // Auth endpoint - public
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Module Coaching - ouvert pour dev/test (sera protégé après intégration auth)
+                        // Endroits, sous-espaces, reservations - open for dev/test
+                        .requestMatchers("/api/**").permitAll()
+                        // Module Coaching
                         .requestMatchers("/api/programmes/**").permitAll()
                         .requestMatchers("/api/seances/**").permitAll()
                         .requestMatchers("/api/exercices/**").permitAll()
                         .requestMatchers("/api/seance-exercices/**").permitAll()
                         .requestMatchers("/api/suivis/**").permitAll()
                         .requestMatchers("/api/affectations/**").permitAll()
+                        .requestMatchers("/api/reservations-seances/**").permitAll()
+                        .requestMatchers("/api/coaching/stats/**").permitAll()
+                        .requestMatchers("/api/coaching/ai/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        // Sports module - open for dev/test
+                        // Sports module
                         .requestMatchers("/players/**").permitAll()
                         .requestMatchers("/teams/**").permitAll()
                         .requestMatchers("/terrains/**").permitAll()
@@ -57,9 +63,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

@@ -3,11 +3,13 @@ package com.streetLeague.backend.service;
 import com.streetLeague.backend.dto.SuiviSeanceDTO;
 import com.streetLeague.backend.entity.SeanceEntrainement;
 import com.streetLeague.backend.entity.SuiviSeance;
+import com.streetLeague.backend.entity.User;
 import com.streetLeague.backend.enums.StatutSeance;
 import com.streetLeague.backend.exception.BusinessRuleException;
 import com.streetLeague.backend.exception.ResourceNotFoundException;
 import com.streetLeague.backend.mapper.SuiviMapper;
 import com.streetLeague.backend.repository.SuiviSeanceRepository;
+import com.streetLeague.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,19 +24,24 @@ public class SuiviSeanceService {
 
     private final SuiviSeanceRepository suiviRepository;
     private final SeanceEntrainementService seanceService;
+    private final UserRepository userRepository;
 
-    public SuiviSeanceDTO.Response create(SuiviSeanceDTO.Request dto) {
+    public SuiviSeanceDTO.Response create(SuiviSeanceDTO.Request dto, Integer userId) {
         SeanceEntrainement seance = seanceService.findOrThrow(dto.getSeanceId());
 
-        // Règle métier : SuiviSeance seulement si statut = REALISEE
         if (seance.getStatut() != StatutSeance.REALISEE) {
             throw new BusinessRuleException(
                     "Le suivi ne peut être créé que pour une séance avec statut REALISEE. Statut actuel: " + seance.getStatut());
         }
 
-        // Vérifier qu'il n'existe pas déjà un suivi pour cette séance
         if (suiviRepository.findBySeanceIdSeance(dto.getSeanceId()).isPresent()) {
             throw new BusinessRuleException("Un suivi existe déjà pour la séance id: " + dto.getSeanceId());
+        }
+
+        /* Step 7 : associer l'auteur du feedback */
+        User auteur = null;
+        if (userId != null) {
+            auteur = userRepository.findById(userId).orElse(null);
         }
 
         SuiviSeance suivi = SuiviSeance.builder()
@@ -43,6 +50,8 @@ public class SuiviSeanceService {
                 .ressenti(dto.getRessenti())
                 .fatigue(dto.getFatigue())
                 .commentaire(dto.getCommentaire())
+                .note(dto.getNote())
+                .auteur(auteur)
                 .build();
         return SuiviMapper.toResponse(suiviRepository.save(suivi));
     }

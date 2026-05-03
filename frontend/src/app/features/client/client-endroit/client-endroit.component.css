@@ -1,0 +1,67 @@
+.sl-hero {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.sl-hero-img {
+  width: 320px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--sl-radius-md);
+  flex-shrink: 0;
+}
+
+.sl-hero-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sl-surface2);
+  font-size: 4rem;
+  border: 1px solid var(--sl-border);
+}
+
+.sl-hero-info {
+  flex: 1;
+  min-width: 240px;
+}
+
+/* Sous-espace list */
+.sl-se-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sl-se-item {
+  background: var(--sl-surface2);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-md);
+  padding: 1.2rem 1.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.sl-se-item:hover {
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.sl-se-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+/* Reservation form */
+.sl-reco-form {
+  margin-top: 1rem;
+  padding: 1.2rem;
+  background: var(--sl-blue-l);
+  border: 1px solid var(--sl-blue-m);
+  border-radius: var(--sl-radius-md);
+}
+
+@media (max-width: 640px) {
+  .sl-hero-img { width: 100%; height: 200px; }
+}
