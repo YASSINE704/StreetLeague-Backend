@@ -1,1 +1,164 @@
-<p>register works!</p>
+<div class="auth-wrapper">
+  <div class="auth-brand">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <span class="logo-icon">SL</span>
+        <span class="logo-text">Street<strong>League</strong></span>
+      </div>
+      <h1 class="brand-headline">Create your account.</h1>
+      <p class="brand-sub">Players, coaches and sportifs can sign up directly. Admins and terrain managers sign in with accounts already created in the database.</p>
+    </div>
+    <div class="brand-orbs">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="mode-toggle">
+        <button class="toggle-btn" type="button" routerLink="/auth/login">Login</button>
+        <button class="toggle-btn active" type="button">Sign Up</button>
+        <span class="toggle-slider right"></span>
+      </div>
+
+      <div class="role-section">
+        <p class="role-label">Choose your role</p>
+        <div class="role-cards">
+          <button
+            *ngFor="let role of roles"
+            class="role-card"
+            [class.selected]="selectedRole === role.value"
+            (click)="selectRole(role.value)"
+            type="button">
+            <span class="role-name">{{ role.label }}</span>
+            <span class="role-desc">{{ role.desc }}</span>
+            <span class="role-check">✓</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMessage"><span>!</span> {{ errorMessage }}</div>
+      <div class="success-banner" *ngIf="successMessage"><span>✓</span> {{ successMessage }}</div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-fields" id="form-register">
+        <div class="field-group">
+          <label for="reg-prenom">First name</label>
+          <div class="input-wrap">
+            <span class="input-icon">A</span>
+            <input id="reg-prenom" type="text" formControlName="prenom" placeholder="Ali" autocomplete="given-name" />
+          </div>
+          <span class="field-error" *ngIf="hasError(registerForm, 'prenom', 'required')">First name is required</span>
+        </div>
+
+        <div class="field-group">
+          <label for="reg-nom">Last name</label>
+          <div class="input-wrap">
+            <span class="input-icon">B</span>
+            <input id="reg-nom" type="text" formControlName="nom" placeholder="Ben Salah" autocomplete="family-name" />
+          </div>
+          <span class="field-error" *ngIf="hasError(registerForm, 'nom', 'required')">Last name is required</span>
+        </div>
+
+        <div class="field-group">
+          <label for="reg-email">Email address</label>
+          <div class="input-wrap">
+            <span class="input-icon">@</span>
+            <input id="reg-email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" />
+          </div>
+          <span class="field-error" *ngIf="hasError(registerForm, 'email', 'required')">Email is required</span>
+          <span class="field-error" *ngIf="hasError(registerForm, 'email', 'email')">Email format is invalid</span>
+        </div>
+
+        <div class="pd-form-grid auth-inline-grid">
+          <div class="field-group">
+            <label for="reg-age">Age</label>
+            <div class="input-wrap">
+              <span class="input-icon">#</span>
+              <input id="reg-age" type="number" formControlName="age" min="6" max="100" />
+            </div>
+            <span class="field-error" *ngIf="hasError(registerForm, 'age', 'required')">Age is required</span>
+            <span class="field-error" *ngIf="hasError(registerForm, 'age', 'min') || hasError(registerForm, 'age', 'max')">Age must be between 6 and 100</span>
+          </div>
+
+          <div class="field-group">
+            <label for="reg-niveau">Level</label>
+            <div class="input-wrap">
+              <span class="input-icon">L</span>
+              <select id="reg-niveau" formControlName="niveau">
+                <option value="BEGINNER">Beginner</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="ADVANCED">Advanced</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="reg-position">Position</label>
+          <div class="input-wrap">
+            <span class="input-icon">P</span>
+            <select id="reg-position" formControlName="position">
+              <option value="GOALKEEPER">Goalkeeper</option>
+              <option value="DEFENDER">Defender</option>
+              <option value="MIDFIELDER">Midfielder</option>
+              <option value="FORWARD">Forward</option>
+              <option value="UTILITY">Utility</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="reg-photo">Profile picture</label>
+          <div class="photo-upload">
+            <img *ngIf="profilePicture" [src]="profilePicture" alt="Profile preview" class="photo-preview" />
+            <div class="photo-copy">
+              <input id="reg-photo" type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+              <span>{{ profilePictureName || 'Choose a player photo' }}</span>
+              <small>Stored with the player record in MySQL for this demo.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="reg-password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">#</span>
+            <input
+              id="reg-password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Password@123"
+              autocomplete="new-password" />
+            <button type="button" class="eye-btn" (click)="togglePassword()">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <span class="field-error" *ngIf="hasError(registerForm, 'password', 'required')">Password is required</span>
+          <span class="field-error" *ngIf="hasError(registerForm, 'password', 'minlength')">Minimum 8 characters</span>
+          <span class="field-error" *ngIf="hasError(registerForm, 'password', 'pattern')">Use uppercase, lowercase, number and special character</span>
+        </div>
+
+        <div class="field-group">
+          <label for="reg-confirm">Confirm password</label>
+          <div class="input-wrap">
+            <span class="input-icon">#</span>
+            <input id="reg-confirm" [type]="showPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Password@123" />
+          </div>
+          <span class="field-error" *ngIf="registerForm.touched && registerForm.hasError('mismatch')">Passwords do not match</span>
+        </div>
+
+        <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading" id="btn-do-register">
+          <span class="btn-text" *ngIf="!isLoading">Create account</span>
+          <span class="btn-loader" *ngIf="isLoading"></span>
+        </button>
+      </form>
+
+      <div class="auth-links">
+        <a routerLink="/auth/login">Already have an account?</a>
+        <a routerLink="/auth/verify-email">Verify email</a>
+      </div>
+    </div>
+  </div>
+</div>

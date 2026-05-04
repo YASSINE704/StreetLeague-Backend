@@ -13,6 +13,10 @@ export class PlayerService {
     return this.http.get<PlayerDTO[]>(this.base);
   }
 
+  getMe(): Observable<PlayerDTO> {
+    return this.http.get<PlayerDTO>(`${this.base}/me`);
+  }
+
   getById(id: number): Observable<PlayerDTO> {
     return this.http.get<PlayerDTO>(`${this.base}/${id}`);
   }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for Joueur (Player) entity.
@@ -25,4 +26,8 @@ public interface JoueurRepository extends JpaRepository<Joueur, Long> {
      * @return players assigned to the team
      */
     List<Joueur> findByEquipeId(Long equipeId);
+
+    Optional<Joueur> findByUserEmail(String email);
+
+    Optional<Joueur> findByUserIdUser(Integer userId);
 }

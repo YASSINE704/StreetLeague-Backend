@@ -123,6 +123,14 @@ public class JoueurService {
         return getPlayerDetails(playerId);
     }
 
+    public PlayerDTO getCurrentPlayerProfile(String email) {
+        Joueur joueur = joueurRepository.findByUserEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Player profile not found for user: %s", email)
+                ));
+        return convertToDTO(joueur);
+    }
+
     /**
      * Gets all players as DTOs with statistics.
      * 
@@ -140,13 +148,19 @@ public class JoueurService {
      * @param joueur The player entity
      * @return PlayerDTO with player information
      */
-    private PlayerDTO convertToDTO(Joueur joueur) {
+    public PlayerDTO convertToDTO(Joueur joueur) {
         PlayerDTO dto = new PlayerDTO();
         dto.setId(joueur.getId());
         dto.setNom(joueur.getNom());
         dto.setAge(joueur.getAge());
         dto.setNiveau(joueur.getNiveau());
         dto.setPosition(joueur.getPosition());
+        dto.setProfilePicture(joueur.getProfilePicture());
+
+        if (joueur.getUser() != null) {
+            dto.setUserId(joueur.getUser().getIdUser());
+            dto.setEmail(joueur.getUser().getEmail());
+        }
         
         if (joueur.getEquipe() != null) {
             dto.setEquipeId(joueur.getEquipe().getId());

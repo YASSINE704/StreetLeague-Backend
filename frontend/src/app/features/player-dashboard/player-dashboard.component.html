@@ -22,7 +22,10 @@
 
     <div class="pd-header__right">
       <div class="pd-user-summary">
-        <div class="pd-user-avatar">{{ authService.user?.username?.charAt(0) || 'J' }}</div>
+        <div class="pd-user-avatar" [class.has-photo]="playerData?.profilePicture">
+          <img *ngIf="playerData?.profilePicture" [src]="playerData?.profilePicture" alt="Player photo">
+          <span *ngIf="!playerData?.profilePicture">{{ authService.user?.username?.charAt(0) || 'J' }}</span>
+        </div>
         <div class="pd-user-info">
           <p class="pd-user-name">{{ authService.user?.username }}</p>
           <p class="pd-user-role">{{ playerData?.position || 'Joueur' }}</p>
@@ -104,6 +107,19 @@
         <!-- OVERVIEW TAB -->
         <div *ngIf="activeTab === 'OVERVIEW'" class="pd-tab-panel">
           <div class="pd-overview-layout">
+            <div class="pd-player-card">
+              <div class="pd-player-photo" [class.empty]="!playerData?.profilePicture">
+                <img *ngIf="playerData?.profilePicture" [src]="playerData?.profilePicture" alt="Player photo">
+                <span *ngIf="!playerData?.profilePicture">{{ playerData?.nom?.charAt(0) || 'J' }}</span>
+              </div>
+              <div>
+                <p class="pd-player-kicker">Profil sauvegardé en base</p>
+                <h2>{{ playerData?.nom }}</h2>
+                <p>ID Joueur: #{{ playerData?.id }} · User ID: #{{ playerData?.userId }}</p>
+                <p>Email: {{ playerData?.email || authService.user?.email }}</p>
+                <p>Age: {{ playerData?.age }} · Niveau: {{ playerData?.niveau }} · Position: {{ playerData?.position }}</p>
+              </div>
+            </div>
 
             <!-- Next match hero -->
             <div class="pd-next-match-hero" *ngIf="invitations.length > 0">
@@ -168,13 +184,17 @@
                 </select>
               </div>
               <div class="pd-form-field">
-                <label>Pied Dominant</label>
-                <select formControlName="preferredFoot">
-                  <option value="Left">Gaucher</option>
-                  <option value="Right">Droitier</option>
-                  <option value="Both">Ambidextre</option>
+                <label>Niveau</label>
+                <select formControlName="niveau">
+                  <option value="BEGINNER">Beginner</option>
+                  <option value="INTERMEDIATE">Intermediate</option>
+                  <option value="ADVANCED">Advanced</option>
                 </select>
               </div>
+            </div>
+            <div class="pd-form-field">
+              <label>Age</label>
+              <input type="number" formControlName="age" readonly>
             </div>
             <div class="pd-form-field">
               <label>Disponibilités habituelles</label>
@@ -242,6 +262,81 @@
                 <span class="value">{{ stats.winRate }}%</span>
                 <div class="progress"><div class="progress-fill" [style.width.%]="stats.winRate"></div></div>
               </div>
+            </div>
+
+            <!-- AI PREDICTION SECTION -->
+            <div class="pd-prediction-section mt-8" *ngIf="playerPrediction">
+              <div class="pd-prediction-header">
+                <h3>🤖 Prédiction IA - Prochain Match</h3>
+                <span class="pd-prediction-reliability">Fiabilité: {{ playerPrediction.reliability | number:'1.0-0' }}%</span>
+              </div>
+
+              <div class="pd-prediction-grid">
+                <!-- Overall Performance -->
+                <div class="pd-prediction-card main">
+                  <div class="pd-pred-label">Performance Prédite</div>
+                  <div class="pd-pred-rating-display">
+                    <div class="pd-pred-score" [style.color]="predictionService.getCategoryColor(playerPrediction.performanceCategory)">
+                      {{ playerPrediction.predictedPerformanceRating | number:'1.0-1' }}
+                    </div>
+                    <div class="pd-pred-category" [style.backgroundColor]="predictionService.getCategoryColor(playerPrediction.performanceCategory)">
+                      {{ predictionService.getCategoryLabel(playerPrediction.performanceCategory) }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Trend -->
+                <div class="pd-prediction-card">
+                  <div class="pd-pred-label">Tendance</div>
+                  <div class="pd-trend-display">
+                    <span class="pd-trend-symbol">{{ predictionService.getTrendSymbol(playerPrediction.trendDirection) }}</span>
+                    <span class="pd-trend-text">{{ predictionService.getTrendDescription(playerPrediction.trendDirection) }}</span>
+                  </div>
+                </div>
+
+                <!-- Predicted Goals -->
+                <div class="pd-prediction-card">
+                  <div class="pd-pred-label">Buts Prédits</div>
+                  <div class="pd-pred-metric">
+                    <span class="pd-pred-value">{{ playerPrediction.predictedGoals | number:'1.0-1' }}</span>
+                    <span class="pd-pred-avg">(moy: {{ playerPrediction.averageGoals | number:'1.0-1' }})</span>
+                  </div>
+                </div>
+
+                <!-- Predicted Assists -->
+                <div class="pd-prediction-card">
+                  <div class="pd-pred-label">Assists Prédits</div>
+                  <div class="pd-pred-metric">
+                    <span class="pd-pred-value">{{ playerPrediction.predictedAssists | number:'1.0-1' }}</span>
+                    <span class="pd-pred-avg">(moy: {{ playerPrediction.averageAssists | number:'1.0-1' }})</span>
+                  </div>
+                </div>
+
+                <!-- Predicted Tackles -->
+                <div class="pd-prediction-card">
+                  <div class="pd-pred-label">Tacles Prédits</div>
+                  <div class="pd-pred-metric">
+                    <span class="pd-pred-value">{{ playerPrediction.predictedTackles | number:'1.0-1' }}</span>
+                  </div>
+                </div>
+
+                <!-- Predicted Interceptions -->
+                <div class="pd-prediction-card">
+                  <div class="pd-pred-label">Interceptions Prédites</div>
+                  <div class="pd-pred-metric">
+                    <span class="pd-pred-value">{{ playerPrediction.predictedInterceptions | number:'1.0-1' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pd-prediction-info">
+                <p>📊 Basé sur l'analyse de <strong>{{ playerPrediction.totalMatchesAnalyzed }}</strong> matchs précédents</p>
+                <p>💡 Cette prédiction utilise l'apprentissage automatique pour analyser tes performances passées</p>
+              </div>
+            </div>
+
+            <div class="pd-empty-state mt-8" *ngIf="!playerPrediction">
+              <p>⏳ Chargement de la prédiction IA...</p>
             </div>
 
             <!-- Per-match stats table -->

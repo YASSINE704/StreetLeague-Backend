@@ -25,6 +25,9 @@ public class PlayerDTO {
     private int age;
     private Niveau niveau;
     private Position position;
+    private Integer userId;
+    private String email;
+    private String profilePicture;
     private Long equipeId;
     private String equipeName;
     private int totalGoals;

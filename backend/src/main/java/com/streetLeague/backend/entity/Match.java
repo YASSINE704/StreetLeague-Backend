@@ -2,10 +2,10 @@ package com.streetLeague.backend.entity;
 
 import com.streetLeague.backend.enums.MatchStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +26,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Match {
 
     /**
@@ -65,10 +66,9 @@ public class Match {
 
     /**
      * Date and time when the match is scheduled to be played.
-     * Must be in the future for scheduled matches.
+     * Can be past dates for completed matches, future for scheduled matches.
      */
     @NotNull(message = "Match date cannot be null")
-    @Future(message = "Match date must be in the future")
     @Column(nullable = false)
     private LocalDateTime matchDate;
 
