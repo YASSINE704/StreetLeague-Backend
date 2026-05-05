@@ -1,72 +1,64 @@
 package com.streetLeague.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * Step 9 : Service qui communique avec le microservice Python AI
- * pour obtenir des recommandations d'exercices.
- *
- * Si le service Python est indisponible, retourne une liste vide (fallback).
- */
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class AIRecommendationService {
 
-    @Value("${ai.service.url:http://localhost:5000}")
-    private String aiServiceUrl;
+    private static final String AI_SERVICE_BASE_URL = "http://localhost:5000/api/ai";
 
-    @Value("${ai.service.enabled:true}")
-    private boolean enabled;
-
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     /**
-     * Demande des recommandations d'exercices au service Python AI.
-     *
-     * @param context Map contenant : objectifProgramme, typeSeance, intensite,
-     *                nbParticipants, niveauJoueurs, dureeSeanceMinutes, lieuType, enPleinAir
-     * @return Map avec status et liste de recommandations, ou fallback si indisponible
+     * Appelle le service Python AI pour obtenir des recommandations d'exercices.
+     * En cas d'indisponibilité du service, retourne un fallback vide.
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getRecommendations(Map<String, Object> context) {
-        if (!enabled) {
-            return fallbackResponse("Service IA désactivé");
-        }
-
         try {
-            Map<String, Object> response = restTemplate.postForObject(
-                    aiServiceUrl + "/api/ai/recommend", context, Map.class);
-            if (response != null) {
-                log.info("Recommandations IA reçues : {} exercices", response.get("nbRecommandations"));
-                return response;
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    AI_SERVICE_BASE_URL + "/recommend",
+                    context,
+                    Map.class
+            );
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                return response.getBody();
             }
-            return fallbackResponse("Réponse vide du service IA");
+            return buildFallbackResponse("Réponse invalide du service AI");
         } catch (Exception e) {
-            log.warn("Service IA indisponible : {}", e.getMessage());
-            return fallbackResponse("Service IA indisponible — ajoutez les exercices manuellement");
+            log.warn("Service AI indisponible, utilisation du fallback : {}", e.getMessage());
+            return buildFallbackResponse("Service AI temporairement indisponible");
         }
     }
 
     /**
-     * Vérifie si le service Python AI est en ligne.
+     * Vérifie si le service Python AI est disponible.
      */
     public boolean isAvailable() {
-        if (!enabled) return false;
         try {
-            restTemplate.getForObject(aiServiceUrl + "/api/ai/health", Map.class);
-            return true;
+            ResponseEntity<Map> response = restTemplate.getForEntity(
+                    AI_SERVICE_BASE_URL + "/health",
+                    Map.class
+            );
+            return response.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
+            log.warn("Health check AI échoué : {}", e.getMessage());
             return false;
         }
     }
 
-    private Map<String, Object> fallbackResponse(String message) {
-        Map<String, Object> fallback = new LinkedHashMap<>();
+    private Map<String, Object> buildFallbackResponse(String message) {
+        Map<String, Object> fallback = new HashMap<>();
         fallback.put("status", "fallback");
         fallback.put("message", message);
         fallback.put("nbRecommandations", 0);

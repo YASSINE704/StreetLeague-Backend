@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../auth/auth.service';
 import { PlayerService } from '../../core/services/player.service';
+import { PlayerPredictionService } from '../../core/services/player-prediction.service';
 import { TeamService } from '../../core/services/team.service';
 import { MatchService } from '../../core/services/match.service';
-import { PlayerDTO, TeamDTO, MatchDTO, PlayerStatsDTO } from '../../shared/models/sports.model';
+import { PlayerDTO, TeamDTO, MatchDTO, PlayerStatsDTO, PlayerPredictionDTO } from '../../shared/models/sports.model';
 
 export interface ActivityFeedItem {
   id: string;
@@ -29,6 +30,7 @@ export class PlayerDashboardComponent implements OnInit {
   upcomingMatches: MatchDTO[] = [];
   matchHistory: MatchDTO[] = [];
   playerStats: PlayerStatsDTO[] = [];
+  playerPrediction: PlayerPredictionDTO | null = null;
 
   loading = false;
   error: string | null = null;
@@ -92,6 +94,7 @@ export class PlayerDashboardComponent implements OnInit {
     private fb: FormBuilder,
     public authService: AuthService,
     private playerService: PlayerService,
+    public predictionService: PlayerPredictionService,
     private teamService: TeamService,
     private matchService: MatchService
   ) {}
@@ -103,6 +106,8 @@ export class PlayerDashboardComponent implements OnInit {
       username: [user?.username || '', Validators.required],
       email: [user?.email || '', [Validators.required, Validators.email]],
       position: ['MIDFIELDER', Validators.required],
+      age: [''],
+      niveau: ['BEGINNER'],
       preferredFoot: ['Right', Validators.required],
       bio: ['Passionné par le street football. Toujours prêt pour un nouveau défi !'],
       availability: ['Soirs & Week-ends']
@@ -114,21 +119,16 @@ export class PlayerDashboardComponent implements OnInit {
   loadData(): void {
     this.loading = true;
 
-    // Load all players and find the one matching logged-in user
-    this.playerService.getAll().subscribe({
-      next: (players) => {
-        const user = this.authService.user;
-        // Try to match by name or just take first player for now
-        const match = players.find(p =>
-          user?.username?.toLowerCase().includes(p.nom.toLowerCase())
-        ) || players[0] || null;
-
+    this.playerService.getMe().subscribe({
+      next: (match) => {
         this.playerData = match;
 
-        if (match) {
           this.profileForm.patchValue({
             name: match.nom,
-            position: match.position
+            email: match.email || this.authService.user?.email,
+            position: match.position,
+            age: match.age,
+            niveau: match.niveau
           });
 
           // Load player's team
@@ -142,14 +142,19 @@ export class PlayerDashboardComponent implements OnInit {
           // Load player stats
           this.playerService.getStatistics(match.id).subscribe({
             next: (stats) => { this.playerStats = stats; },
-            error: () => { this.playerStats = []; }
-          });
-        }
+              error: () => { this.playerStats = []; }
+            });
+
+          // Load player prediction
+          this.predictionService.getPrediction(match.id).subscribe({
+            next: (prediction) => { this.playerPrediction = prediction; },
+              error: () => { this.playerPrediction = null; }
+            });
 
         this.loading = false;
       },
       error: () => {
-        this.error = 'Impossible de charger les données du joueur.';
+        this.error = 'Impossible de charger ton profil joueur. Vérifie que ton compte a été créé avec le rôle Joueur.';
         this.loading = false;
       }
     });

@@ -8,15 +8,6 @@ import com.streetLeague.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * Service utilitaire pour la vérification des rôles dans le module Coaching.
- * Centralise la logique d'autorisation pour éviter la duplication dans chaque service.
- *
- * Rôles coaching :
- * - ADMIN  : accès complet
- * - COACH  : créer/modifier/supprimer programmes, séances, exercices
- * - SPORTIF: consulter (GET), ajouter un suivi, rejoindre une séance
- */
 @Service
 @RequiredArgsConstructor
 public class CoachingRoleService {
@@ -24,47 +15,36 @@ public class CoachingRoleService {
     private final UserRepository userRepository;
 
     /**
-     * Récupère un utilisateur par son ID ou lève une exception.
+     * Vérifie que l'utilisateur est COACH ou ADMIN.
+     * Lance BusinessRuleException sinon.
      */
-    public User findUserOrThrow(Integer userId) {
-        if (userId == null) {
-            throw new BusinessRuleException("L'identifiant utilisateur est requis (header X-User-Id)");
-        }
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé avec id: " + userId));
-    }
-
-    /**
-     * Vérifie que l'utilisateur a le rôle COACH ou ADMIN.
-     * Utilisé pour les opérations de création/modification/suppression de programmes, séances, exercices.
-     */
-    public User requireCoachOrAdmin(Integer userId) {
+    public void requireCoachOrAdmin(Integer userId) {
         User user = findUserOrThrow(userId);
         if (user.getRole() != Role.COACH && user.getRole() != Role.ADMIN) {
             throw new BusinessRuleException(
-                    "Accès refusé : seuls les coachs et administrateurs peuvent effectuer cette action. Votre rôle : " + user.getRole());
+                    "Accès refusé : seuls les COACH et ADMIN peuvent accéder à cette ressource");
         }
-        return user;
     }
 
     /**
-     * Vérifie que l'utilisateur a le rôle SPORTIF, COACH ou ADMIN.
-     * Utilisé pour les opérations de suivi (feedback après séance).
+     * Vérifie que l'utilisateur est SPORTIF, COACH ou ADMIN.
+     * Utilisé pour le suivi et le feedback.
      */
-    public User requireSportifOrCoachOrAdmin(Integer userId) {
+    public void requireSportifOrCoachOrAdmin(Integer userId) {
         User user = findUserOrThrow(userId);
-        if (user.getRole() != Role.SPORTIF && user.getRole() != Role.COACH && user.getRole() != Role.ADMIN) {
+        if (user.getRole() != Role.SPORTIF
+                && user.getRole() != Role.COACH
+                && user.getRole() != Role.ADMIN) {
             throw new BusinessRuleException(
-                    "Accès refusé : seuls les sportifs, coachs et administrateurs peuvent effectuer cette action. Votre rôle : " + user.getRole());
+                    "Accès refusé : seuls les SPORTIF, COACH et ADMIN peuvent accéder à cette ressource");
         }
-        return user;
     }
 
     /**
-     * Vérifie que l'utilisateur est authentifié (n'importe quel rôle).
-     * Utilisé pour les opérations de lecture (GET).
+     * Recherche un utilisateur par ID ou lance ResourceNotFoundException.
      */
-    public User requireAuthenticated(Integer userId) {
-        return findUserOrThrow(userId);
+    public User findUserOrThrow(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé avec id: " + userId));
     }
 }

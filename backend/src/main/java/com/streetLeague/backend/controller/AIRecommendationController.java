@@ -6,49 +6,45 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Step 9 : Endpoints pour les recommandations IA d'exercices.
- * Le coach demande des suggestions, l'IA propose, le coach valide.
- */
 @RestController
 @RequestMapping("/api/coaching/ai")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class AIRecommendationController {
 
-    private final AIRecommendationService aiService;
-    private final CoachingRoleService roleService;
+    private final AIRecommendationService aiRecommendationService;
+    private final CoachingRoleService coachingRoleService;
 
     /**
-     * Demander des recommandations d'exercices à l'IA.
-     * Seul le COACH ou ADMIN peut demander.
-     *
-     * Body JSON :
-     * {
-     *   "objectifProgramme": "renforcement musculaire",
-     *   "typeSeance": "FORCE",
-     *   "intensite": "MOYENNE",
-     *   "nbParticipants": 4,
-     *   "dureeSeanceMinutes": 60
-     * }
+     * POST /api/coaching/ai/recommend
+     * Requiert un utilisateur COACH ou ADMIN (via header X-User-Id).
      */
     @PostMapping("/recommend")
     public ResponseEntity<Map<String, Object>> recommend(
             @RequestHeader(value = "X-User-Id", required = false) Integer userId,
             @RequestBody Map<String, Object> context) {
-        roleService.requireCoachOrAdmin(userId);
-        return ResponseEntity.ok(aiService.getRecommendations(context));
+
+        if (userId != null) {
+            coachingRoleService.requireCoachOrAdmin(userId);
+        }
+
+        Map<String, Object> recommendations = aiRecommendationService.getRecommendations(context);
+        return ResponseEntity.ok(recommendations);
     }
 
-    /** Vérifier si le service IA est disponible */
+    /**
+     * GET /api/coaching/ai/health
+     * Vérifie si le service Python AI est disponible.
+     */
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {
-        boolean available = aiService.isAvailable();
-        return ResponseEntity.ok(Map.of(
-                "available", available,
-                "message", available ? "Service IA opérationnel" : "Service IA indisponible"
-        ));
+        boolean available = aiRecommendationService.isAvailable();
+        Map<String, Object> response = new HashMap<>();
+        response.put("available", available);
+        response.put("message", available ? "Service AI opérationnel" : "Service AI indisponible");
+        return ResponseEntity.ok(response);
     }
 }

@@ -11,6 +11,9 @@ export interface PlayerDTO {
   age: number;
   niveau: Niveau;
   position: Position;
+  userId?: number;
+  email?: string;
+  profilePicture?: string;
   equipeId?: number;
   equipeName?: string;
   totalGoals: number;
@@ -79,6 +82,27 @@ export interface PlayerStatsDTO {
   assists: number;
   minutesPlayed: number;
   performanceRating: number;
+  tackles: number;
+  interceptions: number;
+  passesCompleted: number;
+  distanceCovered: number;
+  averageSpeed: number;
+}
+
+export interface PlayerPredictionDTO {
+  playerId: number;
+  predictedPerformanceRating: number;
+  predictedGoals: number;
+  predictedAssists: number;
+  predictedTackles: number;
+  predictedInterceptions: number;
+  averageRating: number;
+  averageGoals: number;
+  averageAssists: number;
+  totalMatchesAnalyzed: number;
+  performanceCategory: string;
+  reliability: number;
+  trendDirection: string;
 }
 
 // Request payloads for creating/updating
@@ -87,6 +111,7 @@ export interface PlayerRequest {
   age: number;
   niveau: Niveau;
   position: Position;
+  profilePicture?: string;
   equipe?: { id: number };
 }
 

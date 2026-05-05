@@ -1,0 +1,58 @@
+<div class="auth-wrapper">
+  <div class="auth-brand">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <span class="logo-icon">SL</span>
+        <span class="logo-text">Street<strong>League</strong></span>
+      </div>
+      <h1 class="brand-headline">Verify your email.</h1>
+      <p class="brand-sub">Enter the code sent by the backend email service. In local development, the code appears in the backend logs.</p>
+    </div>
+    <div class="brand-orbs">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="error-banner" *ngIf="errorMessage"><span>!</span> {{ errorMessage }}</div>
+      <div class="success-banner" *ngIf="successMessage"><span>✓</span> {{ successMessage }}</div>
+
+      <form [formGroup]="form" (ngSubmit)="onVerify()" class="auth-fields">
+        <div class="field-group">
+          <label for="verify-email">Email address</label>
+          <div class="input-wrap">
+            <span class="input-icon">@</span>
+            <input id="verify-email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" />
+          </div>
+          <span class="field-error" *ngIf="hasError('email', 'required')">Email is required</span>
+          <span class="field-error" *ngIf="hasError('email', 'email')">Email format is invalid</span>
+        </div>
+
+        <div class="field-group">
+          <label for="verify-code">Verification code</label>
+          <div class="input-wrap">
+            <span class="input-icon">#</span>
+            <input id="verify-code" type="text" formControlName="code" placeholder="123456" inputmode="numeric" />
+          </div>
+          <span class="field-error" *ngIf="hasError('code', 'required')">Code is required</span>
+          <span class="field-error" *ngIf="hasError('code', 'minlength') || hasError('code', 'maxlength')">Code must be 6 digits</span>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="isLoading">
+          <span class="btn-text" *ngIf="!isLoading">Verify email</span>
+          <span class="btn-loader" *ngIf="isLoading"></span>
+        </button>
+      </form>
+
+      <div class="auth-links">
+        <a routerLink="/auth/login">Back to login</a>
+        <button class="link-button" type="button" [disabled]="isResending" (click)="resendCode()">
+          {{ isResending ? 'Sending...' : 'Resend code' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

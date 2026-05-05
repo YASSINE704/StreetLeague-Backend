@@ -100,27 +100,17 @@ export enum TypeAffectationProgramme {
   SPORTIF = 'SPORTIF'
 }
 
-/* ── Step 2 : Réservation de séance ── */
-
+/* Réservation de séance */
 export interface ReservationSeance {
   idReservation?: number;
   dateReservation?: string;
-  statut?: StatutReservationSeance;
-  modePaiement: ModePaiement;
+  statut?: string;
+  modePaiement?: string;
+  statutPaiement?: string;
+  montant?: number;
   motifAnnulation?: string;
   userId?: number;
   userNom?: string;
-  seanceId: number;
+  seanceId?: number;
   seanceTitre?: string;
-}
-
-export enum StatutReservationSeance {
-  RESERVEE = 'RESERVEE',
-  CONFIRMEE = 'CONFIRMEE',
-  ANNULEE = 'ANNULEE'
-}
-
-export enum ModePaiement {
-  EN_LIGNE = 'EN_LIGNE',
-  SUR_PLACE = 'SUR_PLACE'
 }

@@ -1,176 +1,331 @@
-"""
-StreetLeague Coaching — AI Exercise Recommendation Service
-Step 9 : Service Python Flask qui propose des exercices au coach.
-
-Usage :
-  pip install -r requirements.txt
-  python app.py
-
-Le service écoute sur http://localhost:5000
-Spring Boot appelle POST /api/ai/recommend
-"""
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import random
 
 app = Flask(__name__)
 CORS(app)
 
-# ══════════════════════════════════════════════════════════
-# Base de connaissances d'exercices
-# ══════════════════════════════════════════════════════════
-
-EXERCICES_DB = [
-    # FORCE
-    {"nom": "Pompes", "type": "FORCE", "description": "Exercice de poussée au poids du corps", "difficulte": "MOYENNE",
-     "dureeMinutes": 10, "equipement": "Aucun", "objectif": "Renforcement pectoraux et triceps",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Garder le dos droit, ne pas cambrer"},
-    {"nom": "Squats", "type": "FORCE", "description": "Flexion des jambes", "difficulte": "MOYENNE",
-     "dureeMinutes": 12, "equipement": "Aucun ou barre", "objectif": "Renforcement quadriceps et fessiers",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Genoux alignés avec les pieds"},
-    {"nom": "Développé couché", "type": "FORCE", "description": "Poussée horizontale avec barre", "difficulte": "FORTE",
-     "dureeMinutes": 15, "equipement": "Banc + barre + poids", "objectif": "Force pectoraux",
-     "niveauRecommande": "Intermédiaire", "consigneSecurite": "Toujours avec un partenaire"},
-    {"nom": "Tractions", "type": "FORCE", "description": "Traction verticale au poids du corps", "difficulte": "FORTE",
-     "dureeMinutes": 10, "equipement": "Barre de traction", "objectif": "Renforcement dos et biceps",
-     "niveauRecommande": "Intermédiaire", "consigneSecurite": "Mouvement contrôlé, pas de balancement"},
-    {"nom": "Fentes", "type": "FORCE", "description": "Pas en avant avec flexion", "difficulte": "FAIBLE",
-     "dureeMinutes": 10, "equipement": "Aucun", "objectif": "Renforcement jambes unilatéral",
-     "niveauRecommande": "Débutant", "consigneSecurite": "Genou avant ne dépasse pas les orteils"},
-    {"nom": "Planche", "type": "FORCE", "description": "Gainage statique", "difficulte": "MOYENNE",
-     "dureeMinutes": 5, "equipement": "Aucun", "objectif": "Renforcement core/abdominaux",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Corps aligné, ne pas creuser le dos"},
-
-    # CARDIO
-    {"nom": "Burpees", "type": "CARDIO", "description": "Exercice complet haute intensité", "difficulte": "FORTE",
-     "dureeMinutes": 8, "equipement": "Aucun", "objectif": "Endurance et explosivité",
-     "niveauRecommande": "Intermédiaire", "consigneSecurite": "Échauffement obligatoire"},
-    {"nom": "Course sur place", "type": "CARDIO", "description": "Course stationnaire", "difficulte": "FAIBLE",
-     "dureeMinutes": 15, "equipement": "Aucun", "objectif": "Échauffement et endurance",
-     "niveauRecommande": "Débutant", "consigneSecurite": "Chaussures adaptées"},
-    {"nom": "Jumping Jacks", "type": "CARDIO", "description": "Sauts avec écart bras et jambes", "difficulte": "FAIBLE",
-     "dureeMinutes": 5, "equipement": "Aucun", "objectif": "Échauffement cardio",
-     "niveauRecommande": "Débutant", "consigneSecurite": "Surface stable"},
-    {"nom": "Mountain Climbers", "type": "CARDIO", "description": "Montées de genoux en position planche", "difficulte": "MOYENNE",
-     "dureeMinutes": 8, "equipement": "Aucun", "objectif": "Cardio et renforcement core",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Rythme régulier"},
-    {"nom": "Corde à sauter", "type": "CARDIO", "description": "Sauts avec corde", "difficulte": "MOYENNE",
-     "dureeMinutes": 10, "equipement": "Corde à sauter", "objectif": "Endurance et coordination",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Surface amortissante recommandée"},
-
-    # MOBILITE
-    {"nom": "Étirements dynamiques", "type": "MOBILITE", "description": "Mouvements d'amplitude articulaire", "difficulte": "FAIBLE",
-     "dureeMinutes": 10, "equipement": "Aucun", "objectif": "Mobilité et prévention blessures",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Ne pas forcer les amplitudes"},
-    {"nom": "Yoga guerrier", "type": "MOBILITE", "description": "Postures de yoga pour la force et souplesse", "difficulte": "MOYENNE",
-     "dureeMinutes": 15, "equipement": "Tapis", "objectif": "Souplesse et équilibre",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Respiration contrôlée"},
-    {"nom": "Foam Rolling", "type": "MOBILITE", "description": "Auto-massage avec rouleau", "difficulte": "FAIBLE",
-     "dureeMinutes": 10, "equipement": "Rouleau de massage", "objectif": "Récupération musculaire",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Éviter les articulations"},
-
-    # TECHNIQUE
-    {"nom": "Dribble slalom", "type": "TECHNIQUE", "description": "Dribble entre cônes", "difficulte": "MOYENNE",
-     "dureeMinutes": 12, "equipement": "Ballon + cônes", "objectif": "Technique de dribble",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Surface plane"},
-    {"nom": "Passes courtes", "type": "TECHNIQUE", "description": "Exercice de passes à deux", "difficulte": "FAIBLE",
-     "dureeMinutes": 10, "equipement": "Ballon", "objectif": "Précision des passes",
-     "niveauRecommande": "Débutant", "consigneSecurite": "Communication entre partenaires"},
-    {"nom": "Tirs au but", "type": "TECHNIQUE", "description": "Exercice de frappe", "difficulte": "MOYENNE",
-     "dureeMinutes": 15, "equipement": "Ballon + but", "objectif": "Précision et puissance de frappe",
-     "niveauRecommande": "Tous niveaux", "consigneSecurite": "Échauffement des jambes avant"},
+# Base de 17 exercices couvrant les types FORCE, CARDIO, MOBILITE, TECHNIQUE
+EXERCICES_BASE = [
+    {
+        "nom": "Pompes explosives",
+        "type": "FORCE",
+        "description": "Pompes avec phase explosive pour développer la puissance du haut du corps",
+        "difficulte": "INTERMEDIAIRE",
+        "dureeMinutes": 10,
+        "equipement": "Aucun",
+        "objectif": "puissance force explosivité haut du corps",
+        "niveauRecommande": "INTERMEDIAIRE",
+        "consigneSecurite": "Garder le dos droit, ne pas cambrer"
+    },
+    {
+        "nom": "Squats sautés",
+        "type": "FORCE",
+        "description": "Squats avec saut pour renforcer les membres inférieurs",
+        "difficulte": "INTERMEDIAIRE",
+        "dureeMinutes": 12,
+        "equipement": "Aucun",
+        "objectif": "puissance jambes explosivité détente",
+        "niveauRecommande": "INTERMEDIAIRE",
+        "consigneSecurite": "Atterrir en douceur, genoux alignés avec les pieds"
+    },
+    {
+        "nom": "Gainage dynamique",
+        "type": "FORCE",
+        "description": "Exercice de gainage avec mouvements pour renforcer le tronc",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 8,
+        "equipement": "Tapis",
+        "objectif": "stabilité core renforcement tronc",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Ne pas creuser le dos, respirer régulièrement"
+    },
+    {
+        "nom": "Tractions australiennes",
+        "type": "FORCE",
+        "description": "Tractions horizontales pour le dos et les biceps",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 10,
+        "equipement": "Barre basse",
+        "objectif": "dos biceps tirage force",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Garder le corps aligné, contrôler la descente"
+    },
+    {
+        "nom": "Sprint intervalles 30/30",
+        "type": "CARDIO",
+        "description": "Alternance de sprints de 30s et récupération de 30s",
+        "difficulte": "AVANCE",
+        "dureeMinutes": 15,
+        "equipement": "Aucun",
+        "objectif": "vitesse endurance cardio intervalles",
+        "niveauRecommande": "AVANCE",
+        "consigneSecurite": "Échauffement obligatoire, arrêter en cas de douleur"
+    },
+    {
+        "nom": "Course continue modérée",
+        "type": "CARDIO",
+        "description": "Course à allure modérée pour développer l'endurance de base",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 20,
+        "equipement": "Aucun",
+        "objectif": "endurance fond cardio aérobie",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Maintenir une allure conversationnelle"
+    },
+    {
+        "nom": "Burpees",
+        "type": "CARDIO",
+        "description": "Exercice complet combinant squat, planche et saut",
+        "difficulte": "INTERMEDIAIRE",
+        "dureeMinutes": 10,
+        "equipement": "Aucun",
+        "objectif": "cardio complet explosivité endurance",
+        "niveauRecommande": "INTERMEDIAIRE",
+        "consigneSecurite": "Adapter le rythme à son niveau, ne pas négliger la technique"
+    },
+    {
+        "nom": "Corde à sauter",
+        "type": "CARDIO",
+        "description": "Sauts à la corde pour améliorer la coordination et le cardio",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 12,
+        "equipement": "Corde à sauter",
+        "objectif": "coordination cardio agilité rythme",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Surface souple, chaussures adaptées"
+    },
+    {
+        "nom": "Étirements dynamiques",
+        "type": "MOBILITE",
+        "description": "Série d'étirements en mouvement pour préparer le corps",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 10,
+        "equipement": "Aucun",
+        "objectif": "souplesse échauffement mobilité articulaire",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Mouvements fluides, ne pas forcer"
+    },
+    {
+        "nom": "Yoga sportif",
+        "type": "MOBILITE",
+        "description": "Postures de yoga adaptées aux sportifs pour la récupération",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 15,
+        "equipement": "Tapis",
+        "objectif": "récupération souplesse relaxation mobilité",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Respecter ses limites, ne pas forcer les postures"
+    },
+    {
+        "nom": "Mobilité des hanches",
+        "type": "MOBILITE",
+        "description": "Exercices ciblés pour améliorer la mobilité des hanches",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 10,
+        "equipement": "Aucun",
+        "objectif": "hanches mobilité prévention blessures",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Mouvements contrôlés, pas de rebonds"
+    },
+    {
+        "nom": "Foam rolling récupération",
+        "type": "MOBILITE",
+        "description": "Auto-massage avec rouleau pour la récupération musculaire",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 12,
+        "equipement": "Foam roller",
+        "objectif": "récupération massage détente musculaire",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Éviter les articulations, rouler lentement"
+    },
+    {
+        "nom": "Dribble slalom",
+        "type": "TECHNIQUE",
+        "description": "Parcours de dribble entre plots pour améliorer le contrôle de balle",
+        "difficulte": "INTERMEDIAIRE",
+        "dureeMinutes": 15,
+        "equipement": "Ballon, plots",
+        "objectif": "dribble technique contrôle balle agilité",
+        "niveauRecommande": "INTERMEDIAIRE",
+        "consigneSecurite": "Surface plane, chaussures adaptées"
+    },
+    {
+        "nom": "Passes courtes en mouvement",
+        "type": "TECHNIQUE",
+        "description": "Exercice de passes courtes avec déplacements",
+        "difficulte": "DEBUTANT",
+        "dureeMinutes": 12,
+        "equipement": "Ballon",
+        "objectif": "passes précision technique collective",
+        "niveauRecommande": "DEBUTANT",
+        "consigneSecurite": "Communication entre partenaires"
+    },
+    {
+        "nom": "Tirs cadrés",
+        "type": "TECHNIQUE",
+        "description": "Exercice de tirs au but avec contraintes de placement",
+        "difficulte": "INTERMEDIAIRE",
+        "dureeMinutes": 15,
+        "equipement": "Ballon, but",
+        "objectif": "tir précision finition technique",
+        "niveauRecommande": "INTERMEDIAIRE",
+        "consigneSecurite": "Échauffement des jambes avant les frappes"
+    },
+    {
+        "nom": "Jeu réduit 3v3",
+        "type": "TECHNIQUE",
+        "description": "Match en effectif réduit pour travailler la prise de décision",
+        "difficulte": "INTERMEDIAIRE",
+        "dureeMinutes": 20,
+        "equipement": "Ballon, chasubles",
+        "objectif": "tactique décision collective jeu",
+        "niveauRecommande": "INTERMEDIAIRE",
+        "consigneSecurite": "Respect des règles, pas de tacles dangereux"
+    },
+    {
+        "nom": "Conduite de balle en vitesse",
+        "type": "TECHNIQUE",
+        "description": "Course avec ballon pour améliorer le contrôle à haute vitesse",
+        "difficulte": "AVANCE",
+        "dureeMinutes": 12,
+        "equipement": "Ballon",
+        "objectif": "vitesse technique contrôle conduite",
+        "niveauRecommande": "AVANCE",
+        "consigneSecurite": "Terrain dégagé, attention aux obstacles"
+    }
 ]
 
 
-def score_exercise(ex, context):
-    """Calcule un score de pertinence pour un exercice selon le contexte."""
-    score = 50  # score de base
+def calculate_score(exercice, context):
+    """
+    Algorithme de scoring pour classer les exercices par pertinence.
+    - Type match: +30
+    - Intensité match: +20
+    - Objectif keywords match: +15
+    - Pas d'équipement requis: +10
+    """
+    score = 0
 
-    intensite = context.get("intensite", "MOYENNE")
-    objectif = context.get("objectifProgramme", "").lower()
-    nb_participants = context.get("nbParticipants", 5)
-
-    # Correspondance type
-    if context.get("typeSeance") and ex["type"] == context["typeSeance"]:
+    # Type match (+30)
+    type_seance = context.get("typeSeance", "").upper()
+    if exercice["type"].upper() == type_seance:
         score += 30
 
-    # Correspondance intensité/difficulté
-    mapping = {"FAIBLE": "FAIBLE", "MOYENNE": "MOYENNE", "FORTE": "FORTE"}
-    if ex["difficulte"] == mapping.get(intensite, "MOYENNE"):
+    # Intensité match (+20)
+    intensite = context.get("intensite", "").upper()
+    difficulte = exercice.get("difficulte", "").upper()
+    intensite_mapping = {
+        "FAIBLE": "DEBUTANT",
+        "MODEREE": "INTERMEDIAIRE",
+        "MODERE": "INTERMEDIAIRE",
+        "MOYENNE": "INTERMEDIAIRE",
+        "ELEVEE": "AVANCE",
+        "HAUTE": "AVANCE",
+        "INTENSE": "AVANCE"
+    }
+    mapped_intensite = intensite_mapping.get(intensite, intensite)
+    if mapped_intensite == difficulte:
         score += 20
 
-    # Objectif du programme
-    if objectif:
-        if any(mot in ex["objectif"].lower() for mot in objectif.split()):
-            score += 15
-        if any(mot in ex["description"].lower() for mot in objectif.split()):
-            score += 10
+    # Objectif keywords match (+15)
+    objectif_programme = context.get("objectifProgramme", "").lower()
+    exercice_objectif = exercice.get("objectif", "").lower()
+    if objectif_programme:
+        keywords = objectif_programme.split()
+        for keyword in keywords:
+            if len(keyword) > 3 and keyword in exercice_objectif:
+                score += 15
+                break
 
-    # Pas d'équipement si beaucoup de participants
-    if nb_participants > 3 and ex["equipement"] == "Aucun":
+    # Pas d'équipement requis (+10)
+    equipement = exercice.get("equipement", "")
+    if equipement.lower() in ["aucun", "none", ""]:
         score += 10
 
-    # Variété aléatoire
-    score += random.randint(0, 10)
-
     return score
-
-
-@app.route("/api/ai/recommend", methods=["POST"])
-def recommend():
-    """
-    Reçoit le contexte d'une séance et retourne des exercices recommandés.
-
-    Body JSON attendu :
-    {
-        "objectifProgramme": "renforcement musculaire",
-        "typeSeance": "FORCE",
-        "intensite": "MOYENNE",
-        "nbParticipants": 4,
-        "niveauJoueurs": "Intermédiaire",
-        "dureeSeanceMinutes": 60,
-        "lieuType": "SALLE",
-        "enPleinAir": false
-    }
-    """
-    context = request.get_json() or {}
-
-    # Scorer chaque exercice
-    scored = [(ex, score_exercise(ex, context)) for ex in EXERCICES_DB]
-    scored.sort(key=lambda x: x[1], reverse=True)
-
-    # Retourner les 6 meilleurs
-    recommendations = []
-    for ex, score in scored[:6]:
-        recommendations.append({
-            "nom": ex["nom"],
-            "type": ex["type"],
-            "description": ex["description"],
-            "difficulte": ex["difficulte"],
-            "dureeMinutes": ex["dureeMinutes"],
-            "equipement": ex["equipement"],
-            "objectif": ex["objectif"],
-            "niveauRecommande": ex["niveauRecommande"],
-            "consigneSecurite": ex["consigneSecurite"],
-            "scoreRelevance": score,
-            "raison": f"Recommandé pour {context.get('intensite', 'MOYENNE')} intensité, "
-                      f"objectif: {ex['objectif']}"
-        })
-
-    return jsonify({
-        "status": "ok",
-        "nbRecommandations": len(recommendations),
-        "recommandations": recommendations
-    })
 
 
 @app.route("/api/ai/health", methods=["GET"])
 def health():
     """Health check endpoint."""
-    return jsonify({"status": "ok", "service": "StreetLeague AI Coaching"})
+    return jsonify({"status": "ok"}), 200
+
+
+@app.route("/api/ai/recommend", methods=["POST"])
+def recommend():
+    """
+    Reçoit un contexte JSON et retourne 6 recommandations d'exercices
+    classées par score de pertinence.
+    """
+    context = request.get_json()
+    if not context:
+        return jsonify({
+            "status": "error",
+            "message": "Contexte JSON requis",
+            "nbRecommandations": 0,
+            "recommandations": []
+        }), 400
+
+    # Calculer le score pour chaque exercice
+    scored_exercices = []
+    for exercice in EXERCICES_BASE:
+        score = calculate_score(exercice, context)
+        exercice_with_score = dict(exercice)
+        exercice_with_score["scoreRelevance"] = score
+        exercice_with_score["raison"] = build_raison(exercice, context, score)
+        scored_exercices.append(exercice_with_score)
+
+    # Trier par score décroissant et prendre les 6 meilleurs
+    scored_exercices.sort(key=lambda x: x["scoreRelevance"], reverse=True)
+    top_recommendations = scored_exercices[:6]
+
+    return jsonify({
+        "status": "ok",
+        "message": "Recommandations générées avec succès",
+        "nbRecommandations": len(top_recommendations),
+        "recommandations": top_recommendations
+    }), 200
+
+
+def build_raison(exercice, context, score):
+    """Construit une explication de la recommandation."""
+    raisons = []
+    type_seance = context.get("typeSeance", "").upper()
+
+    if exercice["type"].upper() == type_seance:
+        raisons.append(f"correspond au type de séance ({type_seance})")
+
+    intensite = context.get("intensite", "").upper()
+    intensite_mapping = {
+        "FAIBLE": "DEBUTANT",
+        "MODEREE": "INTERMEDIAIRE",
+        "MODERE": "INTERMEDIAIRE",
+        "MOYENNE": "INTERMEDIAIRE",
+        "ELEVEE": "AVANCE",
+        "HAUTE": "AVANCE",
+        "INTENSE": "AVANCE"
+    }
+    mapped = intensite_mapping.get(intensite, intensite)
+    if mapped == exercice.get("difficulte", "").upper():
+        raisons.append("intensité adaptée")
+
+    objectif = context.get("objectifProgramme", "").lower()
+    if objectif:
+        keywords = objectif.split()
+        for kw in keywords:
+            if len(kw) > 3 and kw in exercice.get("objectif", "").lower():
+                raisons.append(f"correspond à l'objectif ({kw})")
+                break
+
+    equipement = exercice.get("equipement", "")
+    if equipement.lower() in ["aucun", "none", ""]:
+        raisons.append("ne nécessite pas d'équipement")
+
+    if not raisons:
+        raisons.append("exercice complémentaire recommandé")
+
+    return "Recommandé car : " + ", ".join(raisons)
 
 
 if __name__ == "__main__":
-    print("🤖 StreetLeague AI Service démarré sur http://localhost:5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
