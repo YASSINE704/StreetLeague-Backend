@@ -7,13 +7,15 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { JwtAuthInterceptor } from './core/interceptors/jwt-auth.interceptor';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainLayoutComponent,
-    AuthLayoutComponent
+    AuthLayoutComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,

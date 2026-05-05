@@ -18,19 +18,20 @@ public class CoachingRoleService {
      * Vérifie que l'utilisateur est COACH ou ADMIN.
      * Lance BusinessRuleException sinon.
      */
-    public void requireCoachOrAdmin(Integer userId) {
+    public User requireCoachOrAdmin(Integer userId) {
         User user = findUserOrThrow(userId);
         if (user.getRole() != Role.COACH && user.getRole() != Role.ADMIN) {
             throw new BusinessRuleException(
                     "Accès refusé : seuls les COACH et ADMIN peuvent accéder à cette ressource");
         }
+        return user;
     }
 
     /**
      * Vérifie que l'utilisateur est SPORTIF, COACH ou ADMIN.
      * Utilisé pour le suivi et le feedback.
      */
-    public void requireSportifOrCoachOrAdmin(Integer userId) {
+    public User requireSportifOrCoachOrAdmin(Integer userId) {
         User user = findUserOrThrow(userId);
         if (user.getRole() != Role.SPORTIF
                 && user.getRole() != Role.COACH
@@ -38,6 +39,7 @@ public class CoachingRoleService {
             throw new BusinessRuleException(
                     "Accès refusé : seuls les SPORTIF, COACH et ADMIN peuvent accéder à cette ressource");
         }
+        return user;
     }
 
     /**
