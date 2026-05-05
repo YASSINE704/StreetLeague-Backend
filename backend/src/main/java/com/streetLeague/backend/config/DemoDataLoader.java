@@ -39,6 +39,8 @@ public class DemoDataLoader {
             // 1. Create Terrain
             Terrain terrain = Terrain.builder()
                     .nom("Central Field - Downtown")
+                    .location("Downtown Tunis")
+                    .address("Avenue Habib Bourguiba, Tunis 1000")
                     .typeSport(TypeSport.FOOTBALL)
                     .build();
             terrain = terrainRepository.save(terrain);
