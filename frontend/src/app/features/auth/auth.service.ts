@@ -51,7 +51,7 @@ export interface RegisterPayload {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:18080/api/auth';
+  private readonly API = 'http://localhost:8080/api/auth';
   private readonly tokenKey = 'streetleague-jwt';
   private readonly userKey = 'sl_user';
 
@@ -129,7 +129,9 @@ export class AuthService {
       this.router.navigate(['/tournament']);
     } else if (role === 'TERRAIN_MANAGER') {
       this.router.navigate(['/terrain-manager-dashboard']);
-    } else if (role === 'JOUEUR' || role === 'COACH' || role === 'SPORTIF') {
+    } else if (role === 'COACH' || role === 'SPORTIF') {
+      this.router.navigate(['/coaching']);
+    } else if (role === 'JOUEUR') {
       this.router.navigate(['/player-dashboard']);
     } else {
       this.router.navigate(['/auth/login']);
