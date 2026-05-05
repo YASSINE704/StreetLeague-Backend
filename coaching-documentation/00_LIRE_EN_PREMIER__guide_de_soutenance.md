@@ -1,0 +1,96 @@
+# Guide de soutenance — Code hyper commenté du module Coaching
+
+Ce dossier ne modifie pas le code source. Il ajoute une **documentation pédagogique très détaillée** pour expliquer le projet à un étudiant avec zéro prérequis en développement.
+
+## Pourquoi je n'ai pas ajouté ces commentaires directement dans le code source ?
+
+Parce qu'un code source trop commenté devient lourd et difficile à maintenir. La bonne pratique est de garder le code propre et de créer une documentation séparée. Ainsi, le projet continue à fonctionner sans risque, et tu as une explication ligne par ligne pour apprendre et répondre au prof.
+
+## Architecture globale à expliquer
+
+```text
+Angular 4200 → Spring Boot 8080 → MySQL 3306
+                      ↓
+                 Python Flask IA 5000
+```
+
+- **Angular** affiche l'interface.
+- **Spring Boot** applique la logique métier et expose les APIs.
+- **MySQL** sauvegarde les données.
+- **Python Flask** propose des exercices avec l'IA.
+
+## Workflow métier à retenir
+
+```text
+COACH : crée programme → crée séance → ajoute exercices → utilise IA → valide exercices → suit feedbacks
+SPORTIF : consulte → réserve → participe → ajoute feedback
+```
+
+## Points à dire pour montrer que tu maîtrises
+
+- J'ai utilisé Spring Boot avec une architecture Controller / Service / Repository / Entity / DTO / Mapper.
+- J'ai utilisé Angular avec composants, services HTTP, modèles TypeScript et CSS custom.
+- J'ai utilisé Python Flask pour isoler la partie IA dans un microservice.
+- L'IA propose seulement ; le coach valide toujours.
+- Le sportif ne peut pas choisir les exercices.
+- La météo et les notifications sont gérées côté backend avec WeatherService, scheduler et email service.
+
+## Fichiers documentés
+
+- backend__src__main__java__com__streetLeague__backend__StreetLeagueBackendApplication_java.md
+- backend__src__main__java__com__streetLeague__backend__config__SecurityConfig_java.md
+- backend__src__main__java__com__streetLeague__backend__controller__AIRecommendationController_java.md
+- backend__src__main__java__com__streetLeague__backend__service__AIRecommendationService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__CoachingRoleService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__CoachingNotificationScheduler_java.md
+- backend__src__main__java__com__streetLeague__backend__service__WeatherService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__CoachingEmailService_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__ProgrammeEntrainement_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__SeanceEntrainement_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__Exercice_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__SeanceExercice_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__SuiviSeance_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__AffectationProgramme_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__ReservationSeance_java.md
+- backend__src__main__java__com__streetLeague__backend__entity__NotificationCoaching_java.md
+- backend__src__main__java__com__streetLeague__backend__dto__ProgrammeEntrainementDTO_java.md
+- backend__src__main__java__com__streetLeague__backend__dto__SeanceEntrainementDTO_java.md
+- backend__src__main__java__com__streetLeague__backend__dto__ExerciceDTO_java.md
+- backend__src__main__java__com__streetLeague__backend__dto__SeanceExerciceDTO_java.md
+- backend__src__main__java__com__streetLeague__backend__dto__SuiviSeanceDTO_java.md
+- backend__src__main__java__com__streetLeague__backend__dto__ReservationSeanceDTO_java.md
+- backend__src__main__java__com__streetLeague__backend__controller__ProgrammeEntrainementController_java.md
+- backend__src__main__java__com__streetLeague__backend__controller__SeanceEntrainementController_java.md
+- backend__src__main__java__com__streetLeague__backend__controller__ExerciceController_java.md
+- backend__src__main__java__com__streetLeague__backend__controller__SeanceExerciceController_java.md
+- backend__src__main__java__com__streetLeague__backend__controller__SuiviSeanceController_java.md
+- backend__src__main__java__com__streetLeague__backend__controller__ReservationSeanceController_java.md
+- backend__src__main__java__com__streetLeague__backend__service__ProgrammeEntrainementService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__SeanceEntrainementService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__ExerciceService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__SeanceExerciceService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__SuiviSeanceService_java.md
+- backend__src__main__java__com__streetLeague__backend__service__ReservationSeanceService_java.md
+- backend__src__main__java__com__streetLeague__backend__mapper__ProgrammeMapper_java.md
+- backend__src__main__java__com__streetLeague__backend__mapper__SeanceMapper_java.md
+- backend__src__main__java__com__streetLeague__backend__mapper__ExerciceMapper_java.md
+- backend__src__main__java__com__streetLeague__backend__mapper__ReservationSeanceMapper_java.md
+- backend__src__main__java__com__streetLeague__backend__repository__ProgrammeEntrainementRepository_java.md
+- backend__src__main__java__com__streetLeague__backend__repository__SeanceEntrainementRepository_java.md
+- backend__src__main__java__com__streetLeague__backend__repository__ExerciceRepository_java.md
+- backend__src__main__java__com__streetLeague__backend__repository__ReservationSeanceRepository_java.md
+- frontend__src__app__features__coaching__seances__seance-details__seance-details_component_ts.md
+- frontend__src__app__features__coaching__seances__seance-details__seance-details_component_html.md
+- frontend__src__app__features__coaching__seances__seance-details__seance-details_component_css.md
+- frontend__src__app__core__services__ai-recommendation_service_ts.md
+- frontend__src__app__core__services__exercice_service_ts.md
+- frontend__src__app__core__services__seance_service_ts.md
+- frontend__src__app__core__services__reservation_service_ts.md
+- frontend__src__app__features__coaching__dashboard__dashboard_component_ts.md
+- frontend__src__app__features__coaching__dashboard__dashboard_component_html.md
+- frontend__src__app__features__coaching__programmes__programme-details__programme-details_component_ts.md
+- frontend__src__app__features__coaching__programmes__programme-details__programme-details_component_html.md
+- frontend__src__app__shared__models__programme-entrainement_model_ts.md
+- frontend__src__app__core__interceptors__basic-auth_interceptor_ts.md
+- ai-service__app_py.md
+- ai-service__requirements_txt.md

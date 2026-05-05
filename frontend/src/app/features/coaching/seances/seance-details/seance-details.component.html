@@ -40,6 +40,10 @@
     <button class="sl-error-close" (click)="errorMessage = ''">✕</button>
   </div>
 
+  <div class="sl-toast" *ngIf="successMessage">
+    <span>✅</span> {{ successMessage }}
+  </div>
+
   <!-- Exercices Section -->
   <div class="sl-card">
     <div class="sl-card-header">
@@ -50,14 +54,127 @@
           <p class="seance-section-subtitle">{{ seance.exercices?.length || 0 }} exercice(s) programmé(s)</p>
         </div>
       </div>
-      <button (click)="toggleAddForm()" class="sl-btn sl-btn--primary" *ngIf="seance.statut !== 'REALISEE'">
-        <span *ngIf="!showAddForm">+ Ajouter</span>
-        <span *ngIf="showAddForm">✕ Fermer</span>
-      </button>
+
+      <div class="seance-header-actions" *ngIf="canManageExercises">
+        <button (click)="toggleAiPanel()" class="sl-btn sl-btn--secondary">
+          <span *ngIf="!showAiPanel">🤖 IA</span>
+          <span *ngIf="showAiPanel">✕ Fermer IA</span>
+        </button>
+        <button (click)="toggleAddForm()" class="sl-btn sl-btn--primary">
+          <span *ngIf="!showAddForm">+ Ajouter</span>
+          <span *ngIf="showAddForm">✕ Fermer</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="seance-readonly-note" *ngIf="!canManageExercises && seance.statut !== 'REALISEE'">
+      <span>ℹ️</span>
+      Le sportif peut consulter les exercices, mais seul le coach peut les ajouter, les retirer ou utiliser l'IA.
+    </div>
+
+    <!-- AI Assistant Panel -->
+    <div class="seance-ai-panel" *ngIf="showAiPanel && canManageExercises">
+      <div class="seance-ai-header">
+        <div>
+          <span class="seance-form-badge seance-form-badge--ai">IA</span>
+          <span class="seance-ai-title">Assistant intelligent d'exercices</span>
+        </div>
+        <p>
+          L'IA propose des exercices selon le contexte de la séance. Le coach garde toujours le contrôle : rien n'est ajouté sans validation.
+        </p>
+      </div>
+
+      <div class="sl-form-row-3">
+        <div class="sl-form-group sl-span-2">
+          <label>Objectif envoyé à l'IA</label>
+          <input type="text" class="sl-input" [(ngModel)]="aiContext.objectifProgramme"
+                 placeholder="Ex: renforcement musculaire, cardio, mobilité...">
+        </div>
+        <div class="sl-form-group">
+          <label>Type à privilégier</label>
+          <select class="sl-select" [(ngModel)]="aiContext.typeSeance">
+            <option *ngFor="let type of aiTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sl-form-row-3">
+        <div class="sl-form-group">
+          <label>Niveau joueurs</label>
+          <select class="sl-select" [(ngModel)]="aiContext.niveauJoueurs">
+            <option value="Débutant">Débutant</option>
+            <option value="Tous niveaux">Tous niveaux</option>
+            <option value="Intermédiaire">Intermédiaire</option>
+            <option value="Avancé">Avancé</option>
+          </select>
+        </div>
+        <div class="sl-form-group">
+          <label>Intensité séance</label>
+          <input type="text" class="sl-input" [value]="seance.intensite || 'MOYENNE'" disabled>
+        </div>
+        <div class="sl-form-group">
+          <label>Durée</label>
+          <input type="text" class="sl-input" [value]="(seance.dureeMinutes || 60) + ' min'" disabled>
+        </div>
+      </div>
+
+      <div class="seance-ai-actions">
+        <button class="sl-btn sl-btn--primary" (click)="generateAIExercises()" [disabled]="aiLoading">
+          <span *ngIf="!aiLoading">✨ Proposer avec IA</span>
+          <span *ngIf="aiLoading">Génération en cours...</span>
+        </button>
+      </div>
+
+      <div class="seance-ai-message seance-ai-message--warning" *ngIf="aiMessage">
+        <span>ℹ️</span> {{ aiMessage }}
+      </div>
+
+      <div class="seance-ai-results-head" *ngIf="aiRecommendations.length > 0">
+        <div>
+          <h3>Suggestions IA</h3>
+          <p>Choisissez uniquement les exercices que vous voulez ajouter à la séance.</p>
+        </div>
+      </div>
+
+      <div class="seance-ai-grid" *ngIf="aiRecommendations.length > 0">
+        <div class="seance-ai-card" *ngFor="let rec of aiRecommendations; let i = index">
+          <div class="seance-ai-card-top">
+            <div>
+              <h3>{{ rec.nom }}</h3>
+              <span class="seance-param-tag purple">{{ rec.type }}</span>
+              <span class="seance-param-tag orange" *ngIf="rec.difficulte">{{ rec.difficulte }}</span>
+            </div>
+            <span class="seance-ai-score" *ngIf="rec.scoreRelevance">Score {{ rec.scoreRelevance }}</span>
+          </div>
+
+          <p class="seance-ai-desc">{{ rec.description || rec.objectif || 'Exercice recommandé selon le contexte de la séance.' }}</p>
+
+          <div class="seance-ai-info">
+            <span *ngIf="rec.dureeMinutes">⏱️ {{ rec.dureeMinutes }} min</span>
+            <span *ngIf="rec.equipement">🎒 {{ rec.equipement }}</span>
+            <span *ngIf="rec.niveauRecommande">🎯 {{ rec.niveauRecommande }}</span>
+          </div>
+
+          <div class="seance-ai-reason" *ngIf="rec.raison">
+            <strong>Pourquoi :</strong> {{ rec.raison }}
+          </div>
+
+          <div class="seance-ai-safety" *ngIf="rec.consigneSecurite">
+            <strong>Sécurité :</strong> {{ rec.consigneSecurite }}
+          </div>
+
+          <button class="sl-btn sl-btn--primary seance-ai-add-btn"
+                  (click)="acceptAIExercise(rec, i)"
+                  [disabled]="acceptingAiIndex === i">
+            <span *ngIf="acceptingAiIndex !== i">Valider et ajouter à la séance</span>
+            <span *ngIf="acceptingAiIndex === i">Ajout...</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Inline Add Form -->
-    <div class="seance-add-form-panel" *ngIf="showAddForm">
+    <div class="seance-add-form-panel" *ngIf="showAddForm && canManageExercises">
       <div class="seance-add-form-header">
         <span class="seance-form-badge">Nouveau</span>
         <span>Ajouter un exercice depuis le catalogue</span>
@@ -107,12 +224,12 @@
           <span class="seance-exercice-name">{{ ex.exerciceNom }}</span>
           <div class="seance-exercice-params">
             <span class="seance-param-tag blue">{{ ex.series }} séries</span>
-            <span class="seance-param-tag green">{{ ex.repetitions }} reps</span>
+            <span class="seance-param-tag green" *ngIf="ex.repetitions">{{ ex.repetitions }} reps</span>
             <span class="seance-param-tag orange" *ngIf="ex.charge">{{ ex.charge }} kg</span>
             <span class="seance-param-tag purple" *ngIf="ex.tempsSecondes">{{ ex.tempsSecondes }}s</span>
           </div>
         </div>
-        <button *ngIf="seance.statut !== 'REALISEE'"
+        <button *ngIf="canManageExercises"
                 (click)="onRemoveExercice(ex.idSeanceExercice!)"
                 class="seance-btn-remove" title="Retirer">
           ✕
@@ -124,7 +241,8 @@
     <div class="sl-empty" *ngIf="!seance.exercices || seance.exercices.length === 0">
       <span class="sl-empty-icon">🏋️</span>
       <p>Aucun exercice programmé</p>
-      <span class="sl-empty-hint">Ajoutez des exercices depuis le catalogue pour construire cette séance</span>
+      <span class="sl-empty-hint" *ngIf="canManageExercises">Ajoutez des exercices depuis le catalogue ou utilisez l'IA pour construire cette séance</span>
+      <span class="sl-empty-hint" *ngIf="!canManageExercises">Les exercices seront visibles ici après planification par le coach</span>
     </div>
   </div>
 

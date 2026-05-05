@@ -290,3 +290,235 @@
   .seance-stats-bar { gap: 1rem; flex-wrap: wrap; }
   .seance-suivi-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Header actions ── */
+.seance-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.seance-readonly-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--sl-blue-l);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  color: var(--sl-blue);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* ── AI Assistant Panel ── */
+.seance-ai-panel {
+  position: relative;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  border-radius: 20px;
+  padding: 1.35rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+}
+
+.seance-ai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.seance-ai-header > div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.seance-ai-title {
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--sl-text);
+  letter-spacing: -0.01em;
+}
+
+.seance-ai-header p {
+  max-width: 720px;
+  margin: 0.55rem 0 0;
+  color: var(--sl-text3);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.seance-form-badge--ai {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+}
+
+.seance-ai-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  margin-top: 1.15rem;
+}
+
+.seance-ai-actions .sl-btn {
+  min-width: 190px;
+  justify-content: center;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.20);
+}
+
+.seance-ai-message {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+
+.seance-ai-message--warning {
+  background: #fff7ed;
+  border: 1px solid rgba(249, 115, 22, 0.24);
+  color: #9a3412;
+}
+
+.seance-ai-results-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.seance-ai-results-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--sl-text);
+  font-weight: 800;
+}
+
+.seance-ai-results-head p {
+  margin: 0.25rem 0 0;
+  color: var(--sl-text4);
+  font-size: 0.84rem;
+}
+
+.seance-ai-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.seance-ai-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.seance-ai-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(37, 99, 235, 0.30);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.10);
+}
+
+.seance-ai-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.seance-ai-card h3 {
+  margin: 0 0 0.5rem;
+  color: var(--sl-text);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.seance-ai-card .seance-param-tag + .seance-param-tag {
+  margin-left: 0.35rem;
+}
+
+.seance-ai-score {
+  white-space: nowrap;
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 999px;
+  padding: 0.26rem 0.58rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.seance-ai-desc {
+  min-height: 42px;
+  margin: 0;
+  color: var(--sl-text2);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.seance-ai-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--sl-text3);
+  font-size: 0.78rem;
+}
+
+.seance-ai-info span {
+  background: var(--sl-surface2);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+}
+
+.seance-ai-reason,
+.seance-ai-safety {
+  color: var(--sl-text3);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  background: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+}
+
+.seance-ai-safety {
+  background: #fff7ed;
+  border-color: rgba(249, 115, 22, 0.16);
+  color: #9a3412;
+}
+
+.seance-ai-add-btn {
+  margin-top: auto;
+  width: 100%;
+  min-height: 42px;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .seance-header-actions { width: 100%; }
+  .seance-header-actions .sl-btn { flex: 1; justify-content: center; }
+  .seance-ai-panel { padding: 1rem; }
+  .seance-ai-header { display: block; }
+  .seance-ai-actions .sl-btn { width: 100%; }
+}
