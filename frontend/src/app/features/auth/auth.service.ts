@@ -51,7 +51,7 @@ export interface RegisterPayload {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:8080/api/auth';
+  private readonly API = 'http://localhost:18080/api/auth';
   private readonly tokenKey = 'streetleague-jwt';
   private readonly userKey = 'sl_user';
 

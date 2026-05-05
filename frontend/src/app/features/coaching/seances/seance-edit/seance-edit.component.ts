@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SeanceService } from '../../../../core/services/seance.service';
+import { FieldService } from '../../../../core/services/field.service';
 import { SeanceEntrainement, Intensite, StatutSeance } from '../../../../shared/models/programme-entrainement.model';
 
 @Component({
@@ -10,6 +11,7 @@ import { SeanceEntrainement, Intensite, StatutSeance } from '../../../../shared/
 })
 export class SeanceEditComponent implements OnInit {
   seance!: SeanceEntrainement;
+  sousEspaces: any[] = [];
   intensites = Object.values(Intensite);
   statuts = Object.values(StatutSeance);
   errorMessage = '';
@@ -17,6 +19,7 @@ export class SeanceEditComponent implements OnInit {
 
   constructor(
     private seanceService: SeanceService,
+    private fieldService: FieldService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -24,6 +27,8 @@ export class SeanceEditComponent implements OnInit {
   ngOnInit(): void {
     const programmeId = this.route.snapshot.queryParamMap.get('programmeId');
     this.returnProgrammeId = programmeId ? Number(programmeId) : null;
+
+    this.fieldService.getAllSousEspaces().subscribe(data => this.sousEspaces = data);
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.seanceService.getById(id).subscribe({

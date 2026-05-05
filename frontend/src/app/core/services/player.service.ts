@@ -5,7 +5,7 @@ import { PlayerDTO, PlayerStatsDTO, PlayerRequest } from '../../shared/models/sp
 
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
-  private readonly base = 'http://localhost:8080/players';
+  private readonly base = 'http://localhost:18080/players';
 
   constructor(private http: HttpClient) {}
 

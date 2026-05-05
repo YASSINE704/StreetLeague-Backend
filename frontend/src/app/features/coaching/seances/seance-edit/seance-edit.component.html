@@ -1,8 +1,10 @@
 <div class="sl-page sl-page--narrow" *ngIf="seance">
   <div class="sl-card">
     <div class="sl-card-header"><h2>Modifier la Séance</h2></div>
-    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="sl-error-banner" *ngIf="errorMessage">⚠️ {{ errorMessage }}</div>
     <form #f="ngForm" (ngSubmit)="f.valid && onSubmit()">
+
+      <!-- Titre -->
       <div class="sl-form-group">
         <label for="titreSeance">Titre <span class="sl-required">*</span></label>
         <input id="titreSeance" class="sl-input" [(ngModel)]="seance.titreSeance" name="titreSeance"
@@ -12,18 +14,32 @@
           <span *ngIf="titreSeance.errors?.['minlength']">Minimum 3 caractères</span>
         </div>
       </div>
+
+      <!-- Date + Durée -->
       <div class="sl-form-row">
         <div class="sl-form-group">
           <label for="dateSeance">Date <span class="sl-required">*</span></label>
-          <input id="dateSeance" class="sl-input" type="date" [(ngModel)]="seance.dateSeance" name="dateSeance" required #dateSeance="ngModel">
-          <div class="sl-field-error" *ngIf="dateSeance.invalid && dateSeance.touched">Obligatoire</div>
+          <input id="dateSeance" class="sl-input" type="date" [(ngModel)]="seance.dateSeance" name="dateSeance" required>
         </div>
         <div class="sl-form-group">
           <label for="dureeMinutes">Durée (min)</label>
-          <input id="dureeMinutes" class="sl-input" type="number" [(ngModel)]="seance.dureeMinutes" name="dureeMinutes" min="1" max="300" #duree="ngModel">
-          <div class="sl-field-error" *ngIf="duree.invalid && duree.touched">Entre 1 et 300</div>
+          <input id="dureeMinutes" class="sl-input" type="number" [(ngModel)]="seance.dureeMinutes" name="dureeMinutes" min="1" max="300">
         </div>
       </div>
+
+      <!-- Heure début + Heure fin -->
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label for="heureDebut">Heure début</label>
+          <input id="heureDebut" class="sl-input" type="time" [(ngModel)]="seance.heureDebut" name="heureDebut">
+        </div>
+        <div class="sl-form-group">
+          <label for="heureFin">Heure fin</label>
+          <input id="heureFin" class="sl-input" type="time" [(ngModel)]="seance.heureFin" name="heureFin">
+        </div>
+      </div>
+
+      <!-- Intensité + Max participants -->
       <div class="sl-form-row">
         <div class="sl-form-group">
           <label for="intensite">Intensité</label>
@@ -32,12 +48,38 @@
           </select>
         </div>
         <div class="sl-form-group">
-          <label for="statut">Statut</label>
-          <select id="statut" class="sl-select" [(ngModel)]="seance.statut" name="statut">
-            <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
-          </select>
+          <label for="maxParticipants">Max participants</label>
+          <input id="maxParticipants" class="sl-input" type="number" [(ngModel)]="seance.maxParticipants" name="maxParticipants" min="1" max="50">
         </div>
       </div>
+
+      <!-- Lieu -->
+      <div class="sl-form-group">
+        <label for="sousEspaceId">Lieu</label>
+        <select id="sousEspaceId" class="sl-select" [(ngModel)]="seance.sousEspaceId" name="sousEspaceId">
+          <option [ngValue]="undefined">-- Aucun lieu --</option>
+          <option *ngFor="let se of sousEspaces" [ngValue]="se.id">{{ se.nom }} ({{ se.type }} · {{ se.endroitNom || 'N/A' }})</option>
+        </select>
+      </div>
+
+      <!-- En plein air -->
+      <div class="sl-form-group sl-checkbox-group">
+        <label class="sl-checkbox-label">
+          <input type="checkbox" [(ngModel)]="seance.enPleinAir" name="enPleinAir">
+          <span>🌤️ Séance en plein air</span>
+        </label>
+        <span class="sl-hint" *ngIf="seance.enPleinAir">La météo sera vérifiée automatiquement</span>
+      </div>
+
+      <!-- Statut -->
+      <div class="sl-form-group">
+        <label for="statut">Statut</label>
+        <select id="statut" class="sl-select" [(ngModel)]="seance.statut" name="statut">
+          <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <!-- Actions -->
       <div class="sl-form-actions">
         <button type="button" (click)="onCancel()" class="sl-btn sl-btn--secondary">Annuler</button>
         <button type="submit" class="sl-btn sl-btn--primary" [disabled]="f.invalid">Enregistrer</button>

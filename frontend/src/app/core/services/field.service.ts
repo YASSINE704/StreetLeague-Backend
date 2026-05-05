@@ -7,7 +7,7 @@ import { Endroit, SousEspace, Equipement, Reservation, TypeEndroit, StatutEndroi
   providedIn: 'root'
 })
 export class FieldService {
-  private apiUrl = 'http://localhost:8080/api';
+  private apiUrl = 'http://localhost:18080/api';
 
   constructor(private http: HttpClient) {}
 

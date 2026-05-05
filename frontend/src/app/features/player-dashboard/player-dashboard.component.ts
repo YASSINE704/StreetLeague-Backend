@@ -153,8 +153,16 @@ export class PlayerDashboardComponent implements OnInit {
 
         this.loading = false;
       },
-      error: () => {
-        this.error = 'Impossible de charger ton profil joueur. Vérifie que ton compte a été créé avec le rôle Joueur.';
+      error: (err) => {
+        // Ne pas afficher d'erreur bloquante — le profil joueur est optionnel pour le rôle SPORTIF
+        const role = this.authService.userRole;
+        if (role === 'SPORTIF') {
+          // Le SPORTIF n'a pas forcément un profil joueur (table joueur) — c'est normal
+          this.playerData = null;
+          this.error = null;
+        } else {
+          this.error = 'Profil joueur non trouvé. Si tu viens de créer ton compte, ton profil sera disponible sous peu.';
+        }
         this.loading = false;
       }
     });

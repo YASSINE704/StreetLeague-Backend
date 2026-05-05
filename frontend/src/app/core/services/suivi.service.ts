@@ -5,7 +5,7 @@ import { SuiviSeance } from '../../shared/models/programme-entrainement.model';
 
 @Injectable({ providedIn: 'root' })
 export class SuiviService {
-  private apiUrl = 'http://localhost:8080/api/suivis';
+  private apiUrl = 'http://localhost:18080/api/suivis';
 
   constructor(private http: HttpClient) {}
 

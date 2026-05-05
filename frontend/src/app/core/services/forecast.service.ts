@@ -22,7 +22,7 @@ export interface ForecastResponse {
 
 @Injectable({ providedIn: 'root' })
 export class ForecastService {
-  private apiUrl = 'http://localhost:8080/api/forecast';
+  private apiUrl = 'http://localhost:18080/api/forecast';
 
   constructor(private http: HttpClient) {}
 

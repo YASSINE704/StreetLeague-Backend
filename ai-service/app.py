@@ -1,261 +1,242 @@
+"""
+StreetLeague AI Service - Recommandation d'Exercices
+=====================================================
+Ce service Flask charge le modèle ML entraîné dans le notebook
+et expose une API REST pour recommander des exercices.
+
+Architecture :
+  - Le notebook (notebook.ipynb) entraîne le modèle et l'exporte dans model/
+  - Ce fichier (app.py) charge le modèle exporté et sert les prédictions
+  - Spring Boot appelle ce service via REST (POST /api/ai/recommend)
+
+Lancer le notebook AVANT de démarrer ce service pour générer le modèle.
+"""
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import pandas as pd
+import numpy as np
+import joblib
+import os
+from scipy.sparse import hstack, csr_matrix
 
 app = Flask(__name__)
 CORS(app)
 
-# Base de 17 exercices couvrant les types FORCE, CARDIO, MOBILITE, TECHNIQUE
-EXERCICES_BASE = [
-    {
-        "nom": "Pompes explosives",
-        "type": "FORCE",
-        "description": "Pompes avec phase explosive pour développer la puissance du haut du corps",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "puissance force explosivité haut du corps",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Garder le dos droit, ne pas cambrer"
-    },
-    {
-        "nom": "Squats sautés",
-        "type": "FORCE",
-        "description": "Squats avec saut pour renforcer les membres inférieurs",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 12,
-        "equipement": "Aucun",
-        "objectif": "puissance jambes explosivité détente",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Atterrir en douceur, genoux alignés avec les pieds"
-    },
-    {
-        "nom": "Gainage dynamique",
-        "type": "FORCE",
-        "description": "Exercice de gainage avec mouvements pour renforcer le tronc",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 8,
-        "equipement": "Tapis",
-        "objectif": "stabilité core renforcement tronc",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Ne pas creuser le dos, respirer régulièrement"
-    },
-    {
-        "nom": "Tractions australiennes",
-        "type": "FORCE",
-        "description": "Tractions horizontales pour le dos et les biceps",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 10,
-        "equipement": "Barre basse",
-        "objectif": "dos biceps tirage force",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Garder le corps aligné, contrôler la descente"
-    },
-    {
-        "nom": "Sprint intervalles 30/30",
-        "type": "CARDIO",
-        "description": "Alternance de sprints de 30s et récupération de 30s",
-        "difficulte": "AVANCE",
-        "dureeMinutes": 15,
-        "equipement": "Aucun",
-        "objectif": "vitesse endurance cardio intervalles",
-        "niveauRecommande": "AVANCE",
-        "consigneSecurite": "Échauffement obligatoire, arrêter en cas de douleur"
-    },
-    {
-        "nom": "Course continue modérée",
-        "type": "CARDIO",
-        "description": "Course à allure modérée pour développer l'endurance de base",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 20,
-        "equipement": "Aucun",
-        "objectif": "endurance fond cardio aérobie",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Maintenir une allure conversationnelle"
-    },
-    {
-        "nom": "Burpees",
-        "type": "CARDIO",
-        "description": "Exercice complet combinant squat, planche et saut",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "cardio complet explosivité endurance",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Adapter le rythme à son niveau, ne pas négliger la technique"
-    },
-    {
-        "nom": "Corde à sauter",
-        "type": "CARDIO",
-        "description": "Sauts à la corde pour améliorer la coordination et le cardio",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 12,
-        "equipement": "Corde à sauter",
-        "objectif": "coordination cardio agilité rythme",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Surface souple, chaussures adaptées"
-    },
-    {
-        "nom": "Étirements dynamiques",
-        "type": "MOBILITE",
-        "description": "Série d'étirements en mouvement pour préparer le corps",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "souplesse échauffement mobilité articulaire",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Mouvements fluides, ne pas forcer"
-    },
-    {
-        "nom": "Yoga sportif",
-        "type": "MOBILITE",
-        "description": "Postures de yoga adaptées aux sportifs pour la récupération",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 15,
-        "equipement": "Tapis",
-        "objectif": "récupération souplesse relaxation mobilité",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Respecter ses limites, ne pas forcer les postures"
-    },
-    {
-        "nom": "Mobilité des hanches",
-        "type": "MOBILITE",
-        "description": "Exercices ciblés pour améliorer la mobilité des hanches",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "hanches mobilité prévention blessures",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Mouvements contrôlés, pas de rebonds"
-    },
-    {
-        "nom": "Foam rolling récupération",
-        "type": "MOBILITE",
-        "description": "Auto-massage avec rouleau pour la récupération musculaire",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 12,
-        "equipement": "Foam roller",
-        "objectif": "récupération massage détente musculaire",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Éviter les articulations, rouler lentement"
-    },
-    {
-        "nom": "Dribble slalom",
-        "type": "TECHNIQUE",
-        "description": "Parcours de dribble entre plots pour améliorer le contrôle de balle",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 15,
-        "equipement": "Ballon, plots",
-        "objectif": "dribble technique contrôle balle agilité",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Surface plane, chaussures adaptées"
-    },
-    {
-        "nom": "Passes courtes en mouvement",
-        "type": "TECHNIQUE",
-        "description": "Exercice de passes courtes avec déplacements",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 12,
-        "equipement": "Ballon",
-        "objectif": "passes précision technique collective",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Communication entre partenaires"
-    },
-    {
-        "nom": "Tirs cadrés",
-        "type": "TECHNIQUE",
-        "description": "Exercice de tirs au but avec contraintes de placement",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 15,
-        "equipement": "Ballon, but",
-        "objectif": "tir précision finition technique",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Échauffement des jambes avant les frappes"
-    },
-    {
-        "nom": "Jeu réduit 3v3",
-        "type": "TECHNIQUE",
-        "description": "Match en effectif réduit pour travailler la prise de décision",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 20,
-        "equipement": "Ballon, chasubles",
-        "objectif": "tactique décision collective jeu",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Respect des règles, pas de tacles dangereux"
-    },
-    {
-        "nom": "Conduite de balle en vitesse",
-        "type": "TECHNIQUE",
-        "description": "Course avec ballon pour améliorer le contrôle à haute vitesse",
-        "difficulte": "AVANCE",
-        "dureeMinutes": 12,
-        "equipement": "Ballon",
-        "objectif": "vitesse technique contrôle conduite",
-        "niveauRecommande": "AVANCE",
-        "consigneSecurite": "Terrain dégagé, attention aux obstacles"
-    }
-]
+# ============================================================
+# Chargement du modèle entraîné
+# ============================================================
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'model')
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+model_loaded = False
+knn_model = None
+tfidf = None
+scaler = None
+df = None
+combined_features = None
 
 
-def calculate_score(exercice, context):
+def load_model():
+    """Charge le modèle depuis les fichiers exportés par le notebook."""
+    global model_loaded, knn_model, tfidf, scaler, df, combined_features
+
+    try:
+        knn_model = joblib.load(os.path.join(MODEL_DIR, 'knn_model.joblib'))
+        tfidf = joblib.load(os.path.join(MODEL_DIR, 'tfidf_vectorizer.joblib'))
+        scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.joblib'))
+        combined_features = joblib.load(os.path.join(MODEL_DIR, 'combined_features.joblib'))
+        df = pd.read_csv(os.path.join(MODEL_DIR, 'exercises_enriched.csv'))
+        model_loaded = True
+        print("[AI Service] Modèle chargé avec succès depuis model/")
+    except FileNotFoundError as e:
+        print(f"[AI Service] ATTENTION: Modèle non trouvé ({e}). "
+              "Exécutez le notebook d'abord. Utilisation du mode fallback.")
+        model_loaded = False
+        # Charger au moins le dataset brut pour le fallback
+        try:
+            df = pd.read_csv(os.path.join(DATA_DIR, 'exercises_dataset.csv'))
+            print("[AI Service] Dataset brut chargé pour le mode fallback.")
+        except Exception:
+            df = None
+
+
+def recommend_with_model(context, top_n=6):
     """
-    Algorithme de scoring pour classer les exercices par pertinence.
-    - Type match: +30
-    - Intensité match: +20
-    - Objectif keywords match: +15
-    - Pas d'équipement requis: +10
+    Recommandation via le modèle KNN entraîné.
+    Utilise TF-IDF + features numériques + cosine similarity.
     """
-    score = 0
+    # Construire le texte de requête
+    query_parts = []
+    if 'typeSeance' in context:
+        query_parts.append(str(context['typeSeance']))
+    if 'intensite' in context:
+        query_parts.append(str(context['intensite']))
+    if 'objectifProgramme' in context:
+        query_parts.append(str(context['objectifProgramme']))
+    if 'niveauJoueurs' in context:
+        query_parts.append(str(context['niveauJoueurs']))
 
-    # Type match (+30)
-    type_seance = context.get("typeSeance", "").upper()
-    if exercice["type"].upper() == type_seance:
-        score += 30
+    query_text = ' '.join(query_parts) if query_parts else 'FORCE INTERMEDIAIRE'
 
-    # Intensité match (+20)
-    intensite = context.get("intensite", "").upper()
-    difficulte = exercice.get("difficulte", "").upper()
-    intensite_mapping = {
-        "FAIBLE": "DEBUTANT",
-        "MODEREE": "INTERMEDIAIRE",
-        "MODERE": "INTERMEDIAIRE",
-        "MOYENNE": "INTERMEDIAIRE",
-        "ELEVEE": "AVANCE",
-        "HAUTE": "AVANCE",
-        "INTENSE": "AVANCE"
+    # Vectoriser la requête avec TF-IDF
+    query_tfidf = tfidf.transform([query_text])
+
+    # Mapper les features numériques du contexte
+    intensite_map = {
+        'FAIBLE': 3, 'MODEREE': 5, 'MOYENNE': 5, 'MODERE': 5,
+        'ELEVEE': 8, 'FORTE': 8, 'HAUTE': 8, 'INTENSE': 9
     }
-    mapped_intensite = intensite_mapping.get(intensite, intensite)
-    if mapped_intensite == difficulte:
-        score += 20
+    type_map = {'FORCE': 1, 'CARDIO': 0, 'MOBILITE': 2, 'TECHNIQUE': 3}
+    diff_map = {'DEBUTANT': 1, 'INTERMEDIAIRE': 2, 'AVANCE': 0}
 
-    # Objectif keywords match (+15)
-    objectif_programme = context.get("objectifProgramme", "").lower()
-    exercice_objectif = exercice.get("objectif", "").lower()
-    if objectif_programme:
-        keywords = objectif_programme.split()
-        for keyword in keywords:
-            if len(keyword) > 3 and keyword in exercice_objectif:
+    intensite_val = intensite_map.get(str(context.get('intensite', 'MOYENNE')).upper(), 5)
+    type_val = type_map.get(str(context.get('typeSeance', 'FORCE')).upper(), 0)
+    diff_val = diff_map.get(str(context.get('niveauJoueurs', 'INTERMEDIAIRE')).upper(), 1)
+    duree_val = context.get('dureeSeanceMinutes', 60) / 60.0 * 20
+    calories_val = intensite_val * 20
+
+    query_numeric = scaler.transform([[intensite_val, duree_val, calories_val, type_val, diff_val]])
+    query_combined = hstack([query_tfidf, csr_matrix(query_numeric)])
+
+    # Trouver les K plus proches voisins
+    distances, indices = knn_model.kneighbors(query_combined, n_neighbors=min(top_n, len(df)))
+
+    # Construire les recommandations
+    recommendations = []
+    for i, (idx, dist) in enumerate(zip(indices[0], distances[0])):
+        row = df.iloc[idx]
+        score = round((1 - dist) * 100, 1)  # Convertir distance cosinus en score %
+        recommendations.append({
+            "nom": row['nom'],
+            "type": row['type'],
+            "description": row.get('objectif', ''),
+            "difficulte": row['difficulte'],
+            "dureeMinutes": int(row['dureeMinutes']),
+            "equipement": row['equipement'],
+            "objectif": row['objectif'],
+            "niveauRecommande": row['niveauRecommande'],
+            "consigneSecurite": row['consigneSecurite'],
+            "scoreRelevance": score,
+            "raison": build_reason(row, context, score)
+        })
+
+    return recommendations
+
+
+def recommend_fallback(context, top_n=6):
+    """
+    Mode fallback : scoring simple quand le modèle n'est pas disponible.
+    Utilisé si le notebook n'a pas encore été exécuté.
+    """
+    if df is None:
+        return []
+
+    scored = []
+    for _, row in df.iterrows():
+        score = 0
+        # Type match
+        if str(row.get('type', '')).upper() == str(context.get('typeSeance', '')).upper():
+            score += 30
+        # Intensité match
+        intensite_mapping = {
+            'FAIBLE': 'DEBUTANT', 'MODEREE': 'INTERMEDIAIRE', 'MODERE': 'INTERMEDIAIRE',
+            'MOYENNE': 'INTERMEDIAIRE', 'ELEVEE': 'AVANCE', 'FORTE': 'AVANCE', 'INTENSE': 'AVANCE'
+        }
+        mapped = intensite_mapping.get(str(context.get('intensite', '')).upper(), '')
+        if mapped == str(row.get('difficulte', '')).upper():
+            score += 20
+        # Objectif keywords
+        objectif = str(context.get('objectifProgramme', '')).lower()
+        row_obj = str(row.get('objectif', '')).lower()
+        for kw in objectif.split():
+            if len(kw) > 3 and kw in row_obj:
                 score += 15
                 break
+        # Pas d'équipement
+        if str(row.get('equipement', '')).lower() in ['aucun', 'none', '']:
+            score += 10
 
-    # Pas d'équipement requis (+10)
-    equipement = exercice.get("equipement", "")
-    if equipement.lower() in ["aucun", "none", ""]:
-        score += 10
+        scored.append({
+            "nom": row['nom'],
+            "type": row['type'],
+            "description": row.get('objectif', ''),
+            "difficulte": row['difficulte'],
+            "dureeMinutes": int(row['dureeMinutes']),
+            "equipement": row['equipement'],
+            "objectif": row.get('objectif', ''),
+            "niveauRecommande": row.get('niveauRecommande', ''),
+            "consigneSecurite": row.get('consigneSecurite', ''),
+            "scoreRelevance": score,
+            "raison": f"Score de pertinence : {score}/75 (mode fallback)"
+        })
 
-    return score
+    scored.sort(key=lambda x: x['scoreRelevance'], reverse=True)
+    return scored[:top_n]
 
+
+def build_reason(row, context, score):
+    """Construit une explication de la recommandation."""
+    raisons = []
+    type_seance = str(context.get('typeSeance', '')).upper()
+
+    if str(row['type']).upper() == type_seance:
+        raisons.append(f"correspond au type de séance ({type_seance})")
+
+    intensite_mapping = {
+        'FAIBLE': 'DEBUTANT', 'MODEREE': 'INTERMEDIAIRE', 'MODERE': 'INTERMEDIAIRE',
+        'MOYENNE': 'INTERMEDIAIRE', 'ELEVEE': 'AVANCE', 'FORTE': 'AVANCE'
+    }
+    mapped = intensite_mapping.get(str(context.get('intensite', '')).upper(), '')
+    if mapped == str(row.get('difficulte', '')).upper():
+        raisons.append("intensité adaptée au niveau")
+
+    objectif = str(context.get('objectifProgramme', '')).lower()
+    row_obj = str(row.get('objectif', '')).lower()
+    for kw in objectif.split():
+        if len(kw) > 3 and kw in row_obj:
+            raisons.append(f"correspond à l'objectif ({kw})")
+            break
+
+    if str(row.get('equipement', '')).lower() in ['aucun', 'none', '']:
+        raisons.append("ne nécessite pas d'équipement")
+
+    if not raisons:
+        raisons.append("exercice complémentaire recommandé par le modèle")
+
+    return f"Recommandé (score: {score}%) — " + ", ".join(raisons)
+
+
+# ============================================================
+# API Endpoints
+# ============================================================
 
 @app.route("/api/ai/health", methods=["GET"])
 def health():
-    """Health check endpoint."""
-    return jsonify({"status": "ok"}), 200
+    """Health check — indique si le modèle ML est chargé."""
+    return jsonify({
+        "status": "ok",
+        "model_loaded": model_loaded,
+        "mode": "ml_model" if model_loaded else "fallback",
+        "dataset_size": len(df) if df is not None else 0
+    }), 200
 
 
 @app.route("/api/ai/recommend", methods=["POST"])
 def recommend():
     """
-    Reçoit un contexte JSON et retourne 6 recommandations d'exercices
-    classées par score de pertinence.
+    Endpoint principal de recommandation.
+    Reçoit un contexte JSON et retourne 6 exercices recommandés.
+
+    Input JSON:
+    {
+        "typeSeance": "CARDIO",
+        "intensite": "FORTE",
+        "objectifProgramme": "endurance vitesse",
+        "niveauJoueurs": "INTERMEDIAIRE",
+        "dureeSeanceMinutes": 60,
+        "nbParticipants": 5
+    }
     """
     context = request.get_json()
     if not context:
@@ -266,66 +247,42 @@ def recommend():
             "recommandations": []
         }), 400
 
-    # Calculer le score pour chaque exercice
-    scored_exercices = []
-    for exercice in EXERCICES_BASE:
-        score = calculate_score(exercice, context)
-        exercice_with_score = dict(exercice)
-        exercice_with_score["scoreRelevance"] = score
-        exercice_with_score["raison"] = build_raison(exercice, context, score)
-        scored_exercices.append(exercice_with_score)
-
-    # Trier par score décroissant et prendre les 6 meilleurs
-    scored_exercices.sort(key=lambda x: x["scoreRelevance"], reverse=True)
-    top_recommendations = scored_exercices[:6]
+    # Utiliser le modèle ML si disponible, sinon fallback
+    if model_loaded:
+        recommendations = recommend_with_model(context, top_n=6)
+        mode = "ml_model"
+    else:
+        recommendations = recommend_fallback(context, top_n=6)
+        mode = "fallback"
 
     return jsonify({
         "status": "ok",
-        "message": "Recommandations générées avec succès",
-        "nbRecommandations": len(top_recommendations),
-        "recommandations": top_recommendations
+        "mode": mode,
+        "message": "Recommandations générées avec succès"
+                   + (" (modèle ML)" if model_loaded else " (mode fallback — exécutez le notebook)"),
+        "nbRecommandations": len(recommendations),
+        "recommandations": recommendations
     }), 200
 
 
-def build_raison(exercice, context, score):
-    """Construit une explication de la recommandation."""
-    raisons = []
-    type_seance = context.get("typeSeance", "").upper()
-
-    if exercice["type"].upper() == type_seance:
-        raisons.append(f"correspond au type de séance ({type_seance})")
-
-    intensite = context.get("intensite", "").upper()
-    intensite_mapping = {
-        "FAIBLE": "DEBUTANT",
-        "MODEREE": "INTERMEDIAIRE",
-        "MODERE": "INTERMEDIAIRE",
-        "MOYENNE": "INTERMEDIAIRE",
-        "ELEVEE": "AVANCE",
-        "HAUTE": "AVANCE",
-        "INTENSE": "AVANCE"
+@app.route("/api/ai/model-info", methods=["GET"])
+def model_info():
+    """Informations sur le modèle chargé."""
+    info = {
+        "model_loaded": model_loaded,
+        "algorithm": "KNN (K=6) + TF-IDF + Cosine Similarity" if model_loaded else "Scoring heuristique (fallback)",
+        "dataset_size": len(df) if df is not None else 0,
+        "features": "TF-IDF (texte) + intensite_score + dureeMinutes + calories + type + difficulte" if model_loaded else "N/A",
+        "metric": "cosine" if model_loaded else "N/A"
     }
-    mapped = intensite_mapping.get(intensite, intensite)
-    if mapped == exercice.get("difficulte", "").upper():
-        raisons.append("intensité adaptée")
-
-    objectif = context.get("objectifProgramme", "").lower()
-    if objectif:
-        keywords = objectif.split()
-        for kw in keywords:
-            if len(kw) > 3 and kw in exercice.get("objectif", "").lower():
-                raisons.append(f"correspond à l'objectif ({kw})")
-                break
-
-    equipement = exercice.get("equipement", "")
-    if equipement.lower() in ["aucun", "none", ""]:
-        raisons.append("ne nécessite pas d'équipement")
-
-    if not raisons:
-        raisons.append("exercice complémentaire recommandé")
-
-    return "Recommandé car : " + ", ".join(raisons)
+    return jsonify(info), 200
 
 
+# ============================================================
+# Démarrage
+# ============================================================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    load_model()
+    print("\n[AI Service] Démarrage sur http://localhost:5000")
+    print(f"[AI Service] Mode : {'ML Model' if model_loaded else 'Fallback (exécutez le notebook)'}")
+    app.run(host="0.0.0.0", port=5000, debug=False)

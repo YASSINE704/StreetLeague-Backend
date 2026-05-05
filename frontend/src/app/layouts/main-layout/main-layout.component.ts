@@ -51,15 +51,18 @@ export class MainLayoutComponent implements OnInit {
 
     if (this.role === 'JOUEUR' || this.role === 'SPORTIF') {
       links.push(
+        { path: '/coaching/seances', label: 'Séances Coaching', icon: '🏋️', section: 'COACHING' },
+        { path: '/coaching/mes-reservations', label: 'Mes Réservations', icon: '📋' },
         { path: '/client', label: 'Explorer', icon: '🏟️', section: 'CLIENT' },
-        { path: '/client/reservations', label: 'Mes Réservations', icon: '📋' },
         { path: '/player-dashboard', label: 'Mon Profil', icon: '⚽' }
       );
     }
 
     if (this.role === 'COACH') {
       links.push(
-        { path: '/coaching/programmes', label: 'Programmes', icon: '📋', section: 'COACHING' },
+        { path: '/coaching/dashboard', label: 'Dashboard', icon: '📊', section: 'COACHING' },
+        { path: '/coaching/programmes', label: 'Programmes', icon: '📋' },
+        { path: '/coaching/seances', label: 'Séances', icon: '🏋️' },
         { path: '/coaching/exercices', label: 'Exercices', icon: '💪' }
       );
     }

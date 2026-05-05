@@ -5,8 +5,8 @@ import { Exercice, SeanceExercice, TypeExercice } from '../../shared/models/prog
 
 @Injectable({ providedIn: 'root' })
 export class ExerciceService {
-  private apiUrl = 'http://localhost:8080/api/exercices';
-  private seanceExerciceUrl = 'http://localhost:8080/api/seance-exercices';
+  private apiUrl = 'http://localhost:18080/api/exercices';
+  private seanceExerciceUrl = 'http://localhost:18080/api/seance-exercices';
 
   constructor(private http: HttpClient) {}
 

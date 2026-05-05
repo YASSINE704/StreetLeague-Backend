@@ -51,8 +51,9 @@ public class SeanceEntrainement {
     @Builder.Default
     private List<SeanceExercice> seanceExercices = new ArrayList<>();
 
-    @OneToOne(mappedBy = "seance", cascade = CascadeType.ALL, orphanRemoval = true)
-    private SuiviSeance suiviSeance;
+    @OneToMany(mappedBy = "seance", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<SuiviSeance> suiviSeances = new ArrayList<>();
 
     /* ── Réservations des sportifs pour cette séance ── */
     @OneToMany(mappedBy = "seance", cascade = CascadeType.ALL, orphanRemoval = true)

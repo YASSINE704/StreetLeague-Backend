@@ -5,7 +5,7 @@ import { MatchDTO, MatchRequest } from '../../shared/models/sports.model';
 
 @Injectable({ providedIn: 'root' })
 export class MatchService {
-  private readonly base = 'http://localhost:8080/matches';
+  private readonly base = 'http://localhost:18080/matches';
 
   constructor(private http: HttpClient) {}
 

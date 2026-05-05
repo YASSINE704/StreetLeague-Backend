@@ -5,7 +5,7 @@ import { ReservationSeance } from '../../shared/models/programme-entrainement.mo
 
 @Injectable({ providedIn: 'root' })
 export class ReservationService {
-  private apiUrl = 'http://localhost:8080/api/reservations-seances';
+  private apiUrl = 'http://localhost:18080/api/reservations-seances';
 
   constructor(private http: HttpClient) {}
 
@@ -29,7 +29,12 @@ export class ReservationService {
     return this.http.get<ReservationSeance[]>(`${this.apiUrl}/seance/${seanceId}`);
   }
 
-  /** Réservations d'un sportif */
+  /** Mes réservations (utilisateur connecté via JWT) */
+  getMesReservations(): Observable<ReservationSeance[]> {
+    return this.http.get<ReservationSeance[]>(`${this.apiUrl}/me`);
+  }
+
+  /** Réservations d'un sportif par ID */
   getByUser(userId: number): Observable<ReservationSeance[]> {
     return this.http.get<ReservationSeance[]>(`${this.apiUrl}/user/${userId}`);
   }

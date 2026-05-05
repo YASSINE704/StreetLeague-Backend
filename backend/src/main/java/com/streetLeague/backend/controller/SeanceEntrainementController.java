@@ -1,6 +1,7 @@
 package com.streetLeague.backend.controller;
 
 import com.streetLeague.backend.dto.SeanceEntrainementDTO;
+import com.streetLeague.backend.security.AuthenticatedUserResolver;
 import com.streetLeague.backend.service.CoachingRoleService;
 import com.streetLeague.backend.service.SeanceEntrainementService;
 import com.streetLeague.backend.service.WeatherService;
@@ -22,17 +23,19 @@ public class SeanceEntrainementController {
     private final SeanceEntrainementService seanceService;
     private final CoachingRoleService roleService;
     private final WeatherService weatherService;
+    private final AuthenticatedUserResolver userResolver;
 
     /* ── CREATE : COACH ou ADMIN uniquement ── */
     @PostMapping
     public ResponseEntity<SeanceEntrainementDTO.Response> create(
-            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
+            @RequestHeader(value = "X-User-Id", required = false) Integer headerUserId,
             @Valid @RequestBody SeanceEntrainementDTO.Request dto) {
+        Integer userId = userResolver.resolveUserId(headerUserId);
         roleService.requireCoachOrAdmin(userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(seanceService.create(dto));
     }
 
-    /* ── READ : tout utilisateur ── */
+    /* ── READ : tout utilisateur authentifié ── */
     @GetMapping
     public ResponseEntity<List<SeanceEntrainementDTO.Response>> getAll() {
         return ResponseEntity.ok(seanceService.getAll());
@@ -52,8 +55,9 @@ public class SeanceEntrainementController {
     /* ── UPDATE : COACH ou ADMIN uniquement ── */
     @PutMapping("/{id}")
     public ResponseEntity<SeanceEntrainementDTO.Response> update(
-            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
+            @RequestHeader(value = "X-User-Id", required = false) Integer headerUserId,
             @PathVariable Integer id, @Valid @RequestBody SeanceEntrainementDTO.Request dto) {
+        Integer userId = userResolver.resolveUserId(headerUserId);
         roleService.requireCoachOrAdmin(userId);
         return ResponseEntity.ok(seanceService.update(id, dto));
     }
@@ -61,8 +65,9 @@ public class SeanceEntrainementController {
     /* ── DELETE : COACH ou ADMIN uniquement ── */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
-            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
+            @RequestHeader(value = "X-User-Id", required = false) Integer headerUserId,
             @PathVariable Integer id) {
+        Integer userId = userResolver.resolveUserId(headerUserId);
         roleService.requireCoachOrAdmin(userId);
         seanceService.delete(id);
         return ResponseEntity.noContent().build();
