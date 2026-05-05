@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/seance-exercices/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/api/suivis/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/api/affectations/**").hasAnyRole("COACH", "ADMIN")
+                        .requestMatchers("/api/coaching/**").hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/terrains/**").hasAnyRole("TERRAIN_MANAGER", "ADMIN")
                         .requestMatchers("/players/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "ADMIN")
                         .requestMatchers("/teams/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "ADMIN")

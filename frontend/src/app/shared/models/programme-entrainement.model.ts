@@ -13,13 +13,22 @@ export interface SeanceEntrainement {
   idSeance?: number;
   titreSeance: string;
   dateSeance: string;
+  heureDebut?: string;
+  heureFin?: string;
   dureeMinutes?: number;
+  maxParticipants?: number;
+  placesRestantes?: number;
   intensite?: Intensite;
   statut?: StatutSeance;
   programmeId: number;
   programmeTitre?: string;
+  sousEspaceId?: number;
+  lieuNom?: string;
+  endroitNom?: string;
+  enPleinAir?: boolean;
   exercices?: SeanceExercice[];
   suiviSeance?: SuiviSeance;
+  reservations?: ReservationSeance[];
 }
 
 export interface Exercice {
@@ -89,4 +98,19 @@ export enum TypeExercice {
 export enum TypeAffectationProgramme {
   COACH = 'COACH',
   SPORTIF = 'SPORTIF'
+}
+
+/* Réservation de séance */
+export interface ReservationSeance {
+  idReservation?: number;
+  dateReservation?: string;
+  statut?: string;
+  modePaiement?: string;
+  statutPaiement?: string;
+  montant?: number;
+  motifAnnulation?: string;
+  userId?: number;
+  userNom?: string;
+  seanceId?: number;
+  seanceTitre?: string;
 }
