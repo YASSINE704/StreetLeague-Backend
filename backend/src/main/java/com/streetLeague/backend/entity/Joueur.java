@@ -5,6 +5,7 @@ import com.streetLeague.backend.enums.Position;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +25,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Joueur {
 
     /**
@@ -52,6 +54,14 @@ public class Joueur {
     private int age;
 
     /**
+     * User account linked to this player profile.
+     * Created automatically during JOUEUR signup.
+     */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
+    /**
      * Skill level of the player.
      * Possible values: BEGINNER, INTERMEDIATE, ADVANCED
      */
@@ -68,6 +78,13 @@ public class Joueur {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Position position;
+
+    /**
+     * Profile picture stored as a Base64 data URL for the local demo.
+     */
+    @Lob
+    @Column(name = "profile_picture", columnDefinition = "LONGTEXT")
+    private String profilePicture;
 
     /**
      * The team this player belongs to.

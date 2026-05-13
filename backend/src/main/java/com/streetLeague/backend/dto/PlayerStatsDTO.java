@@ -30,5 +30,10 @@ public class PlayerStatsDTO {
     private int assists;
     private int minutesPlayed;
     private double performanceRating;
+    private int tackles;
+    private int interceptions;
+    private int passesCompleted;
+    private double distanceCovered;
+    private double averageSpeed;
     
 }

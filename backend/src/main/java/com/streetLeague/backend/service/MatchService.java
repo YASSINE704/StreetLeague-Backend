@@ -40,6 +40,9 @@ public class MatchService {
     @Autowired
     private EquipeService equipeService;
 
+    @Autowired
+    private MatchCompletionService matchCompletionService;
+
     /**
      * Retrieves all matches from the database.
      * 
@@ -136,6 +139,7 @@ public class MatchService {
      */
     public Match updateMatch(Long id, Match matchDetails) {
         Match match = getMatchById(id);
+        MatchStatus oldStatus = match.getStatus();
         
         if (matchDetails.getHomeTeam() != null) {
             match.setHomeTeam(resolveTeam(matchDetails.getHomeTeam(), "Home team"));
@@ -155,11 +159,19 @@ public class MatchService {
 
         validateDistinctTeams(match.getHomeTeam(), match.getAwayTeam());
         
-        return matchRepository.save(match);
+        Match updatedMatch = matchRepository.save(match);
+        
+        // Auto-record player stats if status changed to COMPLETED
+        if (oldStatus != MatchStatus.COMPLETED && updatedMatch.getStatus() == MatchStatus.COMPLETED) {
+            matchCompletionService.recordMatchStatistics(updatedMatch);
+        }
+        
+        return updatedMatch;
     }
 
     /**
      * Records the result of a completed match and updates team statistics.
+     * Automatically generates player statistics for all players in the match.
      * 
      * @param id The match ID
      * @param homeTeamScore Goals scored by home team
@@ -181,7 +193,12 @@ public class MatchService {
 
         updateMatchTeamStats(match, homeTeamScore, awayTeamScore, 1);
         
-        return matchRepository.save(match);
+        Match savedMatch = matchRepository.save(match);
+        
+        // Auto-record player stats when match result is recorded
+        matchCompletionService.recordMatchStatistics(savedMatch);
+        
+        return savedMatch;
     }
 
     /**

@@ -1,99 +1,62 @@
 package com.streetLeague.backend.controller;
 
-import com.streetLeague.backend.entity.User;
-import com.streetLeague.backend.enums.Role;
-import com.streetLeague.backend.repository.UserRepository;
+import com.streetLeague.backend.dto.auth.ApiResponse;
+import com.streetLeague.backend.dto.auth.AuthResponse;
+import com.streetLeague.backend.dto.auth.ForgotPasswordRequest;
+import com.streetLeague.backend.dto.auth.LoginRequest;
+import com.streetLeague.backend.dto.auth.RegisterRequest;
+import com.streetLeague.backend.dto.auth.ResendVerificationRequest;
+import com.streetLeague.backend.dto.auth.ResetPasswordRequest;
+import com.streetLeague.backend.dto.auth.UserResponse;
+import com.streetLeague.backend.dto.auth.VerifyEmailRequest;
+import com.streetLeague.backend.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String email    = body.get("email");
-        String password = body.get("password");
-
-        if (email == null || password == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email and password required"));
-        }
-
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
-        }
-
-        User user = userOpt.get();
-        if (!passwordEncoder.matches(password, user.getMotDePasse())) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
-        }
-
-        String token = java.util.Base64.getEncoder()
-                .encodeToString((email + ":" + password).getBytes());
-
-        return ResponseEntity.ok(Map.of(
-                "id",       user.getIdUser(),
-                "email",    user.getEmail(),
-                "nom",      user.getNom(),
-                "prenom",   user.getPrenom(),
-                "role",     user.getRole().name(),
-                "token",    token
-        ));
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Login successful.", authService.login(request)));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
-        String email    = body.get("email");
-        String password = body.get("password");
-        String nom      = body.get("nom");
-        String prenom   = body.get("prenom");
-        String roleStr  = body.get("role");
+    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Registration successful. Please verify your email.", authService.register(request)));
+    }
 
-        if (email == null || password == null || nom == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email, password and nom are required"));
-        }
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiResponse<UserResponse>> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Email verified successfully.", authService.verifyEmail(request)));
+    }
 
-        if (userRepository.findByEmail(email).isPresent()) {
-            return ResponseEntity.status(409).body(Map.of("error", "Email already in use"));
-        }
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<Void>> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        authService.resendVerificationCode(request);
+        return ResponseEntity.ok(ApiResponse.success("Verification code sent.", null));
+    }
 
-        Role role;
-        try {
-            role = roleStr != null ? Role.valueOf(roleStr.toUpperCase()) : Role.JOUEUR;
-        } catch (IllegalArgumentException e) {
-            role = Role.JOUEUR;
-        }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("If the email exists, a reset code has been sent.", null));
+    }
 
-        User user = User.builder()
-                .nom(nom)
-                .prenom(prenom != null ? prenom : "")
-                .email(email)
-                .motDePasse(passwordEncoder.encode(password))
-                .role(role)
-                .build();
-
-        userRepository.save(user);
-
-        String token = java.util.Base64.getEncoder()
-                .encodeToString((email + ":" + password).getBytes());
-
-        return ResponseEntity.status(201).body(Map.of(
-                "id",       user.getIdUser(),
-                "email",    user.getEmail(),
-                "nom",      user.getNom(),
-                "prenom",   user.getPrenom(),
-                "role",     user.getRole().name(),
-                "token",    token
-        ));
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password reset successful.", null));
     }
 }

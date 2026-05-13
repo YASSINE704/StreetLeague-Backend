@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PlayerStats {
 
     /**
@@ -80,5 +82,45 @@ public class PlayerStats {
     @Min(value = 0, message = "Rating cannot be negative")
     @Column(nullable = false)
     private double performanceRating = 0.0;
+
+    /**
+     * Number of tackles made by the player in this match.
+     * Minimum value is 0.
+     */
+    @Min(value = 0, message = "Tackles cannot be negative")
+    @Column(nullable = false)
+    private int tackles = 0;
+
+    /**
+     * Number of interceptions made by the player in this match.
+     * Minimum value is 0.
+     */
+    @Min(value = 0, message = "Interceptions cannot be negative")
+    @Column(nullable = false)
+    private int interceptions = 0;
+
+    /**
+     * Number of passes completed by the player in this match.
+     * Minimum value is 0.
+     */
+    @Min(value = 0, message = "Passes cannot be negative")
+    @Column(nullable = false)
+    private int passesCompleted = 0;
+
+    /**
+     * Total distance covered by the player in kilometers.
+     * Used for evaluating player work rate and endurance.
+     */
+    @Min(value = 0, message = "Distance cannot be negative")
+    @Column(nullable = false)
+    private double distanceCovered = 0.0;
+
+    /**
+     * Average speed of the player during the match in km/h.
+     * Used for evaluating player pace and intensity.
+     */
+    @Min(value = 0, message = "Average speed cannot be negative")
+    @Column(nullable = false)
+    private double averageSpeed = 0.0;
 
 }

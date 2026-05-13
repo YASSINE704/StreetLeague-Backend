@@ -2,14 +2,17 @@ package com.streetLeague.backend.controller;
 
 import com.streetLeague.backend.dto.PlayerDTO;
 import com.streetLeague.backend.dto.PlayerStatsDTO;
+import com.streetLeague.backend.dto.PlayerPredictionDTO;
 import com.streetLeague.backend.entity.Joueur;
 import com.streetLeague.backend.exception.ResourceNotFoundException;
 import com.streetLeague.backend.service.JoueurService;
 import com.streetLeague.backend.service.PlayerStatsService;
+import com.streetLeague.backend.service.PlayerPerformancePredictionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -35,6 +38,9 @@ public class JoueurController {
     @Autowired
     private PlayerStatsService playerStatsService;
 
+    @Autowired
+    private PlayerPerformancePredictionService predictionService;
+
     /**
      * Retrieves all players.
      * 
@@ -43,6 +49,11 @@ public class JoueurController {
     @GetMapping
     public ResponseEntity<List<PlayerDTO>> getAllPlayers() {
         return ResponseEntity.ok(joueurService.getAllPlayersAsDTO());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<PlayerDTO> getMyPlayerProfile(Authentication authentication) {
+        return ResponseEntity.ok(joueurService.getCurrentPlayerProfile(authentication.getName()));
     }
 
     /**
@@ -139,6 +150,36 @@ public class JoueurController {
     @GetMapping("/{playerId}/statistics")
     public ResponseEntity<List<PlayerStatsDTO>> getPlayerStatistics(@PathVariable Long playerId) {
         return ResponseEntity.ok(playerStatsService.getPlayerStatsAsDTOs(playerId));
+    }
+
+    /**
+     * Predicts player performance for the next match.
+     * 
+     * Uses linear regression based on historical match performance to predict:
+     * - Overall performance rating (0-100)
+     * - Specific metrics (goals, assists, tackles, etc.)
+     * - Performance category (very bad, bad, average, good, excellent, legend)
+     * - Trend direction (improving, stable, declining)
+     * 
+     * @param playerId The player ID
+     * @return PlayerPredictionDTO with predicted performance metrics
+     */
+    @GetMapping("/{playerId}/prediction")
+    public ResponseEntity<?> predictPlayerPerformance(@PathVariable Long playerId) {
+        try {
+            PlayerPredictionDTO prediction = predictionService.predictPlayerPerformance(playerId);
+            return ResponseEntity.ok(prediction);
+        } catch (ResourceNotFoundException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Prediction failed");
+            error.put("message", e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
 }

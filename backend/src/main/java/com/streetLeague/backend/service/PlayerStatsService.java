@@ -155,6 +155,11 @@ public class PlayerStatsService {
         dto.setAssists(stats.getAssists());
         dto.setMinutesPlayed(stats.getMinutesPlayed());
         dto.setPerformanceRating(stats.getPerformanceRating());
+        dto.setTackles(stats.getTackles());
+        dto.setInterceptions(stats.getInterceptions());
+        dto.setPassesCompleted(stats.getPassesCompleted());
+        dto.setDistanceCovered(stats.getDistanceCovered());
+        dto.setAverageSpeed(stats.getAverageSpeed());
         
         return dto;
     }

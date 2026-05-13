@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 
 export type UserRole = 'JOUEUR' | 'TERRAIN_MANAGER' | 'ADMIN' | 'COACH' | 'SPORTIF';
 
@@ -13,19 +13,46 @@ export interface AuthUser {
   token: string;
 }
 
-interface LoginResponse {
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp: string;
+  errors?: Record<string, string>;
+}
+
+export interface BackendUser {
   id: number;
   email: string;
   nom: string;
   prenom: string;
-  role: string;
+  role: UserRole;
+  emailVerified: boolean;
+}
+
+export interface AuthPayload {
   token: string;
+  tokenType: string;
+  expiresInSeconds: number;
+  user: BackendUser;
+}
+
+export interface RegisterPayload {
+  prenom: string;
+  nom: string;
+  email: string;
+  password: string;
+  role: UserRole | 'PLAYER';
+  age?: number;
+  niveau?: string;
+  position?: string;
+  profilePicture?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly API = 'http://localhost:18080/api/auth';
-  private readonly storageKey = 'streetleague-basic-auth';
+  private readonly tokenKey = 'streetleague-jwt';
   private readonly userKey = 'sl_user';
 
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(this.loadUser());
@@ -58,98 +85,40 @@ export class AuthService {
     return this.currentUser?.role ?? null;
   }
 
-  /**
-   * Real login — calls backend POST /api/auth/login
-   * Maps backend roles (ADMIN, COACH, SPORTIF) to frontend UserRole
-   */
-  loginWithBackend(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API}/login`, { email, password }).pipe(
-      tap((res) => {
-        const roleMap: Record<string, UserRole> = {
-          ADMIN: 'ADMIN',
-          COACH: 'COACH',
-          SPORTIF: 'SPORTIF',
-          JOUEUR: 'JOUEUR',
-          TERRAIN_MANAGER: 'TERRAIN_MANAGER'
-        };
-        const role: UserRole = roleMap[res.role] ?? 'JOUEUR';
-
-        const user: AuthUser = {
-          id: res.id,
-          username: `${res.prenom} ${res.nom}`.trim(),
-          email: res.email,
-          role,
-          token: res.token
-        };
-
-        localStorage.setItem(this.userKey, JSON.stringify(user));
-        localStorage.setItem(this.storageKey, res.token);
-        this.currentUserSubject.next(user);
-      }),
-      catchError((err) => throwError(() => err))
+  login(email: string, password: string): Observable<AuthPayload> {
+    return this.http.post<ApiResponse<AuthPayload>>(`${this.API}/login`, { email, password }).pipe(
+      map((response) => response.data),
+      tap((payload) => this.storeSession(payload))
     );
   }
 
-  registerWithBackend(username: string, email: string, password: string, role: UserRole): Observable<LoginResponse> {
-    const [prenom, ...rest] = username.split(' ');
-    const nom = rest.join(' ') || prenom;
-    return this.http.post<LoginResponse>(`${this.API}/register`, {
-      nom, prenom, email, password, role
-    }).pipe(
-      tap((res) => {
-        const roleMap: Record<string, UserRole> = {
-          ADMIN: 'ADMIN', COACH: 'COACH', SPORTIF: 'SPORTIF',
-          JOUEUR: 'JOUEUR', TERRAIN_MANAGER: 'TERRAIN_MANAGER'
-        };
-        const mappedRole: UserRole = roleMap[res.role] ?? 'JOUEUR';
-        const user: AuthUser = {
-          id: res.id,
-          username: `${res.prenom} ${res.nom}`.trim(),
-          email: res.email,
-          role: mappedRole,
-          token: res.token
-        };
-        localStorage.setItem(this.userKey, JSON.stringify(user));
-        localStorage.setItem(this.storageKey, res.token);
-        this.currentUserSubject.next(user);
-      }),
-      catchError((err) => throwError(() => err))
+  register(payload: RegisterPayload): Observable<BackendUser> {
+    return this.http.post<ApiResponse<BackendUser>>(`${this.API}/register`, payload).pipe(
+      map((response) => response.data)
     );
   }
 
-  /**
-   * @deprecated Use loginWithBackend instead
-   */
-  login(email: string, password: string, role: UserRole = 'JOUEUR'): boolean {
-    const mockUser: AuthUser = {
-      id: crypto.randomUUID(),
-      username: email.split('@')[0],
-      email,
-      role,
-      token: btoa(`${email}:${Date.now()}`)
-    };
-    localStorage.setItem(this.userKey, JSON.stringify(mockUser));
-    localStorage.setItem(this.storageKey, btoa(`${email}:${password}`));
-    this.currentUserSubject.next(mockUser);
-    return true;
+  verifyEmail(email: string, code: string): Observable<BackendUser> {
+    return this.http.post<ApiResponse<BackendUser>>(`${this.API}/verify-email`, { email, code }).pipe(
+      map((response) => response.data)
+    );
   }
 
-  register(username: string, email: string, password: string, role: UserRole): boolean {
-    const newUser: AuthUser = {
-      id: crypto.randomUUID(),
-      username,
-      email,
-      role,
-      token: btoa(`${email}:${Date.now()}`)
-    };
-    localStorage.setItem(this.userKey, JSON.stringify(newUser));
-    this.currentUserSubject.next(newUser);
-    return true;
+  resendVerification(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/resend-verification`, { email });
+  }
+
+  forgotPassword(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/forgot-password`, { email });
+  }
+
+  resetPassword(email: string, code: string, newPassword: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/reset-password`, { email, code, newPassword });
   }
 
   logout(): void {
     localStorage.removeItem(this.userKey);
-    localStorage.removeItem(this.storageKey);
+    localStorage.removeItem(this.tokenKey);
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
@@ -160,17 +129,39 @@ export class AuthService {
       this.router.navigate(['/tournament']);
     } else if (role === 'TERRAIN_MANAGER') {
       this.router.navigate(['/terrain-manager-dashboard']);
-    } else if (role === 'JOUEUR') {
+    } else if (role === 'JOUEUR' || role === 'COACH' || role === 'SPORTIF') {
       this.router.navigate(['/player-dashboard']);
-    } else if (role === 'COACH' || role === 'SPORTIF') {
-      this.router.navigate(['/coaching/programmes']);
     } else {
       this.router.navigate(['/auth/login']);
     }
   }
 
   getAuthorizationHeader(): string | null {
-    const token = localStorage.getItem(this.storageKey);
-    return token ? `Basic ${token}` : null;
+    const token = localStorage.getItem(this.tokenKey);
+    return token ? `Bearer ${token}` : null;
+  }
+
+  getErrorMessage(error: any, fallback = 'Something went wrong. Please try again.'): string {
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+    if (error?.error?.errors) {
+      return Object.values(error.error.errors).join(' ');
+    }
+    return fallback;
+  }
+
+  private storeSession(payload: AuthPayload): void {
+    const user: AuthUser = {
+      id: payload.user.id,
+      username: `${payload.user.prenom} ${payload.user.nom}`.trim(),
+      email: payload.user.email,
+      role: payload.user.role,
+      token: payload.token
+    };
+
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+    localStorage.setItem(this.tokenKey, payload.token);
+    this.currentUserSubject.next(user);
   }
 }
