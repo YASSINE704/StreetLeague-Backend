@@ -28,6 +28,8 @@ public class SousEspace {
 
     private Integer capacite;
 
+    private Double prixBase; // prix par heure en DT
+
     @Enumerated(EnumType.STRING)
     private StatutEndroit statut;
 

@@ -63,12 +63,14 @@ public class DtoMapper {
     }
 
     public ReservationDTO toReservationDTO(Reservation r) {
-        return new ReservationDTO(r.getId(), r.getDateDebut(), r.getDateFin(),
+        ReservationDTO dto = new ReservationDTO(r.getId(), r.getDateDebut(), r.getDateFin(),
                 r.getStatut(), r.getDateCreation(), r.getMotifAnnulation(),
                 r.getSousEspace() != null ? r.getSousEspace().getId() : null,
                 r.getSousEspace() != null ? r.getSousEspace().getNom() : null,
                 r.getSousEspace() != null && r.getSousEspace().getEndroit() != null ? r.getSousEspace().getEndroit().getId() : null,
-                r.getSousEspace() != null && r.getSousEspace().getEndroit() != null ? r.getSousEspace().getEndroit().getNom() : null);
+                r.getSousEspace() != null && r.getSousEspace().getEndroit() != null ? r.getSousEspace().getEndroit().getNom() : null,
+                r.getPrixTotal());
+        return dto;
     }
 
     public Reservation toReservation(ReservationDTO dto) {

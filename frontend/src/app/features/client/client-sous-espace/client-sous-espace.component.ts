@@ -57,15 +57,16 @@ export class ClientSousEspaceComponent implements OnInit {
         return;
       }
       this.fieldService.createReservation(this.id, this.reservationForm.value).subscribe({
-        next: () => {
+        next: (reservation) => {
           this.loadReservations();
           this.showForm = false;
           this.reservationForm.reset();
           this.successMsg = 'Réservation envoyée avec succès !';
           this.notifService.addNotification('NOUVELLE_RESERVATION', 'Réservation créée pour ' + (this.se?.nom || ''));
+          this.fieldService.downloadReservationPdf(reservation.id!);
           setTimeout(() => this.successMsg = '', 5000);
         },
-        error: (err) => { this.errorMsg = err.error?.error || 'Erreur lors de la réservation'; }
+        error: (err) => { this.errorMsg = err.error?.error || err.error?.message || 'Erreur lors de la réservation'; }
       });
     }
   }
