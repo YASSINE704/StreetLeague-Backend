@@ -2,63 +2,55 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
+  // Default redirect
+  { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
   // Auth routes (no sidebar)
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
   },
-  // Main app routes (with sidebar) — protected by AuthGuard
+  // Main app routes (with sidebar)
   {
     path: '',
     component: MainLayoutComponent,
-    canActivate: [AuthGuard],
     children: [
-      { path: 'dashboard', component: DashboardComponent, data: { roles: ['ADMIN'] } },
+      { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
       {
         path: 'endroits',
-        loadChildren: () => import('./features/fields/fields.module').then(m => m.FieldsModule),
-        data: { roles: ['ADMIN'] }
+        loadChildren: () => import('./features/fields/fields.module').then(m => m.FieldsModule)
       },
       {
         path: 'sous-espaces',
-        loadChildren: () => import('./features/sous-espaces/sous-espaces.module').then(m => m.SousEspacesModule),
-        data: { roles: ['ADMIN'] }
+        loadChildren: () => import('./features/sous-espaces/sous-espaces.module').then(m => m.SousEspacesModule)
       },
       {
         path: 'client',
-        loadChildren: () => import('./features/client/client.module').then(m => m.ClientModule),
-        data: { roles: ['JOUEUR', 'SPORTIF'] }
+        loadChildren: () => import('./features/client/client.module').then(m => m.ClientModule)
       },
       {
         path: 'tournament',
         loadChildren: () =>
-          import('./features/tournament-dashboard/tournament-dashboard.module').then(m => m.TournamentDashboardModule),
-        data: { roles: ['ADMIN'] }
+          import('./features/tournament-dashboard/tournament-dashboard.module').then(m => m.TournamentDashboardModule)
       },
       {
         path: 'player-dashboard',
         loadChildren: () =>
-          import('./features/player-dashboard/player-dashboard.module').then(m => m.PlayerDashboardModule),
-        data: { roles: ['JOUEUR', 'SPORTIF'] }
+          import('./features/player-dashboard/player-dashboard.module').then(m => m.PlayerDashboardModule)
       },
       {
         path: 'terrain-manager-dashboard',
         loadChildren: () =>
-          import('./features/terrain-manager-dashboard/terrain-manager-dashboard.module').then(m => m.TerrainManagerDashboardModule),
-        data: { roles: ['TERRAIN_MANAGER'] }
+          import('./features/terrain-manager-dashboard/terrain-manager-dashboard.module').then(m => m.TerrainManagerDashboardModule)
       },
       {
         path: 'coaching',
-        loadChildren: () => import('./features/coaching/coaching.module').then(m => m.CoachingModule),
-        data: { roles: ['COACH', 'SPORTIF', 'JOUEUR', 'ADMIN'] }
-      },
-      { path: '', redirectTo: 'auth/login', pathMatch: 'full' }
+        loadChildren: () => import('./features/coaching/coaching.module').then(m => m.CoachingModule)
+      }
     ]
   },
-  // Wildcard: redirect unknown routes to login
   { path: '**', redirectTo: 'auth/login' }
 ];
 
