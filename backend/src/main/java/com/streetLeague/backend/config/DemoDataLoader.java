@@ -1,17 +1,16 @@
 package com.streetLeague.backend.config;
 
 import com.streetLeague.backend.entity.*;
-import com.streetLeague.backend.enums.MatchStatus;
-import com.streetLeague.backend.enums.Niveau;
-import com.streetLeague.backend.enums.Position;
-import com.streetLeague.backend.enums.TypeSport;
+import com.streetLeague.backend.enums.*;
 import com.streetLeague.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,44 +24,188 @@ public class DemoDataLoader {
     private final TerrainRepository terrainRepository;
     private final MatchRepository matchRepository;
     private final PlayerStatsRepository playerStatsRepository;
+    private final EndroitRepository endroitRepository;
+    private final SousEspaceRepository sousEspaceRepository;
+    private final ExerciceRepository exerciceRepository;
+    private final ProgrammeEntrainementRepository programmeRepository;
+    private final SeanceEntrainementRepository seanceRepository;
 
     @Bean
     CommandLineRunner seedDemoData() {
         return args -> {
-            // Skip if matches already exist (prevents duplicate seeding)
+            // Seed endroits if not already present
+            if (endroitRepository.count() == 0) {
+                seedEndroitsAndSousEspaces();
+            }
+
+            // Seed exercices if not already present
+            if (exerciceRepository.count() == 0) {
+                seedExercices();
+            }
+
+            // Skip match data if already exists
             if (matchRepository.count() > 0) {
                 return;
             }
 
-            System.out.println("🏟️  Seeding demo data with players, teams, matches, and player stats...");
+            System.out.println("🏟️  Seeding demo data...");
 
             // 1. Create Terrain
             Terrain terrain = Terrain.builder()
                     .nom("Central Field - Downtown")
+                    .location("Downtown Tunis")
+                    .address("Avenue Habib Bourguiba, Tunis 1000")
                     .typeSport(TypeSport.FOOTBALL)
                     .build();
             terrain = terrainRepository.save(terrain);
-            System.out.println("✅ Created terrain: " + terrain.getNom());
 
             // 2. Create Demo Players
             List<Joueur> allPlayers = createDemoPlayers();
-            System.out.println("✅ Created " + allPlayers.size() + " demo players");
 
             // 3. Create Teams and assign players
             List<Equipe> teams = createTeamsWithPlayers(allPlayers);
-            System.out.println("✅ Created " + teams.size() + " demo teams");
 
-            // 4. Create Completed Matches with historic dates
+            // 4. Create Completed Matches
             List<Match> matches = createDemoMatches(teams, terrain);
-            System.out.println("✅ Created " + matches.size() + " completed matches");
 
-            // 5. Create Player Stats for each match
+            // 5. Create Player Stats
             createPlayerStatsForMatches(matches, allPlayers);
-            System.out.println("✅ Created player stats for all matches");
 
-            System.out.println("\n✨ Demo data seeding completed successfully!");
-            System.out.println("📊 Database now contains historical match data for performance prediction testing.\n");
+            System.out.println("✨ Demo data seeding completed!");
         };
+    }
+
+    private void seedEndroitsAndSousEspaces() {
+        System.out.println("📍 Seeding endroits et sous-espaces...");
+
+        // Endroit 1 : Complexe Sportif Tunis (plein air)
+        Endroit e1 = new Endroit();
+        e1.setNom("Complexe Sportif El Menzah");
+        e1.setType(TypeEndroit.STADE);
+        e1.setAdresse("Rue du Stade, El Menzah");
+        e1.setVille("Tunis");
+        e1.setLatitude(36.8232);
+        e1.setLongitude(10.1655);
+        e1.setCapacite(200);
+        e1.setStatut(StatutEndroit.DISPONIBLE);
+        e1.setDescription("Complexe sportif avec terrains extérieurs et piste d'athlétisme");
+        e1 = endroitRepository.save(e1);
+
+        SousEspace se1 = new SousEspace();
+        se1.setNom("Terrain Football A (extérieur)");
+        se1.setType(TypeSousEspace.TERRAIN);
+        se1.setCapacite(30);
+        se1.setStatut(StatutEndroit.DISPONIBLE);
+        se1.setEndroit(e1);
+        sousEspaceRepository.save(se1);
+
+        SousEspace se2 = new SousEspace();
+        se2.setNom("Piste Athlétisme (extérieur)");
+        se2.setType(TypeSousEspace.TERRAIN);
+        se2.setCapacite(50);
+        se2.setStatut(StatutEndroit.DISPONIBLE);
+        se2.setEndroit(e1);
+        sousEspaceRepository.save(se2);
+
+        // Endroit 2 : Salle de Sport Indoor
+        Endroit e2 = new Endroit();
+        e2.setNom("Salle Omnisports Ariana");
+        e2.setType(TypeEndroit.SALLE_SPORT);
+        e2.setAdresse("Avenue de la République, Ariana");
+        e2.setVille("Ariana");
+        e2.setLatitude(36.8625);
+        e2.setLongitude(10.1956);
+        e2.setCapacite(100);
+        e2.setStatut(StatutEndroit.DISPONIBLE);
+        e2.setDescription("Salle couverte avec équipements de musculation et salle de cours");
+        e2 = endroitRepository.save(e2);
+
+        SousEspace se3 = new SousEspace();
+        se3.setNom("Salle Musculation");
+        se3.setType(TypeSousEspace.SALLE);
+        se3.setCapacite(20);
+        se3.setStatut(StatutEndroit.DISPONIBLE);
+        se3.setEndroit(e2);
+        sousEspaceRepository.save(se3);
+
+        SousEspace se4 = new SousEspace();
+        se4.setNom("Salle Cours Collectifs");
+        se4.setType(TypeSousEspace.SALLE);
+        se4.setCapacite(15);
+        se4.setStatut(StatutEndroit.DISPONIBLE);
+        se4.setEndroit(e2);
+        sousEspaceRepository.save(se4);
+
+        // Endroit 3 : Terrain Sousse (plein air)
+        Endroit e3 = new Endroit();
+        e3.setNom("Terrain Municipal Sousse");
+        e3.setType(TypeEndroit.TERRAIN);
+        e3.setAdresse("Boulevard 14 Janvier, Sousse");
+        e3.setVille("Sousse");
+        e3.setLatitude(35.8256);
+        e3.setLongitude(10.6369);
+        e3.setCapacite(60);
+        e3.setStatut(StatutEndroit.DISPONIBLE);
+        e3.setDescription("Terrain de football en gazon synthétique, éclairé la nuit");
+        e3 = endroitRepository.save(e3);
+
+        SousEspace se5 = new SousEspace();
+        se5.setNom("Terrain Gazon Synthétique (extérieur)");
+        se5.setType(TypeSousEspace.TERRAIN);
+        se5.setCapacite(22);
+        se5.setStatut(StatutEndroit.DISPONIBLE);
+        se5.setEndroit(e3);
+        sousEspaceRepository.save(se5);
+
+        // Endroit 4 : Centre Sportif Sfax
+        Endroit e4 = new Endroit();
+        e4.setNom("Centre Sportif Sfax");
+        e4.setType(TypeEndroit.SALLE_SPORT);
+        e4.setAdresse("Route de Tunis km 3, Sfax");
+        e4.setVille("Sfax");
+        e4.setLatitude(34.7406);
+        e4.setLongitude(10.7603);
+        e4.setCapacite(80);
+        e4.setStatut(StatutEndroit.DISPONIBLE);
+        e4.setDescription("Centre sportif moderne avec salle indoor et terrain extérieur");
+        e4 = endroitRepository.save(e4);
+
+        SousEspace se6 = new SousEspace();
+        se6.setNom("Salle Indoor Polyvalente");
+        se6.setType(TypeSousEspace.SALLE);
+        se6.setCapacite(25);
+        se6.setStatut(StatutEndroit.DISPONIBLE);
+        se6.setEndroit(e4);
+        sousEspaceRepository.save(se6);
+
+        SousEspace se7 = new SousEspace();
+        se7.setNom("Terrain Extérieur Sfax");
+        se7.setType(TypeSousEspace.TERRAIN);
+        se7.setCapacite(30);
+        se7.setStatut(StatutEndroit.DISPONIBLE);
+        se7.setEndroit(e4);
+        sousEspaceRepository.save(se7);
+
+        System.out.println("✅ 4 endroits + 7 sous-espaces créés (Tunis, Ariana, Sousse, Sfax)");
+    }
+
+    private void seedExercices() {
+        System.out.println("💪 Seeding exercices...");
+
+        exerciceRepository.save(Exercice.builder().nom("Pompes explosives").description("Pompes avec phase explosive").type(TypeExercice.FORCE).build());
+        exerciceRepository.save(Exercice.builder().nom("Squats sautés").description("Squats avec saut pour les jambes").type(TypeExercice.FORCE).build());
+        exerciceRepository.save(Exercice.builder().nom("Gainage dynamique").description("Gainage avec mouvements").type(TypeExercice.FORCE).build());
+        exerciceRepository.save(Exercice.builder().nom("Sprint intervalles").description("Alternance sprint/repos 30s").type(TypeExercice.CARDIO).build());
+        exerciceRepository.save(Exercice.builder().nom("Burpees").description("Exercice complet cardio").type(TypeExercice.CARDIO).build());
+        exerciceRepository.save(Exercice.builder().nom("Corde à sauter").description("Cardio et coordination").type(TypeExercice.CARDIO).build());
+        exerciceRepository.save(Exercice.builder().nom("Étirements dynamiques").description("Mobilité articulaire").type(TypeExercice.MOBILITE).build());
+        exerciceRepository.save(Exercice.builder().nom("Yoga sportif").description("Récupération et souplesse").type(TypeExercice.MOBILITE).build());
+        exerciceRepository.save(Exercice.builder().nom("Dribble slalom").description("Contrôle de balle entre plots").type(TypeExercice.TECHNIQUE).build());
+        exerciceRepository.save(Exercice.builder().nom("Passes courtes").description("Passes en mouvement").type(TypeExercice.TECHNIQUE).build());
+        exerciceRepository.save(Exercice.builder().nom("Tirs cadrés").description("Précision de tir au but").type(TypeExercice.TECHNIQUE).build());
+        exerciceRepository.save(Exercice.builder().nom("Jeu réduit 3v3").description("Match en effectif réduit").type(TypeExercice.TECHNIQUE).build());
+
+        System.out.println("✅ 12 exercices créés");
     }
 
     private List<Joueur> createDemoPlayers() {

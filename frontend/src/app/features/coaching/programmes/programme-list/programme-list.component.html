@@ -13,7 +13,10 @@
   <div class="sl-card">
     <div class="sl-card-header">
       <h2>Programmes d'Entraînement</h2>
-      <button (click)="onCreate()" class="sl-btn sl-btn--primary">+ Nouveau Programme</button>
+      <div class="sl-header-actions">
+        <button *ngIf="isCoachOrAdmin" (click)="exportPDF()" class="sl-btn sl-btn--secondary">📄 Export PDF</button>
+        <button *ngIf="isCoachOrAdmin" (click)="onCreate()" class="sl-btn sl-btn--primary">+ Nouveau Programme</button>
+      </div>
     </div>
 
     <!-- Search & Filter bar -->
@@ -50,8 +53,8 @@
           <td><span class="sl-badge" [ngClass]="{'sl-badge--orange': p.statut==='BROUILLON','sl-badge--green': p.statut==='ACTIF','sl-badge--violet': p.statut==='TERMINE'}">{{ p.statut }}</span></td>
           <td class="sl-actions">
             <button (click)="onDetails(p.idProgramme!)" class="sl-btn-icon" title="Détails">👁️</button>
-            <button (click)="onEdit(p.idProgramme!)" class="sl-btn-icon" title="Modifier">✏️</button>
-            <button (click)="onDelete(p.idProgramme!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer">🗑️</button>
+            <button *ngIf="isCoachOrAdmin" (click)="onEdit(p.idProgramme!)" class="sl-btn-icon" title="Modifier">✏️</button>
+            <button *ngIf="isCoachOrAdmin" (click)="onDelete(p.idProgramme!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer">🗑️</button>
           </td>
         </tr>
       </tbody>

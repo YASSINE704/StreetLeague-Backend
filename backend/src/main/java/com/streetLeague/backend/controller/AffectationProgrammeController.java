@@ -2,6 +2,7 @@ package com.streetLeague.backend.controller;
 
 import com.streetLeague.backend.dto.AffectationProgrammeDTO;
 import com.streetLeague.backend.service.AffectationProgrammeService;
+import com.streetLeague.backend.service.CoachingRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,13 +18,18 @@ import java.util.List;
 public class AffectationProgrammeController {
 
     private final AffectationProgrammeService affectationService;
+    private final CoachingRoleService roleService;
 
+    /* ── CREATE : COACH ou ADMIN (le coach affecte des utilisateurs) ── */
     @PostMapping
     public ResponseEntity<AffectationProgrammeDTO.Response> create(
+            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
             @Valid @RequestBody AffectationProgrammeDTO.Request dto) {
+        roleService.requireCoachOrAdmin(userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(affectationService.create(dto));
     }
 
+    /* ── READ : tout utilisateur ── */
     @GetMapping
     public ResponseEntity<List<AffectationProgrammeDTO.Response>> getAll() {
         return ResponseEntity.ok(affectationService.getAll());
@@ -45,15 +51,22 @@ public class AffectationProgrammeController {
         return ResponseEntity.ok(affectationService.getByUser(userId));
     }
 
+    /* ── UPDATE : COACH ou ADMIN ── */
     @PutMapping("/{id}")
     public ResponseEntity<AffectationProgrammeDTO.Response> update(
+            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
             @PathVariable Integer id,
             @Valid @RequestBody AffectationProgrammeDTO.Request dto) {
+        roleService.requireCoachOrAdmin(userId);
         return ResponseEntity.ok(affectationService.update(id, dto));
     }
 
+    /* ── DELETE : COACH ou ADMIN ── */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(
+            @RequestHeader(value = "X-User-Id", required = false) Integer userId,
+            @PathVariable Integer id) {
+        roleService.requireCoachOrAdmin(userId);
         affectationService.delete(id);
         return ResponseEntity.noContent().build();
     }

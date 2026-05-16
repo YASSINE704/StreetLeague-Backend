@@ -1,0 +1,2 @@
+.sl-map { height: 300px; border-radius: var(--sl-radius-md); border: 1.5px solid var(--sl-border); z-index: 0; }
+.sl-preview-img { max-width: 200px; border-radius: var(--sl-radius-md); margin-bottom: 8px; display: block; }

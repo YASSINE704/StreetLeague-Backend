@@ -1,0 +1,80 @@
+<div *ngIf="se">
+  <a routerLink="/client" class="sl-btn sl-btn--ghost sl-btn--sm" style="margin-bottom:1.5rem;display:inline-flex">← Retour à la carte</a>
+
+  <!-- Header card -->
+  <div class="sl-card" style="margin-bottom:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+      <div>
+        <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem">
+          <h1 style="margin:0;font-size:1.5rem;font-weight:800;color:var(--sl-text)">{{ se.nom }}</h1>
+          <span class="sl-badge" [ngClass]="getStatutBadge(se.statut)">{{ se.statut }}</span>
+        </div>
+        <p style="color:var(--sl-text3);margin:3px 0;font-size:0.9rem">{{ se.type }} · Capacité : {{ se.capacite }}</p>
+        <p style="color:var(--sl-text3);margin:3px 0;font-size:0.9rem" *ngIf="se.endroitNom">
+          📍 Endroit : <a [routerLink]="['/client', se.endroitId]" style="color:var(--sl-blue);font-weight:600">{{ se.endroitNom }}</a>
+        </p>
+      </div>
+      <button class="sl-btn sl-btn--primary"
+              (click)="showForm = !showForm"
+              *ngIf="se.statut === 'DISPONIBLE'">
+        {{ showForm ? '✕ Annuler' : '📅 Réserver ce sous-espace' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Reservation form -->
+  <div class="sl-card" *ngIf="showForm" style="margin-bottom:1.5rem;background:var(--sl-blue-l);border-color:var(--sl-blue-m)">
+    <div class="sl-card-header"><h3>📅 Nouvelle réservation</h3></div>
+    <div *ngIf="successMsg" class="sl-toast" style="position:static;margin-bottom:1rem;animation:none">✅ {{ successMsg }}</div>
+    <div *ngIf="errorMsg" class="sl-error-banner" style="margin-bottom:1rem">⚠️ {{ errorMsg }}</div>
+    <form [formGroup]="reservationForm" (ngSubmit)="reserver()">
+      <div class="sl-form-row">
+        <div class="sl-form-group">
+          <label>Date début</label>
+          <input class="sl-input" type="datetime-local" formControlName="dateDebut">
+        </div>
+        <div class="sl-form-group">
+          <label>Date fin</label>
+          <input class="sl-input" type="datetime-local" formControlName="dateFin">
+        </div>
+      </div>
+      <div class="sl-form-actions">
+        <button type="button" class="sl-btn sl-btn--secondary" (click)="showForm = false">Annuler</button>
+        <button type="submit" class="sl-btn sl-btn--primary" [disabled]="reservationForm.invalid">✅ Confirmer la réservation</button>
+      </div>
+    </form>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap">
+
+    <!-- Equipements -->
+    <div class="sl-card">
+      <div class="sl-card-header"><h3>🏋️ Équipements</h3></div>
+      <div *ngIf="!se.equipements || se.equipements.length === 0" class="sl-empty" style="padding:1.5rem">
+        <p>Aucun équipement</p>
+      </div>
+      <div class="sl-eq-grid" *ngIf="se.equipements && se.equipements.length > 0">
+        <div class="sl-eq-card" *ngFor="let eq of se.equipements">
+          <span style="font-weight:600;color:var(--sl-text)">{{ eq.nom }}</span>
+          <span class="sl-badge sl-badge--blue">x{{ eq.quantite }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservations -->
+    <div class="sl-card">
+      <div class="sl-card-header"><h3>📋 Réservations existantes</h3></div>
+      <div *ngIf="!se.reservations || se.reservations.length === 0" class="sl-empty" style="padding:1.5rem">
+        <p>Aucune réservation</p>
+      </div>
+      <div *ngIf="se.reservations && se.reservations.length > 0">
+        <div *ngFor="let r of se.reservations"
+             style="display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0;border-bottom:1px solid var(--sl-border);font-size:0.85rem;color:var(--sl-text2)">
+          <span>{{ r.dateDebut | date:'short' }} → {{ r.dateFin | date:'short' }}</span>
+          <span class="sl-badge" [ngClass]="getStatutBadge(r.statut!)">{{ r.statut }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

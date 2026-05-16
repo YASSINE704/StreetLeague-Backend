@@ -3,8 +3,9 @@
 
   <div class="sl-card">
     <div class="sl-card-header">
-      <h2>Séances d'Entraînement</h2>
-      <button (click)="onCreate()" class="sl-btn sl-btn--primary">+ Nouvelle Séance</button>
+      <h2 *ngIf="isCoachOrAdmin">Séances d'Entraînement</h2>
+      <h2 *ngIf="isSportifOrJoueur">Séances Disponibles</h2>
+      <button *ngIf="isCoachOrAdmin" (click)="onCreate()" class="sl-btn sl-btn--primary">+ Nouvelle Séance</button>
     </div>
 
     <div class="sl-toolbar">
@@ -26,7 +27,91 @@
       </select>
     </div>
 
-    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="sl-error-banner" *ngIf="errorMessage">⚠️ {{ errorMessage }}</div>
+
+    <!-- Reservation Modal -->
+    <div class="sl-modal-overlay" *ngIf="showReservationModal" (click)="showReservationModal = false">
+      <div class="sl-modal sl-modal--payment" (click)="$event.stopPropagation()">
+        <h3>📋 Réserver cette séance</h3>
+        <p class="sl-modal-subtitle">{{ reservationTarget?.titreSeance }} — {{ reservationTarget?.dateSeance }}</p>
+
+        <!-- Step 1: Payment mode choice -->
+        <div class="sl-form-group" *ngIf="!showCardForm">
+          <label>Mode de paiement</label>
+          <div class="sl-payment-options">
+            <label class="sl-payment-option" [class.selected]="selectedPaymentMode === 'SUR_PLACE'">
+              <input type="radio" name="payment" value="SUR_PLACE" [(ngModel)]="selectedPaymentMode">
+              <span class="sl-payment-icon">💵</span>
+              <span class="sl-payment-label">Payer sur place</span>
+              <span class="sl-payment-desc">Le jour de la séance</span>
+            </label>
+            <label class="sl-payment-option" [class.selected]="selectedPaymentMode === 'EN_LIGNE'">
+              <input type="radio" name="payment" value="EN_LIGNE" [(ngModel)]="selectedPaymentMode">
+              <span class="sl-payment-icon">💳</span>
+              <span class="sl-payment-label">Payer en ligne</span>
+              <span class="sl-payment-desc">Carte bancaire</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 2: Card form (only if EN_LIGNE selected) -->
+        <div class="sl-card-form" *ngIf="showCardForm">
+          <div class="sl-card-form-header">
+            <span>💳</span>
+            <span>Paiement sécurisé</span>
+            <div class="sl-card-brands">
+              <span>VISA</span>
+              <span>MC</span>
+            </div>
+          </div>
+
+          <div class="sl-form-group">
+            <label>Numéro de carte</label>
+            <input type="text" class="sl-input" [(ngModel)]="cardNumber"
+                   placeholder="1234 5678 9012 3456" maxlength="19"
+                   (input)="formatCardNumber()">
+          </div>
+
+          <div class="sl-form-row-2">
+            <div class="sl-form-group">
+              <label>Date d'expiration</label>
+              <input type="text" class="sl-input" [(ngModel)]="cardExpiry"
+                     placeholder="MM/AA" maxlength="5">
+            </div>
+            <div class="sl-form-group">
+              <label>CVV</label>
+              <input type="password" class="sl-input" [(ngModel)]="cardCvv"
+                     placeholder="123" maxlength="3">
+            </div>
+          </div>
+
+          <div class="sl-form-group">
+            <label>Nom sur la carte</label>
+            <input type="text" class="sl-input" [(ngModel)]="cardName"
+                   placeholder="NOM PRÉNOM">
+          </div>
+
+          <div class="sl-payment-secure-note">
+            🔒 Paiement sécurisé — Vos données sont protégées
+          </div>
+        </div>
+
+        <div class="sl-modal-error" *ngIf="paymentError">⚠️ {{ paymentError }}</div>
+
+        <div class="sl-modal-actions">
+          <button class="sl-btn sl-btn--ghost" (click)="cancelReservation()">Annuler</button>
+          <button *ngIf="!showCardForm" class="sl-btn sl-btn--primary" (click)="proceedToPayment()" [disabled]="reservingId !== null">
+            <span *ngIf="selectedPaymentMode === 'SUR_PLACE'">Confirmer la réservation</span>
+            <span *ngIf="selectedPaymentMode === 'EN_LIGNE'">Procéder au paiement →</span>
+          </button>
+          <button *ngIf="showCardForm" class="sl-btn sl-btn--ghost" (click)="showCardForm = false">← Retour</button>
+          <button *ngIf="showCardForm" class="sl-btn sl-btn--primary" (click)="confirmOnlinePayment()" [disabled]="reservingId !== null">
+            <span *ngIf="reservingId === null">💳 Payer et réserver</span>
+            <span *ngIf="reservingId !== null">Traitement...</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <table class="sl-table" *ngIf="filtered.length > 0">
       <thead>
@@ -34,8 +119,9 @@
           <th (click)="onSort('titreSeance')" class="sl-sortable">Titre {{ sortIcon('titreSeance') }}</th>
           <th>Programme</th>
           <th (click)="onSort('dateSeance')" class="sl-sortable">Date {{ sortIcon('dateSeance') }}</th>
-          <th (click)="onSort('dureeMinutes')" class="sl-sortable">Durée {{ sortIcon('dureeMinutes') }}</th>
+          <th>Horaire</th>
           <th>Intensité</th>
+          <th>Places</th>
           <th>Statut</th>
           <th>Actions</th>
         </tr>
@@ -45,13 +131,34 @@
           <td class="sl-td-title">{{ s.titreSeance }}</td>
           <td>{{ s.programmeTitre }}</td>
           <td>{{ s.dateSeance }}</td>
-          <td>{{ s.dureeMinutes }} min</td>
+          <td>{{ s.heureDebut || '—' }} - {{ s.heureFin || '—' }}</td>
           <td><span class="sl-badge sl-badge--orange">{{ s.intensite }}</span></td>
+          <td>
+            <span class="sl-badge" [ngClass]="{'sl-badge--green': s.placesRestantes! > 0, 'sl-badge--red': s.placesRestantes === 0}">
+              {{ s.placesRestantes }}/{{ s.maxParticipants || 5 }}
+            </span>
+          </td>
           <td><span class="sl-badge" [ngClass]="{'sl-badge--blue':s.statut==='PREVUE','sl-badge--green':s.statut==='REALISEE','sl-badge--red':s.statut==='ANNULEE'}">{{ s.statut }}</span></td>
           <td class="sl-actions">
-            <button (click)="onDetails(s.idSeance!)" class="sl-btn-icon">👁️</button>
-            <button (click)="onEdit(s.idSeance!)" class="sl-btn-icon">✏️</button>
-            <button (click)="onDelete(s.idSeance!)" class="sl-btn-icon sl-btn-icon--danger">🗑️</button>
+            <button (click)="onDetails(s.idSeance!)" class="sl-btn-icon" title="Voir détails">👁️</button>
+
+            <!-- Sportif: Réserver ou Feedback -->
+            <button *ngIf="isSportifOrJoueur && canReserve(s)"
+                    (click)="openReservationModal(s)"
+                    class="sl-btn sl-btn--primary sl-btn--sm">
+              📋 Réserver
+            </button>
+            <span *ngIf="isSportifOrJoueur && !canReserve(s) && s.statut === 'PREVUE' && s.placesRestantes === 0"
+                  class="sl-badge sl-badge--red">Complet</span>
+            <button *ngIf="isSportifOrJoueur && s.statut === 'REALISEE'"
+                    (click)="onFeedback(s.idSeance!)"
+                    class="sl-btn sl-btn--secondary sl-btn--sm">
+              ⭐ Feedback
+            </button>
+
+            <!-- Coach: Edit + Delete -->
+            <button *ngIf="isCoachOrAdmin" (click)="onEdit(s.idSeance!)" class="sl-btn-icon" title="Modifier">✏️</button>
+            <button *ngIf="isCoachOrAdmin" (click)="onDelete(s.idSeance!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer">🗑️</button>
           </td>
         </tr>
       </tbody>
@@ -65,7 +172,9 @@
 
     <div class="sl-empty" *ngIf="filtered.length === 0 && seances.length > 0"><p>Aucun résultat</p></div>
     <div class="sl-empty" *ngIf="seances.length === 0 && !errorMessage">
-      <span class="sl-empty-icon">🏋️</span><p>Aucune séance trouvée</p>
+      <span class="sl-empty-icon">🏋️</span>
+      <p *ngIf="isCoachOrAdmin">Aucune séance trouvée. Créez votre première séance !</p>
+      <p *ngIf="isSportifOrJoueur">Aucune séance disponible pour le moment. Revenez bientôt !</p>
     </div>
   </div>
 </div>

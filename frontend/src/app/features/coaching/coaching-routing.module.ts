@@ -12,11 +12,14 @@ import { ExerciceListComponent } from './exercices/exercice-list/exercice-list.c
 import { ExerciceCreateComponent } from './exercices/exercice-create/exercice-create.component';
 import { ExerciceEditComponent } from './exercices/exercice-edit/exercice-edit.component';
 import { SuiviCreateComponent } from './suivis/suivi-create/suivi-create.component';
+import { MesReservationsCoachingComponent } from './mes-reservations/mes-reservations.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
   // Dashboard
   { path: 'dashboard', component: DashboardComponent },
+  // Mes Réservations (sportif/joueur)
+  { path: 'mes-reservations', component: MesReservationsCoachingComponent },
   // Programmes
   { path: 'programmes', component: ProgrammeListComponent },
   { path: 'programmes/create', component: ProgrammeCreateComponent },

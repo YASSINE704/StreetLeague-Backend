@@ -14,6 +14,10 @@ public class SuiviMapper {
                 .ressenti(entity.getRessenti())
                 .fatigue(entity.getFatigue())
                 .commentaire(entity.getCommentaire())
+                .note(entity.getNote())
+                .auteurId(entity.getAuteur() != null ? entity.getAuteur().getIdUser() : null)
+                .auteurNom(entity.getAuteur() != null
+                        ? entity.getAuteur().getNom() + " " + entity.getAuteur().getPrenom() : null)
                 .seanceId(entity.getSeance().getIdSeance())
                 .build();
     }

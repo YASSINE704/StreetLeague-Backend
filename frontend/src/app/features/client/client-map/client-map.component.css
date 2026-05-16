@@ -1,0 +1,159 @@
+.sl-map-full { height: 420px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1.5rem; z-index: 0; border: 1px solid #e2e8f0; }
+.sl-tabs { display: flex; gap: 0; margin-bottom: 1.25rem; }
+.sl-tabs button {
+  flex: 1; padding: 0.8rem; border: 1.5px solid #e2e8f0; background: #fff;
+  cursor: pointer; font-size: 0.9rem; font-weight: 600; color: #64748b; transition: all 0.2s;
+}
+.sl-tabs button:first-child { border-radius: 10px 0 0 10px; }
+.sl-tabs button:last-child { border-radius: 0 10px 10px 0; border-left: none; }
+.sl-tabs button.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+.sl-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.sl-card-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+.sl-card-item:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.sl-card-img { width: 100%; height: 160px; object-fit: cover; }
+.sl-card-img.placeholder { height: 160px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 3rem; }
+.sl-card-body { padding: 1rem; }
+.sl-card-body h3 { margin: 0 0 4px; color: #1e293b; font-size: 1rem; }
+.sl-card-body p { margin: 2px 0; color: #64748b; font-size: 0.85rem; }
+.sl-card-footer { padding: 0 1rem 1rem; }
+.sl-card-footer button { width: 100%; }
+.sl-se-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.sl-se-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; }
+.sl-se-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.sl-se-item-top h3 { margin: 0; color: #1e293b; font-size: 0.95rem; }
+.sl-se-meta { color: #64748b; font-size: 0.82rem; margin: 2px 0; }
+
+/* ═══════════════════════════════════════════
+   AI RECOMMENDATIONS SECTION
+═══════════════════════════════════════════ */
+.reco-section {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+  border: 2px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+}
+
+.reco-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.reco-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.reco-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #1e293b;
+  font-weight: 800;
+}
+
+.reco-header p {
+  width: 100%;
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.reco-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.reco-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.reco-card:hover {
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.18);
+  transform: translateY(-4px);
+  border-color: #93c5fd;
+}
+
+.reco-score {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  z-index: 2;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35);
+}
+
+.reco-img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+}
+
+.reco-img.placeholder {
+  width: 100%;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+  font-size: 2.8rem;
+}
+
+.reco-body {
+  padding: 1rem;
+}
+
+.reco-body h4 {
+  margin: 0 0 5px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.reco-meta {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0 0 10px;
+}
+
+.reco-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.reco-reason {
+  display: inline-block;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.4;
+}

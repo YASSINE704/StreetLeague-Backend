@@ -19,9 +19,16 @@ export class JwtAuthInterceptor implements HttpInterceptor {
     const credentials = this.authService.getAuthorizationHeader();
     const isAuthRequest = req.url.includes('/api/auth/');
 
-    const authReq = credentials && !isAuthRequest
-      ? req.clone({ setHeaders: { Authorization: credentials } })
-      : req;
+    let authReq = req;
+    if (credentials && !isAuthRequest) {
+      const user = this.authService.currentUser;
+      const headers: { [key: string]: string } = { Authorization: credentials };
+      // Envoyer l'ID utilisateur pour les vérifications de rôle côté backend
+      if (user?.id) {
+        headers['X-User-Id'] = String(user.id);
+      }
+      authReq = req.clone({ setHeaders: headers });
+    }
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {

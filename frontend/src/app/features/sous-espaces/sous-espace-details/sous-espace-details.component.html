@@ -1,0 +1,120 @@
+<div *ngIf="se">
+
+  <!-- Header -->
+  <div class="sl-card" style="margin-bottom:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+      <div>
+        <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.5rem">
+          <h2 style="margin:0;font-size:1.5rem;font-weight:800;color:var(--sl-text)">{{ se.nom }}</h2>
+          <span class="sl-badge" [ngClass]="getStatutBadge(se.statut)">{{ se.statut }}</span>
+        </div>
+        <p style="color:var(--sl-text3);margin:3px 0;font-size:0.9rem">{{ se.type }} · Capacité : {{ se.capacite }}</p>
+        <p style="color:var(--sl-text3);margin:3px 0;font-size:0.9rem" *ngIf="se.endroitNom">
+          📍 Endroit :
+          <a *ngIf="se.endroitId" [routerLink]="['/endroits', se.endroitId]" style="color:var(--sl-blue);font-weight:600">{{ se.endroitNom }}</a>
+        </p>
+      </div>
+      <a routerLink="/sous-espaces" class="sl-btn sl-btn--ghost sl-btn--sm">← Retour</a>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMsg" class="sl-error-banner" style="margin-bottom:1rem">
+    ⚠️ {{ errorMsg }}
+    <button class="sl-error-close" (click)="clearMessages()">✕</button>
+  </div>
+  <div *ngIf="successMsg" class="sl-toast" style="position:static;margin-bottom:1rem;animation:none">✅ {{ successMsg }}</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+
+    <!-- Equipements -->
+    <div class="sl-card">
+      <div class="sl-card-header">
+        <h3>🏋️ Équipements</h3>
+        <button class="sl-btn sl-btn--primary sl-btn--sm" (click)="showEquipementForm = !showEquipementForm">
+          {{ showEquipementForm ? '✕ Annuler' : '+ Ajouter' }}
+        </button>
+      </div>
+
+      <form *ngIf="showEquipementForm" [formGroup]="equipementForm" (ngSubmit)="addEquipement()" style="margin-bottom:1rem">
+        <div class="sl-form-row">
+          <div class="sl-form-group">
+            <label>Nom</label>
+            <input class="sl-input" formControlName="nom" placeholder="Nom de l'équipement">
+          </div>
+          <div class="sl-form-group">
+            <label>Quantité</label>
+            <input class="sl-input" type="number" formControlName="quantite" placeholder="Qté">
+            <span class="sl-field-error" *ngIf="equipementForm.get('quantite')?.value < 0">Quantité négative</span>
+          </div>
+        </div>
+        <div class="sl-form-actions" style="margin-top:0.5rem;padding-top:0.5rem">
+          <button type="submit" class="sl-btn sl-btn--primary sl-btn--sm" [disabled]="equipementForm.invalid">Créer</button>
+        </div>
+      </form>
+
+      <div *ngIf="!se.equipements || se.equipements.length === 0" class="sl-empty" style="padding:1.5rem">
+        <p>Aucun équipement</p>
+      </div>
+
+      <table class="sl-table" *ngIf="se.equipements && se.equipements.length > 0">
+        <thead><tr><th>Nom</th><th>Quantité</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let eq of se.equipements">
+            <td class="sl-td-title">{{ eq.nom }}</td>
+            <td><span class="sl-badge sl-badge--blue">x{{ eq.quantite }}</span></td>
+            <td>
+              <button class="sl-btn-icon sl-btn-icon--danger" (click)="deleteEquipement(eq.id!)">✕</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Reservations -->
+    <div class="sl-card">
+      <div class="sl-card-header">
+        <h3>📅 Réservations</h3>
+        <button class="sl-btn sl-btn--primary sl-btn--sm" (click)="showReservationForm = !showReservationForm">
+          {{ showReservationForm ? '✕ Annuler' : '+ Réserver' }}
+        </button>
+      </div>
+
+      <form *ngIf="showReservationForm" [formGroup]="reservationForm" (ngSubmit)="addReservation()" style="margin-bottom:1rem">
+        <div class="sl-form-row">
+          <div class="sl-form-group">
+            <label>Date début</label>
+            <input class="sl-input" type="datetime-local" formControlName="dateDebut">
+          </div>
+          <div class="sl-form-group">
+            <label>Date fin</label>
+            <input class="sl-input" type="datetime-local" formControlName="dateFin">
+          </div>
+        </div>
+        <div class="sl-form-actions" style="margin-top:0.5rem;padding-top:0.5rem">
+          <button type="submit" class="sl-btn sl-btn--primary sl-btn--sm" [disabled]="reservationForm.invalid">Créer</button>
+        </div>
+      </form>
+
+      <div *ngIf="!se.reservations || se.reservations.length === 0" class="sl-empty" style="padding:1.5rem">
+        <p>Aucune réservation</p>
+      </div>
+
+      <table class="sl-table" *ngIf="se.reservations && se.reservations.length > 0">
+        <thead><tr><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let r of se.reservations">
+            <td>{{ r.dateDebut | date:'short' }}</td>
+            <td>{{ r.dateFin | date:'short' }}</td>
+            <td><span class="sl-badge" [ngClass]="getStatutBadge(r.statut!)">{{ r.statut }}</span></td>
+            <td class="sl-actions">
+              <button *ngIf="r.statut === 'EN_ATTENTE'" class="sl-btn-icon" title="Confirmer" (click)="confirmerReservation(r.id!)">✓</button>
+              <button *ngIf="r.statut !== 'ANNULEE'" class="sl-btn-icon sl-btn-icon--danger" title="Annuler" (click)="annulerReservation(r.id!)">✕</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

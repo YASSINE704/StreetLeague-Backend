@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProgrammeService } from '../../../../core/services/programme.service';
+import { AuthService } from '../../../auth/auth.service';
 import { ProgrammeEntrainement } from '../../../../shared/models/programme-entrainement.model';
+declare var jspdf: any;
 
 @Component({
   selector: 'app-programme-list',
@@ -26,9 +28,18 @@ export class ProgrammeListComponent implements OnInit {
   page = 1;
   pageSize = 5;
 
-  constructor(private programmeService: ProgrammeService, private router: Router) {}
+  constructor(
+    private programmeService: ProgrammeService,
+    public authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void { this.loadProgrammes(); }
+
+  get isCoachOrAdmin(): boolean {
+    const role = this.authService.userRole;
+    return role === 'COACH' || role === 'ADMIN';
+  }
 
   loadProgrammes(): void {
     this.errorMessage = '';
@@ -89,6 +100,70 @@ export class ProgrammeListComponent implements OnInit {
         error: (err) => this.errorMessage = err.error?.message || 'Erreur lors de la suppression'
       });
     }
+  }
+
+  /** Export PDF — télécharge la liste des programmes avec séances et exercices */
+  exportPDF(): void {
+    import('jspdf').then(jsPDFModule => {
+      const doc = new jsPDFModule.jsPDF();
+      let y = 20;
+
+      // Title
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('StreetLeague - Programmes d\'Entraînement', 14, y);
+      y += 10;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Généré le ' + new Date().toLocaleDateString('fr-FR') + ' à ' + new Date().toLocaleTimeString('fr-FR'), 14, y);
+      y += 12;
+
+      for (const prog of this.programmes) {
+        // Check page overflow
+        if (y > 260) { doc.addPage(); y = 20; }
+
+        // Programme header
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text(prog.titre + ' [' + (prog.statut || 'N/A') + ']', 14, y);
+        y += 6;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Période : ' + (prog.dateDebut || '?') + ' → ' + (prog.dateFin || '?'), 14, y);
+        y += 5;
+        if (prog.description) {
+          doc.text('Description : ' + prog.description.substring(0, 90), 14, y);
+          y += 5;
+        }
+
+        // Séances
+        if (prog.seances && prog.seances.length > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('  Séances (' + prog.seances.length + ') :', 14, y);
+          y += 5;
+          doc.setFont('helvetica', 'normal');
+
+          for (const seance of prog.seances) {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.text('    • ' + seance.titreSeance + ' | ' + (seance.dateSeance || '') + ' | ' + (seance.intensite || '') + ' | ' + (seance.statut || ''), 14, y);
+            y += 4;
+
+            // Exercices de la séance
+            if (seance.exercices && seance.exercices.length > 0) {
+              for (const ex of seance.exercices) {
+                if (y > 275) { doc.addPage(); y = 20; }
+                doc.text('        → ' + (ex.exerciceNom || 'Exercice') + ' (' + (ex.series || 0) + 'x' + (ex.repetitions || 0) + ')', 14, y);
+                y += 4;
+              }
+            }
+          }
+        }
+        y += 8;
+      }
+
+      doc.save('StreetLeague_Programmes.pdf');
+      this.showToast('PDF téléchargé avec succès');
+    });
   }
 
   onDetails(id: number): void { this.router.navigate(['/coaching/programmes', id]); }

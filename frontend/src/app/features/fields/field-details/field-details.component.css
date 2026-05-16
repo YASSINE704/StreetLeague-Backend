@@ -1,0 +1,2 @@
+.sl-se-card { border: 1px solid var(--sl-border); border-radius: var(--sl-radius-md); margin-bottom: 0.8rem; overflow: hidden; }
+.sl-se-header { padding: 0.8rem 1.2rem; display: flex; justify-content: space-between; align-items: center; background: var(--sl-surface2); }

@@ -297,4 +297,77 @@
       <p>Le suivi sera disponible une fois la séance réalisée</p>
     </div>
   </div>
+
+  <!-- Reservations / Participants Section (Coach only) -->
+  <div class="sl-card" *ngIf="canManageExercises && seance.reservations && seance.reservations.length > 0">
+    <div class="sl-card-header">
+      <div class="seance-section-title-group">
+        <span class="seance-section-icon">👥</span>
+        <div>
+          <h2>Réservations ({{ seance.reservations.length }})</h2>
+          <p class="seance-section-subtitle">{{ getActiveReservations() }} participant(s) actif(s) / {{ seance.maxParticipants || 5 }} max</p>
+        </div>
+      </div>
+    </div>
+
+    <table class="sl-table">
+      <thead>
+        <tr>
+          <th>Sportif</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Paiement</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of seance.reservations">
+          <td class="sl-td-title">{{ r.userNom || 'Sportif #' + r.userId }}</td>
+          <td>{{ r.dateReservation }}</td>
+          <td>
+            <span class="sl-badge" [ngClass]="{
+              'sl-badge--blue': r.statut === 'RESERVEE',
+              'sl-badge--green': r.statut === 'CONFIRMEE',
+              'sl-badge--red': r.statut === 'ANNULEE'
+            }">{{ r.statut }}</span>
+          </td>
+          <td>
+            <span class="sl-badge sl-badge--orange" *ngIf="r.statutPaiement === 'EN_ATTENTE'">En attente</span>
+            <span class="sl-badge sl-badge--green" *ngIf="r.statutPaiement === 'PAYE'">Payé</span>
+            <span *ngIf="r.modePaiement === 'SUR_PLACE'">💵</span>
+            <span *ngIf="r.modePaiement === 'EN_LIGNE'">💳</span>
+          </td>
+          <td class="sl-actions">
+            <button *ngIf="r.statut === 'RESERVEE'"
+                    (click)="onConfirmReservation(r.idReservation!)"
+                    class="sl-btn sl-btn--primary sl-btn--sm" title="Confirmer">
+              ✓ Confirmer
+            </button>
+            <button *ngIf="r.statut !== 'ANNULEE'"
+                    (click)="onRejectReservation(r.idReservation!)"
+                    class="sl-btn sl-btn--danger sl-btn--sm" title="Refuser">
+              ✕ Refuser
+            </button>
+            <span *ngIf="r.statut === 'ANNULEE'" class="sl-text-muted">{{ r.motifAnnulation || 'Annulée' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sl-card" *ngIf="canManageExercises && (!seance.reservations || seance.reservations.length === 0)">
+    <div class="sl-card-header">
+      <div class="seance-section-title-group">
+        <span class="seance-section-icon">👥</span>
+        <div>
+          <h2>Réservations</h2>
+          <p class="seance-section-subtitle">Aucune réservation pour cette séance</p>
+        </div>
+      </div>
+    </div>
+    <div class="sl-empty">
+      <span class="sl-empty-icon">👥</span>
+      <p>Les sportifs pourront réserver quand la séance est en statut PREVUE</p>
+    </div>
+  </div>
 </div>

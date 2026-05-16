@@ -24,6 +24,11 @@ public class SuiviSeanceDTO {
 
         @Size(max = 500, message = "Le commentaire ne doit pas dépasser 500 caractères")
         private String commentaire;
+
+        /* Step 7 : note de 1 à 5 étoiles */
+        @Min(value = 1, message = "La note doit être entre 1 et 5")
+        @Max(value = 5, message = "La note doit être entre 1 et 5")
+        private Integer note;
     }
 
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -33,6 +38,9 @@ public class SuiviSeanceDTO {
         private Integer ressenti;
         private Integer fatigue;
         private String commentaire;
+        private Integer note;
+        private Integer auteurId;
+        private String auteurNom;
         private Integer seanceId;
     }
 }

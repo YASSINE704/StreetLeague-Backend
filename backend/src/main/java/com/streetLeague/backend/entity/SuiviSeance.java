@@ -18,7 +18,14 @@ public class SuiviSeance {
     private Integer fatigue;
     private String commentaire;
 
-    @OneToOne
+    /* Step 7 : note (1-5 étoiles) et auteur du feedback */
+    private Integer note;
+
+    @ManyToOne
+    @JoinColumn(name = "auteur_id")
+    private User auteur;
+
+    @ManyToOne
     @JoinColumn(name = "seance_id")
     private SeanceEntrainement seance;
 }

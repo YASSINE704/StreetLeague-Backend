@@ -2,6 +2,8 @@ package com.streetLeague.backend.controller;
 
 import com.streetLeague.backend.dto.ExerciceDTO;
 import com.streetLeague.backend.enums.TypeExercice;
+import com.streetLeague.backend.security.AuthenticatedUserResolver;
+import com.streetLeague.backend.service.CoachingRoleService;
 import com.streetLeague.backend.service.ExerciceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +20,20 @@ import java.util.List;
 public class ExerciceController {
 
     private final ExerciceService exerciceService;
+    private final CoachingRoleService roleService;
+    private final AuthenticatedUserResolver userResolver;
 
+    /* ── CREATE : COACH ou ADMIN uniquement ── */
     @PostMapping
-    public ResponseEntity<ExerciceDTO.Response> create(@Valid @RequestBody ExerciceDTO.Request dto) {
+    public ResponseEntity<ExerciceDTO.Response> create(
+            @RequestHeader(value = "X-User-Id", required = false) Integer headerUserId,
+            @Valid @RequestBody ExerciceDTO.Request dto) {
+        Integer userId = userResolver.resolveUserId(headerUserId);
+        roleService.requireCoachOrAdmin(userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(exerciceService.create(dto));
     }
 
+    /* ── READ : tout utilisateur authentifié ── */
     @GetMapping
     public ResponseEntity<List<ExerciceDTO.Response>> getAll() {
         return ResponseEntity.ok(exerciceService.getAll());
@@ -39,14 +49,23 @@ public class ExerciceController {
         return ResponseEntity.ok(exerciceService.getByType(type));
     }
 
+    /* ── UPDATE : COACH ou ADMIN uniquement ── */
     @PutMapping("/{id}")
     public ResponseEntity<ExerciceDTO.Response> update(
+            @RequestHeader(value = "X-User-Id", required = false) Integer headerUserId,
             @PathVariable Integer id, @Valid @RequestBody ExerciceDTO.Request dto) {
+        Integer userId = userResolver.resolveUserId(headerUserId);
+        roleService.requireCoachOrAdmin(userId);
         return ResponseEntity.ok(exerciceService.update(id, dto));
     }
 
+    /* ── DELETE : COACH ou ADMIN uniquement ── */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(
+            @RequestHeader(value = "X-User-Id", required = false) Integer headerUserId,
+            @PathVariable Integer id) {
+        Integer userId = userResolver.resolveUserId(headerUserId);
+        roleService.requireCoachOrAdmin(userId);
         exerciceService.delete(id);
         return ResponseEntity.noContent().build();
     }

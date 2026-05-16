@@ -1,0 +1,121 @@
+id,nom,type,difficulte,dureeMinutes,equipement,objectif,niveauRecommande,consigneSecurite,muscles_cibles,intensite_score,calories_estimees
+1,Pompes explosives,FORCE,INTERMEDIAIRE,10,Aucun,puissance force explosivité haut du corps,INTERMEDIAIRE,Garder le dos droit ne pas cambrer,pectoraux triceps épaules,7,85
+2,Squats sautés,FORCE,INTERMEDIAIRE,12,Aucun,puissance jambes explosivité détente,INTERMEDIAIRE,Atterrir en douceur genoux alignés avec les pieds,quadriceps fessiers mollets,7,110
+3,Gainage dynamique,FORCE,DEBUTANT,8,Tapis,stabilité core renforcement tronc,DEBUTANT,Ne pas creuser le dos respirer régulièrement,abdominaux obliques lombaires,4,45
+4,Tractions australiennes,FORCE,DEBUTANT,10,Barre basse,dos biceps tirage force,DEBUTANT,Garder le corps aligné contrôler la descente,dorsaux biceps trapèzes,5,65
+5,Sprint intervalles 30/30,CARDIO,AVANCE,15,Aucun,vitesse endurance cardio intervalles,AVANCE,Échauffement obligatoire arrêter en cas de douleur,quadriceps mollets cardio,9,180
+6,Course continue modérée,CARDIO,DEBUTANT,20,Aucun,endurance fond cardio aérobie,DEBUTANT,Maintenir une allure conversationnelle,jambes cardio poumons,4,150
+7,Burpees,CARDIO,INTERMEDIAIRE,10,Aucun,cardio complet explosivité endurance,INTERMEDIAIRE,Adapter le rythme à son niveau ne pas négliger la technique,corps complet cardio,8,130
+8,Corde à sauter,CARDIO,DEBUTANT,12,Corde à sauter,coordination cardio agilité rythme,DEBUTANT,Surface souple chaussures adaptées,mollets épaules cardio,5,120
+9,Étirements dynamiques,MOBILITE,DEBUTANT,10,Aucun,souplesse échauffement mobilité articulaire,DEBUTANT,Mouvements fluides ne pas forcer,hanches épaules dos,2,30
+10,Yoga sportif,MOBILITE,DEBUTANT,15,Tapis,récupération souplesse relaxation mobilité,DEBUTANT,Respecter ses limites ne pas forcer les postures,corps complet flexibilité,3,40
+11,Mobilité des hanches,MOBILITE,DEBUTANT,10,Aucun,hanches mobilité prévention blessures,DEBUTANT,Mouvements contrôlés pas de rebonds,hanches fléchisseurs adducteurs,2,25
+12,Foam rolling récupération,MOBILITE,DEBUTANT,12,Foam roller,récupération massage détente musculaire,DEBUTANT,Éviter les articulations rouler lentement,fascias muscles tendus,2,20
+13,Dribble slalom,TECHNIQUE,INTERMEDIAIRE,15,Ballon plots,dribble technique contrôle balle agilité,INTERMEDIAIRE,Surface plane chaussures adaptées,jambes coordination pieds,5,75
+14,Passes courtes en mouvement,TECHNIQUE,DEBUTANT,12,Ballon,passes précision technique collective,DEBUTANT,Communication entre partenaires,jambes coordination vision,4,60
+15,Tirs cadrés,TECHNIQUE,INTERMEDIAIRE,15,Ballon but,tir précision finition technique,INTERMEDIAIRE,Échauffement des jambes avant les frappes,quadriceps mollets coordination,6,80
+16,Jeu réduit 3v3,TECHNIQUE,INTERMEDIAIRE,20,Ballon chasubles,tactique décision collective jeu,INTERMEDIAIRE,Respect des règles pas de tacles dangereux,corps complet tactique,7,140
+17,Conduite de balle en vitesse,TECHNIQUE,AVANCE,12,Ballon,vitesse technique contrôle conduite,AVANCE,Terrain dégagé attention aux obstacles,jambes coordination vitesse,8,95
+18,Fentes marchées,FORCE,DEBUTANT,10,Aucun,jambes équilibre renforcement stabilité,DEBUTANT,Genou ne dépasse pas les orteils dos droit,quadriceps fessiers ischio-jambiers,5,70
+19,Planche latérale,FORCE,INTERMEDIAIRE,8,Tapis,obliques stabilité core latéral,INTERMEDIAIRE,Aligner tête épaules hanches pieds,obliques abdominaux épaules,6,50
+20,Montées de genoux rapides,CARDIO,INTERMEDIAIRE,8,Aucun,cardio vitesse coordination jambes,INTERMEDIAIRE,Garder le buste droit monter les genoux haut,quadriceps abdominaux cardio,7,100
+21,Shadow boxing,CARDIO,INTERMEDIAIRE,10,Aucun,cardio coordination réflexes vitesse,INTERMEDIAIRE,Ne pas hyperextendre les coudes,épaules bras cardio,7,110
+22,Étirements ischio-jambiers,MOBILITE,DEBUTANT,8,Aucun,souplesse ischio-jambiers prévention,DEBUTANT,Ne pas rebondir maintenir la position,ischio-jambiers mollets,2,20
+23,Rotation thoracique,MOBILITE,DEBUTANT,8,Aucun,mobilité thoracique dos rotation,DEBUTANT,Mouvement lent et contrôlé,dos thorax épaules,2,18
+24,Jonglage ballon,TECHNIQUE,DEBUTANT,10,Ballon,contrôle balle toucher technique,DEBUTANT,Commencer avec peu de touches,pieds coordination équilibre,3,40
+25,Exercice de pressing,TECHNIQUE,AVANCE,15,Ballon chasubles,pressing collectif récupération balle,AVANCE,Communication coordination équipe,jambes cardio tactique,8,130
+26,Pompes diamant,FORCE,AVANCE,10,Aucun,triceps force poussée,AVANCE,Ne pas écarter les coudes garder le corps gainé,triceps pectoraux épaules,8,90
+27,Squat bulgare,FORCE,AVANCE,12,Banc,jambes unilatéral équilibre force,AVANCE,Genou avant ne dépasse pas les orteils,quadriceps fessiers stabilisateurs,8,100
+28,HIIT tabata,CARDIO,AVANCE,20,Aucun,cardio intensif brûlage calories endurance,AVANCE,Respecter les temps de repos ne pas dépasser ses limites,corps complet cardio,10,220
+29,Vélo stationnaire intervalles,CARDIO,INTERMEDIAIRE,20,Vélo,cardio jambes endurance intervalles,INTERMEDIAIRE,Ajuster la résistance à son niveau,quadriceps mollets cardio,6,160
+30,Étirements quadriceps,MOBILITE,DEBUTANT,6,Aucun,souplesse quadriceps récupération,DEBUTANT,Tenir un support si besoin d équilibre,quadriceps fléchisseurs,2,15
+31,Pont fessier,FORCE,DEBUTANT,8,Tapis,fessiers renforcement stabilité bassin,DEBUTANT,Serrer les fessiers en haut du mouvement,fessiers ischio-jambiers lombaires,4,50
+32,Course en côte,CARDIO,AVANCE,15,Aucun,puissance jambes cardio montée,AVANCE,Échauffement progressif attention aux chevilles,mollets quadriceps cardio,9,170
+33,Exercice de centres,TECHNIQUE,INTERMEDIAIRE,12,Ballon,centres précision ailes technique,INTERMEDIAIRE,Varier les trajectoires et les pieds,jambes coordination vision,5,70
+34,Contrôle orienté,TECHNIQUE,INTERMEDIAIRE,10,Ballon,premier toucher orientation technique,INTERMEDIAIRE,Regarder avant de recevoir le ballon,pieds coordination vision,4,50
+35,Dips sur banc,FORCE,INTERMEDIAIRE,10,Banc,triceps épaules poussée,INTERMEDIAIRE,Ne pas descendre trop bas protéger les épaules,triceps épaules pectoraux,6,75
+36,Pompes inclinées,FORCE,DEBUTANT,8,Banc,pectoraux force poussée débutant,DEBUTANT,Garder le corps aligné descendre lentement,pectoraux triceps épaules,4,55
+37,Pompes déclinées,FORCE,AVANCE,10,Banc,pectoraux supérieurs force avancé,AVANCE,Contrôler la descente ne pas arrondir le dos,pectoraux supérieurs épaules triceps,8,85
+38,Planche frontale,FORCE,DEBUTANT,6,Tapis,core stabilité gainage isométrique,DEBUTANT,Ne pas lever les fesses respirer normalement,abdominaux transverse lombaires,4,35
+39,Mountain climbers,CARDIO,INTERMEDIAIRE,8,Aucun,cardio core coordination vitesse,INTERMEDIAIRE,Garder les hanches basses rythme régulier,abdominaux quadriceps cardio,7,95
+40,Jumping jacks,CARDIO,DEBUTANT,8,Aucun,échauffement cardio coordination,DEBUTANT,Atterrir sur la pointe des pieds,corps complet cardio coordination,4,70
+41,Box jumps,FORCE,AVANCE,10,Box pliométrique,puissance jambes explosivité détente verticale,AVANCE,Atterrir en douceur genoux fléchis,quadriceps fessiers mollets,9,120
+42,Kettlebell swing,FORCE,INTERMEDIAIRE,10,Kettlebell,hanches puissance postérieur explosivité,INTERMEDIAIRE,Pousser les hanches en arrière dos neutre,fessiers ischio-jambiers lombaires,7,100
+43,Deadlift roumain,FORCE,INTERMEDIAIRE,12,Haltères,ischio-jambiers fessiers force postérieur,INTERMEDIAIRE,Dos neutre descendre jusqu aux genoux,ischio-jambiers fessiers lombaires,7,90
+44,Rowing haltère,FORCE,INTERMEDIAIRE,10,Haltères,dos tirage force unilatéral,INTERMEDIAIRE,Coude proche du corps dos neutre,dorsaux rhomboïdes biceps,6,75
+45,Développé militaire,FORCE,INTERMEDIAIRE,10,Haltères,épaules force poussée verticale,INTERMEDIAIRE,Ne pas cambrer le dos contrôler la descente,deltoïdes triceps trapèzes,7,80
+46,Curl biceps,FORCE,DEBUTANT,8,Haltères,biceps force isolation bras,DEBUTANT,Ne pas balancer le corps coudes fixes,biceps avant-bras,4,45
+47,Extensions triceps,FORCE,DEBUTANT,8,Haltères,triceps force isolation bras,DEBUTANT,Coudes fixes ne pas descendre trop bas,triceps,4,40
+48,Crunchs abdominaux,FORCE,DEBUTANT,8,Tapis,abdominaux renforcement core,DEBUTANT,Ne pas tirer sur la nuque regard vers le plafond,abdominaux supérieurs,3,35
+49,Russian twist,FORCE,INTERMEDIAIRE,8,Médecine ball,obliques rotation core,INTERMEDIAIRE,Dos à 45 degrés pieds décollés du sol,obliques abdominaux,6,55
+50,Superman dorsal,FORCE,DEBUTANT,8,Tapis,lombaires renforcement dos postérieur,DEBUTANT,Lever bras et jambes simultanément sans à-coups,lombaires fessiers trapèzes,3,30
+51,Fartlek course,CARDIO,INTERMEDIAIRE,25,Aucun,endurance vitesse variation rythme,INTERMEDIAIRE,Écouter son corps varier les allures,jambes cardio poumons,7,200
+52,Course fractionnée 200m,CARDIO,AVANCE,20,Aucun,vitesse puissance anaérobie sprint,AVANCE,Échauffement complet récupération entre séries,quadriceps mollets cardio,9,210
+53,Marche rapide,CARDIO,DEBUTANT,30,Aucun,endurance base cardio récupération active,DEBUTANT,Posture droite bras balancés,jambes cardio,3,120
+54,Vélo extérieur,CARDIO,INTERMEDIAIRE,30,Vélo,endurance jambes cardio plein air,INTERMEDIAIRE,Casque obligatoire respecter le code de la route,quadriceps mollets cardio,6,250
+55,Natation crawl,CARDIO,INTERMEDIAIRE,25,Piscine,endurance complet cardio aquatique,INTERMEDIAIRE,Respiration latérale régulière,corps complet cardio,7,280
+56,Rameur machine,CARDIO,INTERMEDIAIRE,15,Rameur,cardio complet dos jambes endurance,INTERMEDIAIRE,Pousser avec les jambes tirer avec le dos,dorsaux quadriceps cardio,7,180
+57,Step-ups sur banc,CARDIO,DEBUTANT,10,Banc,jambes cardio coordination montée,DEBUTANT,Alterner les jambes garder le dos droit,quadriceps fessiers mollets,5,80
+58,Escaliers rapides,CARDIO,INTERMEDIAIRE,10,Escaliers,cardio jambes puissance montée,INTERMEDIAIRE,Utiliser la rampe si besoin regarder devant,mollets quadriceps cardio,7,110
+59,Shuttle runs navettes,CARDIO,AVANCE,10,Cônes,agilité vitesse changement direction,AVANCE,Décélérer avant le virage protéger les genoux,quadriceps mollets agilité,9,130
+60,Battle ropes,CARDIO,AVANCE,8,Cordes ondulatoires,cardio bras épaules puissance,AVANCE,Genoux fléchis dos neutre amplitude maximale,épaules bras cardio,9,120
+61,Étirements épaules,MOBILITE,DEBUTANT,8,Aucun,souplesse épaules prévention mobilité,DEBUTANT,Maintenir 20 secondes chaque position,épaules deltoïdes rotateurs,2,15
+62,Étirements dos chat-vache,MOBILITE,DEBUTANT,6,Tapis,mobilité colonne vertébrale dos,DEBUTANT,Synchroniser avec la respiration,colonne vertébrale lombaires,2,12
+63,Ouverture pectorale,MOBILITE,DEBUTANT,6,Aucun,souplesse pectoraux posture,DEBUTANT,Ne pas forcer maintenir la position,pectoraux épaules,2,10
+64,Étirements mollets,MOBILITE,DEBUTANT,6,Aucun,souplesse mollets prévention crampes,DEBUTANT,Talon au sol jambe tendue,mollets soléaire,2,10
+65,Mobilité cheville,MOBILITE,DEBUTANT,8,Aucun,mobilité cheville prévention entorse,DEBUTANT,Cercles lents dans les deux sens,chevilles tibial péroniers,2,12
+66,Étirements adducteurs,MOBILITE,DEBUTANT,8,Tapis,souplesse adducteurs intérieur cuisses,DEBUTANT,Descendre progressivement ne pas forcer,adducteurs aine,2,15
+67,Mobilité poignets,MOBILITE,DEBUTANT,5,Aucun,mobilité poignets prévention tendinite,DEBUTANT,Mouvements doux et progressifs,poignets avant-bras,1,8
+68,Stretching global PNF,MOBILITE,INTERMEDIAIRE,15,Tapis,souplesse avancée PNF contraction relâchement,INTERMEDIAIRE,Contracter 5 secondes puis relâcher et étirer,corps complet flexibilité,4,35
+69,Rouleau lombaire,MOBILITE,DEBUTANT,8,Foam roller,détente lombaires récupération dos,DEBUTANT,Rouler lentement éviter la colonne directement,lombaires fascias,2,15
+70,Étirements psoas,MOBILITE,INTERMEDIAIRE,8,Tapis,souplesse psoas fléchisseurs hanches,INTERMEDIAIRE,Bassin en rétroversion sentir l étirement devant,psoas fléchisseurs hanches,3,18
+71,Passe longue précision,TECHNIQUE,INTERMEDIAIRE,12,Ballon,passes longues précision vision jeu,INTERMEDIAIRE,Pied d appui stable viser la cible,jambes coordination vision,5,65
+72,Tête plongeante,TECHNIQUE,AVANCE,10,Ballon,jeu de tête attaque finition aérienne,AVANCE,Protéger la nuque fermer les yeux au contact,cou trapèzes coordination,7,70
+73,Dribble crochet intérieur,TECHNIQUE,INTERMEDIAIRE,10,Ballon plots,dribble feinte crochet technique,INTERMEDIAIRE,Accélérer après le crochet,jambes coordination pieds,5,60
+74,Contrôle poitrine,TECHNIQUE,DEBUTANT,8,Ballon,contrôle aérien poitrine technique,DEBUTANT,Amortir le ballon reculer légèrement,torse coordination,3,35
+75,Frappe de volée,TECHNIQUE,AVANCE,12,Ballon but,frappe volée technique finition,AVANCE,Timing du saut position du corps,quadriceps coordination,8,85
+76,Jeu de position rondo,TECHNIQUE,INTERMEDIAIRE,15,Ballon,conservation possession tactique collective,INTERMEDIAIRE,Déplacements constants communication,jambes coordination tactique,6,90
+77,Exercice 1 contre 1,TECHNIQUE,INTERMEDIAIRE,10,Ballon cônes,duel attaque défense technique individuelle,INTERMEDIAIRE,Fair-play pas de contacts dangereux,jambes agilité coordination,6,80
+78,Circuit de passes triangulaires,TECHNIQUE,DEBUTANT,12,Ballon cônes,passes triangulation mouvement collectif,DEBUTANT,Appel de balle après la passe,jambes coordination vision,4,55
+79,Tir en pivot,TECHNIQUE,AVANCE,10,Ballon but,pivot tir dos au but technique,AVANCE,Protéger le ballon pivoter rapidement,quadriceps coordination équilibre,7,75
+80,Exercice de remise,TECHNIQUE,DEBUTANT,10,Ballon,remise une touche jeu rapide,DEBUTANT,Orienter le corps avant de recevoir,pieds coordination vision,3,45
+81,Pompes claquées,FORCE,AVANCE,8,Aucun,puissance explosive pectoraux pliométrie,AVANCE,Maîtriser les pompes classiques avant,pectoraux triceps épaules,9,95
+82,Pistol squat,FORCE,AVANCE,10,Aucun,force unilatérale équilibre jambes,AVANCE,Descendre lentement contrôler le mouvement,quadriceps fessiers stabilisateurs,9,90
+83,Tirage élastique,FORCE,DEBUTANT,10,Élastique,dos tirage renforcement débutant,DEBUTANT,Contrôler le retour de l élastique,dorsaux rhomboïdes biceps,4,50
+84,Élévations latérales,FORCE,DEBUTANT,8,Haltères légers,épaules isolation deltoïdes latéraux,DEBUTANT,Ne pas monter au-dessus des épaules,deltoïdes latéraux trapèzes,4,40
+85,Soulevé de terre,FORCE,AVANCE,12,Barre,force globale postérieur puissance,AVANCE,Dos neutre pousser le sol avec les pieds,ischio-jambiers fessiers dorsaux,9,130
+86,Développé couché,FORCE,INTERMEDIAIRE,12,Banc barre,pectoraux force poussée horizontale,INTERMEDIAIRE,Pieds au sol omoplates serrées,pectoraux triceps deltoïdes,7,95
+87,Pull-ups tractions,FORCE,AVANCE,10,Barre de traction,dos biceps force tirage vertical,AVANCE,Amplitude complète pas de kipping,dorsaux biceps avant-bras,8,85
+88,Leg press machine,FORCE,INTERMEDIAIRE,12,Machine leg press,quadriceps fessiers force jambes,INTERMEDIAIRE,Ne pas verrouiller les genoux en haut,quadriceps fessiers ischio-jambiers,7,100
+89,Abdos vélo,FORCE,INTERMEDIAIRE,8,Tapis,abdominaux obliques rotation,INTERMEDIAIRE,Toucher coude genou opposé,abdominaux obliques,6,55
+90,Farmer walk,FORCE,INTERMEDIAIRE,8,Haltères lourds,grip force fonctionnelle stabilité,INTERMEDIAIRE,Dos droit épaules en arrière pas rapides,avant-bras trapèzes core,6,70
+91,Sprint 100m,CARDIO,AVANCE,8,Aucun,vitesse maximale sprint puissance,AVANCE,Échauffement complet 15 minutes minimum,quadriceps ischio-jambiers mollets,10,100
+92,Marche nordique,CARDIO,DEBUTANT,30,Bâtons de marche,endurance douce cardio plein air,DEBUTANT,Posture droite bâtons synchronisés,corps complet cardio,3,140
+93,Aquagym,CARDIO,DEBUTANT,30,Piscine,cardio doux articulations aquatique,DEBUTANT,Rester dans la zone de confort,corps complet cardio,3,130
+94,Zumba fitness,CARDIO,INTERMEDIAIRE,30,Aucun,cardio danse coordination rythme,INTERMEDIAIRE,Suivre le rythme adapter les mouvements,corps complet cardio coordination,6,250
+95,Kickboxing cardio,CARDIO,AVANCE,20,Sac de frappe,cardio combat puissance coordination,AVANCE,Protéger les poignets technique correcte,bras jambes cardio,9,230
+96,Ski de fond,CARDIO,INTERMEDIAIRE,30,Skis,endurance complet cardio hiver,INTERMEDIAIRE,Technique de glisse équilibre,corps complet cardio,7,300
+97,Corde ondulatoire alternée,CARDIO,INTERMEDIAIRE,8,Cordes ondulatoires,cardio bras endurance musculaire,INTERMEDIAIRE,Genoux fléchis amplitude régulière,épaules bras cardio,7,100
+98,Burpees avec traction,CARDIO,AVANCE,10,Barre de traction,cardio complet force explosivité,AVANCE,Maîtriser burpees et tractions séparément,corps complet cardio force,10,160
+99,Mobilité cervicale,MOBILITE,DEBUTANT,5,Aucun,mobilité cou prévention tensions,DEBUTANT,Mouvements très lents pas de rotation forcée,cou trapèzes,1,8
+100,Étirements fessiers piriforme,MOBILITE,DEBUTANT,8,Tapis,souplesse fessiers sciatique prévention,DEBUTANT,Maintenir 30 secondes chaque côté,fessiers piriforme,2,12
+101,Posture de l arbre yoga,MOBILITE,INTERMEDIAIRE,10,Tapis,équilibre concentration stabilité,INTERMEDIAIRE,Fixer un point devant soi,jambes core équilibre,3,25
+102,Étirements bandelette IT,MOBILITE,INTERMEDIAIRE,8,Foam roller,souplesse bandelette genou prévention,INTERMEDIAIRE,Rouler lentement zone sensible,bandelette ilio-tibiale,3,15
+103,Mobilité scapulaire,MOBILITE,INTERMEDIAIRE,8,Aucun,mobilité omoplates posture épaules,INTERMEDIAIRE,Rétracter et protracter les omoplates,rhomboïdes trapèzes serratus,3,15
+104,Étirements complets post-entraînement,MOBILITE,DEBUTANT,15,Tapis,récupération complète souplesse globale,DEBUTANT,Maintenir chaque position 20-30 secondes,corps complet,2,30
+105,Dribble entre les jambes,TECHNIQUE,AVANCE,10,Ballon,dribble avancé feinte technique,AVANCE,Vitesse progressive maîtrise avant accélération,jambes coordination pieds,7,60
+106,Tir enroulé,TECHNIQUE,AVANCE,12,Ballon but,tir effet courbe technique finition,AVANCE,Frapper avec l intérieur du pied effet latéral,quadriceps coordination pied,8,80
+107,Exercice de dédoublement,TECHNIQUE,INTERMEDIAIRE,12,Ballon cônes,mouvement collectif appel course,INTERMEDIAIRE,Timing de la course communication,jambes coordination tactique,6,75
+108,Jeu aérien tête défensive,TECHNIQUE,INTERMEDIAIRE,10,Ballon,jeu de tête défense dégagement,INTERMEDIAIRE,Sauter avec les bras le long du corps,cou trapèzes jambes,5,60
+109,Exercice de transition rapide,TECHNIQUE,AVANCE,15,Ballon chasubles,transition attaque défense vitesse,AVANCE,Réactivité immédiate après perte de balle,corps complet tactique cardio,8,120
+110,Passe en profondeur,TECHNIQUE,INTERMEDIAIRE,10,Ballon,passe longue profondeur vision,INTERMEDIAIRE,Lever la tête avant la passe,jambes coordination vision,5,55
+111,Pompes pike,FORCE,INTERMEDIAIRE,8,Aucun,épaules force poussée verticale poids du corps,INTERMEDIAIRE,Hanches hautes tête entre les bras,deltoïdes triceps trapèzes,7,65
+112,Hollow body hold,FORCE,INTERMEDIAIRE,6,Tapis,core stabilité anti-extension,INTERMEDIAIRE,Bas du dos collé au sol,abdominaux transverse,6,40
+113,Bear crawl,FORCE,INTERMEDIAIRE,8,Aucun,coordination force fonctionnelle déplacement,INTERMEDIAIRE,Genoux à 2cm du sol dos plat,épaules core quadriceps,6,70
+114,Handstand wall hold,FORCE,AVANCE,6,Mur,équilibre force épaules inversion,AVANCE,Commencer face au mur corps gainé,deltoïdes trapèzes core,8,45
+115,Muscle-up,FORCE,AVANCE,10,Barre de traction,force complète tirage poussée transition,AVANCE,Maîtriser tractions et dips avant,dorsaux pectoraux triceps,10,100
+116,Thrusters,FORCE,AVANCE,10,Haltères,force complète squat poussée puissance,AVANCE,Squat complet puis poussée explosive,quadriceps épaules triceps,9,120
+117,Marche en canard,CARDIO,INTERMEDIAIRE,6,Aucun,jambes mobilité cardio fonctionnel,INTERMEDIAIRE,Rester bas cuisses parallèles au sol,quadriceps fessiers adducteurs,7,60
+118,Jumping lunges,CARDIO,AVANCE,8,Aucun,puissance jambes cardio pliométrie,AVANCE,Atterrir en douceur alterner les jambes,quadriceps fessiers mollets,9,110
+119,Skater jumps,CARDIO,INTERMEDIAIRE,8,Aucun,agilité latérale cardio équilibre,INTERMEDIAIRE,Atterrir sur un pied stabiliser,adducteurs fessiers mollets,7,90
+120,High knees sprint sur place,CARDIO,INTERMEDIAIRE,6,Aucun,cardio vitesse coordination échauffement,INTERMEDIAIRE,Monter les genoux au-dessus des hanches,quadriceps abdominaux cardio,7,80

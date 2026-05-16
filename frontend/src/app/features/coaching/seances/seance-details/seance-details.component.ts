@@ -237,6 +237,57 @@ export class SeanceDetailsComponent implements OnInit {
     this.router.navigate(['/coaching/suivis/create', this.seance.idSeance]);
   }
 
+  /** Confirmer une réservation (coach) */
+  onConfirmReservation(reservationId: number): void {
+    this.errorMessage = '';
+    import('../../../../core/services/reservation.service').then(() => {
+      // Use inline HTTP call since we already have HttpClient via exerciceService
+    });
+    // Direct HTTP call
+    const http = (this.exerciceService as any).http || (this.seanceService as any).http;
+    // Simpler: use the injected services pattern
+    this.confirmOrRejectReservation(reservationId, 'confirmer');
+  }
+
+  /** Refuser une réservation (coach) */
+  onRejectReservation(reservationId: number): void {
+    if (confirm('Refuser cette réservation ?')) {
+      this.confirmOrRejectReservation(reservationId, 'annuler');
+    }
+  }
+
+  private confirmOrRejectReservation(id: number, action: 'confirmer' | 'annuler'): void {
+    const url = `http://localhost:18080/api/reservations-seances/${id}/${action}`;
+    const body = action === 'annuler' ? { motif: 'Refusée par le coach' } : {};
+
+    import('@angular/common/http').then(() => {});
+    // Use fetch as a simple approach since ReservationService isn't injected here
+    const token = localStorage.getItem('streetleague-jwt');
+    const user = JSON.parse(localStorage.getItem('sl_user') || '{}');
+
+    fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'X-User-Id': String(user.id || '')
+      },
+      body: JSON.stringify(body)
+    }).then(res => {
+      if (res.ok) {
+        this.showSuccess(action === 'confirmer' ? 'Réservation confirmée' : 'Réservation refusée');
+        this.loadSeance();
+      } else {
+        res.json().then(err => this.errorMessage = err.message || 'Erreur');
+      }
+    }).catch(() => this.errorMessage = 'Erreur réseau');
+  }
+
+  getActiveReservations(): number {
+    if (!this.seance?.reservations) return 0;
+    return this.seance.reservations.filter(r => r.statut !== 'ANNULEE').length;
+  }
+
   onBack(): void {
     if (this.seance?.programmeId) {
       this.router.navigate(['/coaching/programmes', this.seance.programmeId]);

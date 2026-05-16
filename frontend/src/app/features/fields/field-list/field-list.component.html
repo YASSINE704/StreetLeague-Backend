@@ -1,1 +1,52 @@
-<p>field-list works!</p>
+<div class="sl-card">
+  <div class="sl-card-header">
+    <h2>Gestion des Endroits</h2>
+    <a routerLink="create" class="sl-btn sl-btn--primary sl-btn--sm">+ Ajouter</a>
+  </div>
+
+  <div class="sl-toolbar">
+    <div class="sl-search-box">
+      <span class="sl-search-icon">🔍</span>
+      <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+    </div>
+    <select class="sl-filter-select" [(ngModel)]="typeFilter" (change)="applyFilters()">
+      <option value="">Tous les types</option>
+      <option *ngFor="let t of types" [value]="t">{{ getTypeLabel(t) }}</option>
+    </select>
+    <select class="sl-filter-select" [(ngModel)]="villeFilter" (change)="applyFilters()">
+      <option value="">Toutes les villes</option>
+      <option *ngFor="let v of villes" [value]="v">{{ v }}</option>
+    </select>
+    <select class="sl-filter-select" [(ngModel)]="statutFilter" (change)="applyFilters()">
+      <option value="">Tous les statuts</option>
+      <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+    </select>
+    <button class="sl-btn-icon" (click)="clearFilters()" *ngIf="searchTerm || typeFilter || villeFilter || statutFilter">✕</button>
+  </div>
+
+  <div *ngIf="loading" class="sl-empty"><p>Chargement...</p></div>
+  <div *ngIf="!loading && filtered.length === 0" class="sl-empty">
+    <span class="sl-empty-icon">🏟️</span>
+    <p>Aucun endroit trouvé</p>
+  </div>
+
+  <table class="sl-table" *ngIf="!loading && filtered.length > 0">
+    <thead>
+      <tr><th>Nom</th><th>Type</th><th>Ville</th><th>Capacité</th><th>Statut</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let endroit of filtered">
+        <td class="sl-td-title">{{ endroit.nom }}</td>
+        <td>{{ getTypeLabel(endroit.type) }}</td>
+        <td>{{ endroit.ville }}</td>
+        <td>{{ endroit.capacite }}</td>
+        <td><span class="sl-badge" [ngClass]="getStatutBadge(endroit.statut)">{{ endroit.statut }}</span></td>
+        <td class="sl-actions">
+          <a [routerLink]="[endroit.id]" class="sl-btn-icon" title="Détails">👁</a>
+          <a [routerLink]="[endroit.id, 'edit']" class="sl-btn-icon" title="Modifier">✏️</a>
+          <button class="sl-btn-icon sl-btn-icon--danger" (click)="deleteEndroit(endroit.id!)" title="Supprimer">🗑</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

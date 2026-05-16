@@ -19,9 +19,11 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
 
   roles: { value: UserRole; label: string; desc: string }[] = [
-    { value: 'JOUEUR', label: 'Player', desc: 'Join teams and play matches' },
-    { value: 'COACH', label: 'Coach', desc: 'Manage trainings and programs' },
-    { value: 'SPORTIF', label: 'Sportif', desc: 'Track training progress' }
+    { value: 'JOUEUR', label: '⚽ Player', desc: 'Join teams and play matches' },
+    { value: 'COACH', label: '🏋️ Coach', desc: 'Manage trainings and programs' },
+    { value: 'SPORTIF', label: '🏃 Sportif', desc: 'Track training progress' },
+    { value: 'TERRAIN_MANAGER', label: '🏟️ Terrain Manager', desc: 'Manage fields and bookings' },
+    { value: 'ADMIN', label: '👑 Admin', desc: 'Full platform administration' }
   ];
 
   constructor(
