@@ -1,0 +1,96 @@
+<div class="sl-page">
+  <div class="sl-toast" *ngIf="successMessage">&#x2705; {{ successMessage }}</div>
+
+  <div class="sl-stats-row">
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--blue"><span class="material-icons">inventory_2</span></div>
+      <div>
+        <span class="sl-stat-value">{{ pageResult?.totalElements || 0 }}</span>
+        <span class="sl-stat-label">Total Produits</span>
+      </div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--green"><span class="material-icons">trending_up</span></div>
+      <div>
+        <span class="sl-stat-value">{{ averagePrice | number:'1.0-0' }} DH</span>
+        <span class="sl-stat-label">Prix Moyen (page)</span>
+      </div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--violet"><span class="material-icons">category</span></div>
+      <div>
+        <span class="sl-stat-value">{{ categories.length }}</span>
+        <span class="sl-stat-label">Catégories (page)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <h2>Marketplace - Produits</h2>
+      <button (click)="onCreate()" class="sl-btn sl-btn--primary">+ Nouveau Produit</button>
+    </div>
+
+    <div class="sl-toolbar">
+      <div class="sl-search-box">
+        <span class="sl-search-icon"><span class="material-icons">search</span></span>
+        <input type="text" placeholder="Rechercher par nom ou description..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
+      </div>
+      <select class="sl-filter-select" [(ngModel)]="filterCategory" (change)="onFilterChange()">
+        <option value="">Toutes catégories</option>
+        <option *ngFor="let cat of categoriesList" [value]="cat">{{ cat }}</option>
+      </select>
+      <div class="sl-search-box" style="max-width:150px">
+        <input type="number" placeholder="Prix max" [(ngModel)]="maxPrice" (input)="onFilterChange()">
+      </div>
+      <div class="sl-search-box sl-search-box--ai">
+        <input type="text" placeholder="Recherche intelligente..." [(ngModel)]="aiSearchQuery" (keyup.enter)="smartSearch()">
+        <button (click)="smartSearch()" class="sl-btn sl-btn--ai" [disabled]="isSearchingAi || !aiSearchQuery.trim()">
+          {{ isSearchingAi ? '...' : 'IA' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <!-- Product Cards Grid -->
+    <div class="product-grid" *ngIf="pageResult && pageResult.content.length > 0">
+      <div class="product-card" *ngFor="let product of pageResult.content" (click)="onDetails(product.id!)">
+        <div class="product-card-img" *ngIf="getImageUrl(product)">
+          <img [src]="getImageUrl(product)" [alt]="product.name" />
+        </div>
+        <div class="product-card-header">
+          <span class="product-badge" [style.background]="getCategoryColor(product.category)">{{ product.category }}</span>
+          <div class="product-card-actions">
+            <button (click)="onEdit(product.id!); $event.stopPropagation()" class="sl-btn-icon" title="Modifier"><span class="material-icons">edit</span></button>
+            <button (click)="onDelete(product.id!); $event.stopPropagation()" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer"><span class="material-icons">delete</span></button>
+          </div>
+        </div>
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-desc">{{ product.description }}</p>
+        <div class="product-meta-row">
+          <span class="product-subcat" *ngIf="product.subcategory">{{ product.subcategory }}</span>
+          <span class="product-size" *ngIf="getSizeInfo(product)">{{ getSizeInfo(product) }}</span>
+        </div>
+        <div class="product-footer">
+          <span class="product-price">{{ product.price }} DH</span>
+          <span class="product-seller">{{ getUserName(product) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sl-pagination" *ngIf="pageResult && pageResult.totalPages > 1">
+      <button class="sl-page-btn" [disabled]="pageResult.first" (click)="goToPage(page - 1)">&larr; Précédent</button>
+      <span class="sl-page-info">Page {{ pageResult.number + 1 }} / {{ pageResult.totalPages }}</span>
+      <button class="sl-page-btn" [disabled]="pageResult.last" (click)="goToPage(page + 1)">Suivant &rarr;</button>
+    </div>
+
+    <div class="sl-empty" *ngIf="pageResult && pageResult.content.length === 0 && pageResult.totalElements > 0">
+      <p>Aucun résultat pour ces filtres</p>
+    </div>
+    <div class="sl-empty" *ngIf="pageResult && pageResult.totalElements === 0 && !errorMessage">
+      <span class="sl-empty-icon"><span class="material-icons" style="font-size:2.5rem">inventory_2</span></span>
+      <p>Aucun produit trouvé</p>
+    </div>
+  </div>
+</div>

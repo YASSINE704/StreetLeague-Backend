@@ -1,0 +1,91 @@
+<div class="sl-page sl-page--narrow">
+  <div class="sl-toast" *ngIf="successMessage">&#x2705; {{ successMessage }}</div>
+  <div class="sl-error-banner" *ngIf="errorMessage"><span class="material-icons">error</span> {{ errorMessage }}</div>
+
+  <ng-container *ngIf="post && !isLoadingPost">
+    <!-- Post Card -->
+    <div class="sl-card detail-post-card">
+      <div class="post-card-header">
+        <div class="post-avatar" [style.background]="getAvatarColor(post.user)">{{ getInitials(post.user) }}</div>
+        <div class="post-card-meta">
+          <span class="post-card-author">{{ getUserName(post.user) }}</span>
+          <span class="post-card-time">{{ getTimeAgo(post.createdAt!) }} &middot; {{ post.createdAt | date:'dd MMM yyyy' }}</span>
+        </div>
+      </div>
+
+      <h2 class="detail-title">{{ post.title }}</h2>
+      <p class="detail-content">{{ post.content }}</p>
+
+      <div class="post-card-tags" *ngIf="post.tags && post.tags.length > 0">
+        <span class="sl-badge sl-badge--blue" *ngFor="let tag of post.tags">{{ tag }}</span>
+      </div>
+
+      <div class="detail-actions">
+        <button (click)="onEdit()" class="action-btn action-btn--edit"><span class="material-icons">edit</span> Modifier</button>
+        <button (click)="onBack()" class="action-btn action-btn--back"><span class="material-icons">arrow_back</span> Retour</button>
+      </div>
+    </div>
+
+    <!-- Comments Card -->
+    <div class="sl-card comments-card">
+      <div class="sl-card-header">
+        <h3><span class="material-icons" style="vertical-align:middle;margin-right:0.3rem">forum</span> Commentaires ({{ comments.length }})</h3>
+      </div>
+
+      <div class="comments-list" *ngIf="comments.length > 0">
+        <div class="comment-item" *ngFor="let comment of comments">
+          <div class="comment-avatar" [style.background]="getAvatarColor(comment.user)">{{ getInitials(comment.user) }}</div>
+          <div class="comment-body">
+            <div class="comment-header">
+              <span class="comment-author">{{ getUserName(comment.user) }}</span>
+              <span class="comment-time">{{ getTimeAgo(comment.createdAt!) }}</span>
+            </div>
+            <p class="comment-text">{{ comment.content }}</p>
+          </div>
+          <button (click)="deleteComment(comment.id!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer"><span class="material-icons">delete</span></button>
+        </div>
+      </div>
+
+      <div class="sl-empty" *ngIf="comments.length === 0">
+        <span class="sl-empty-icon"><span class="material-icons" style="font-size:2.5rem">chat_bubble_outline</span></span>
+        <p>Aucun commentaire pour le moment. Soyez le premier à commenter !</p>
+      </div>
+
+      <!-- Comment Form -->
+      <div class="comment-form">
+        <div class="sl-error-banner" *ngIf="commentError"><span class="material-icons">warning</span> {{ commentError }}</div>
+
+        <div class="field-group">
+          <div class="input-wrap">
+            <span class="input-icon"><span class="material-icons">chat_bubble_outline</span></span>
+            <textarea [(ngModel)]="newComment" name="newComment" placeholder="Écrivez votre commentaire..." rows="3" class="auth-textarea"></textarea>
+          </div>
+        </div>
+
+        <div class="comment-actions">
+          <button (click)="addComment()" class="submit-btn" [disabled]="!newComment.trim() || isSendingComment">
+            <span class="btn-text" *ngIf="!isSendingComment"><span class="material-icons">send</span> Commenter</span>
+            <span class="btn-loader" *ngIf="isSendingComment"></span>
+          </button>
+          <button (click)="generateAiReply()" class="sl-btn sl-btn--ai" [disabled]="isLoadingAi">
+            <span class="material-icons">auto_awesome</span>
+            {{ isLoadingAi ? 'Génération...' : 'Suggérer une réponse IA' }}
+          </button>
+        </div>
+
+        <div class="ai-reply" *ngIf="aiReply">
+          <div class="ai-reply-header">
+            <span><span class="material-icons">auto_awesome</span> Suggestion IA</span>
+            <button (click)="useAiReply()" class="sl-btn sl-btn--small"><span class="material-icons">content_paste</span> Utiliser ce texte</button>
+          </div>
+          <p class="ai-reply-content">{{ aiReply }}</p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Loading State -->
+  <div class="loader-container" *ngIf="isLoadingPost">
+    <span class="btn-loader"></span>
+  </div>
+</div>

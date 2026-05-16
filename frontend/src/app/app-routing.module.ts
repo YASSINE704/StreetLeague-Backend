@@ -32,6 +32,14 @@ const routes: Routes = [
     path: 'coaching',
     loadChildren: () => import('./features/coaching/coaching.module').then(m => m.CoachingModule)
   },
+  {
+    path: 'forum',
+    loadChildren: () => import('./features/forum/forum.module').then(m => m.ForumModule)
+  },
+  {
+    path: 'marketplace',
+    loadChildren: () => import('./features/marketplace/marketplace.module').then(m => m.MarketplaceModule)
+  },
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
   { path: '**', redirectTo: 'auth/login' }
 ];

@@ -40,6 +40,8 @@ public class DemoDataLoader {
             Terrain terrain = Terrain.builder()
                     .nom("Central Field - Downtown")
                     .typeSport(TypeSport.FOOTBALL)
+                    .location("Downtown")
+                    .address("123 Main Street, Downtown")
                     .build();
             terrain = terrainRepository.save(terrain);
             System.out.println("✅ Created terrain: " + terrain.getNom());

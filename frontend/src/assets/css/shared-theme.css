@@ -144,6 +144,20 @@
 }
 .sl-btn--danger:hover { background: #fee2e2; }
 
+.sl-btn--ai {
+  background: var(--sl-violet-l);
+  color: var(--sl-violet);
+  border: 1.5px solid #d8b4fe;
+}
+.sl-btn--ai:hover { background: #ede9fe; border-color: var(--sl-violet); }
+.sl-btn--ai:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.sl-btn--small {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.78rem;
+  border-radius: var(--sl-radius-sm);
+}
+
 .sl-btn--sm { padding: 0.55rem 1.1rem; font-size: 0.82rem; }
 .sl-btn--xs { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
 
@@ -339,6 +353,22 @@
   box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 
+.sl-search-box--ai {
+  flex: 0 0 auto;
+  min-width: 260px;
+  gap: 0;
+  padding: 0 0 0 1rem;
+}
+.sl-search-box--ai input {
+  flex: 1;
+}
+.sl-search-box--ai .sl-btn--ai {
+  border-radius: 0 var(--sl-radius-md) var(--sl-radius-md) 0;
+  border: none;
+  height: 100%;
+  padding: 0.8rem 1rem;
+}
+
 /* ══════════════════════════════════════
    PAGINATION
    ══════════════════════════════════════ */
@@ -469,6 +499,10 @@
 .sl-stat-icon--orange { background: var(--sl-orange-l); }
 .sl-stat-icon--violet { background: var(--sl-violet-l); }
 
+.sl-stat-icon .material-icons { font-size: 1.5rem; }
+.sl-btn-icon .material-icons { font-size: 1.1rem; }
+.sl-search-icon .material-icons { font-size: 1.2rem; vertical-align: middle; }
+
 .sl-stat-value { font-size: 1.5rem; font-weight: 700; color: var(--sl-text); display: block; }
 .sl-stat-label { font-size: 0.8rem; color: var(--sl-text3); font-weight: 500; }
 
@@ -484,6 +518,43 @@
 .sl-empty-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
 .sl-empty p { margin: 0.5rem 0 0; font-size: 0.95rem; }
 .sl-empty-hint { font-size: 0.8rem; color: var(--sl-text4); display: block; margin-top: 0.3rem; }
+
+/* ══════════════════════════════════════
+   COMMENT FORM (used in forum post-detail)
+   ══════════════════════════════════════ */
+.comment-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.ai-reply {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: var(--sl-violet-l);
+  border: 1.5px solid #d8b4fe;
+  border-radius: var(--sl-radius-md);
+  animation: sl-slideIn 0.3s ease-out;
+}
+
+.ai-reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--sl-violet);
+  font-size: 0.85rem;
+}
+
+.ai-reply-content {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sl-text2);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
 
 /* ══════════════════════════════════════
    INFO GRID (detail pages)

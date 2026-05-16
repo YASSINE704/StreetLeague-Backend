@@ -53,6 +53,12 @@ public class SecurityConfig {
                         .requestMatchers("/teams/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "ADMIN")
                         .requestMatchers("/matches/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "TERRAIN_MANAGER", "ADMIN")
                         .requestMatchers("/player-stats/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "ADMIN")
+                        .requestMatchers("/api/posts/**").permitAll()
+                        .requestMatchers("/api/comments/**").permitAll()
+                        .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("/api/forum-ai/**").permitAll()
+                        .requestMatchers("/api/market-ai/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

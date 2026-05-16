@@ -18,6 +18,10 @@ export interface SeanceEntrainement {
   statut?: StatutSeance;
   programmeId: number;
   programmeTitre?: string;
+  maxParticipants?: number;
+  lieuNom?: string;
+  endroitNom?: string;
+  enPleinAir?: boolean;
   exercices?: SeanceExercice[];
   suiviSeance?: SuiviSeance;
 }
