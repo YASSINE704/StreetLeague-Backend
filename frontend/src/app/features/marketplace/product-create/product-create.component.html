@@ -1,0 +1,119 @@
+<div class="auth-wrapper">
+  <div class="auth-brand">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <span class="logo-icon">SL</span>
+        <span class="logo-text">Street<strong>League</strong></span>
+      </div>
+      <h1 class="brand-headline">Ajouter un Produit</h1>
+      <p class="brand-sub">Publiez un équipement, un accessoire ou un article sportif visible par toute la communauté.</p>
+    </div>
+    <div class="brand-orbs">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="error-banner" *ngIf="errorMessage"><span>!</span> {{ errorMessage }}</div>
+      <div class="success-banner" *ngIf="successMessage"><span>✓</span> {{ successMessage }}</div>
+
+      <form (ngSubmit)="onSubmit()">
+        <div class="field-group">
+          <label for="product-name">Nom du produit</label>
+          <div class="input-wrap">
+            <span class="input-icon"><span class="material-icons">inventory_2</span></span>
+            <input id="product-name" type="text" [(ngModel)]="name" name="name" placeholder="Ballon, chaussures..." required />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="product-desc">Description</label>
+          <div class="input-wrap">
+            <span class="input-icon"><span class="material-icons">description</span></span>
+            <textarea id="product-desc" [(ngModel)]="description" name="description" placeholder="Décrivez votre produit..." rows="3" required class="auth-textarea"></textarea>
+          </div>
+        </div>
+
+        <div class="sl-form-row">
+          <div class="field-group">
+            <label for="product-price">Prix (DH)</label>
+            <div class="input-wrap">
+              <span class="input-icon"><span class="material-icons">payments</span></span>
+              <input id="product-price" type="number" step="0.01" [(ngModel)]="price" name="price" placeholder="0.00" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="product-category">Catégorie</label>
+            <div class="input-wrap">
+              <span class="input-icon"><span class="material-icons">category</span></span>
+              <select id="product-category" [(ngModel)]="category" name="category" (change)="onCategoryChange()" required>
+                <option value="">Sélectionnez</option>
+                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group" *ngIf="category">
+          <label for="product-subcategory">Sous-catégorie</label>
+          <div class="input-wrap">
+            <span class="input-icon"><span class="material-icons">bookmark</span></span>
+            <select id="product-subcategory" [(ngModel)]="subcategory" name="subcategory">
+              <option value="">Sélectionnez</option>
+              <option *ngFor="let sub of subcats" [value]="sub">{{ sub }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group" *ngIf="showPointure">
+          <label for="product-pointure">Pointure</label>
+          <div class="input-wrap">
+            <span class="input-icon"><span class="material-icons">straighten</span></span>
+            <select id="product-pointure" [(ngModel)]="pointure" name="pointure">
+              <option [ngValue]="null">Sélectionnez une pointure</option>
+              <option *ngFor="let p of POINTURES" [ngValue]="p">{{ p }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group" *ngIf="showTaille">
+          <label for="product-taille">Taille</label>
+          <div class="input-wrap">
+            <span class="input-icon"><span class="material-icons">checkroom</span></span>
+            <select id="product-taille" [(ngModel)]="taille" name="taille">
+              <option value="">Sélectionnez une taille</option>
+              <option *ngFor="let t of TAILLES" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Image du produit</label>
+          <div class="photo-upload">
+            <img *ngIf="imagePreview" [src]="imagePreview" alt="Aperçu" class="photo-preview" />
+            <div class="photo-copy">
+              <input id="product-image" type="file" accept="image/*" (change)="onFileSelected($event)" />
+              <span>{{ selectedFile?.name || 'Choisir une image' }}</span>
+              <small>Max 5 Mo. L'image sera stockée localement.</small>
+            </div>
+            <button *ngIf="imagePreview" type="button" class="sl-btn sl-btn--danger sl-btn--xs" (click)="removeImage()">Supprimer</button>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading">
+          <span class="btn-text" *ngIf="!isLoading">Créer le produit</span>
+          <span class="btn-loader" *ngIf="isLoading"></span>
+        </button>
+      </form>
+
+      <div class="auth-links">
+        <a routerLink="/marketplace/products">Retour aux produits</a>
+        <a (click)="onCancel()" style="cursor:pointer">Annuler</a>
+      </div>
+    </div>
+  </div>
+</div>

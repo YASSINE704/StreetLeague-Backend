@@ -1,0 +1,128 @@
+/* ─── Feed Layout ──────────────────────────────────────────── */
+.post-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.post-card {
+  background: var(--sl-surface);
+  border: 1px solid var(--sl-border);
+  border-radius: var(--sl-radius-lg);
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sl-shadow-sm);
+}
+
+/* ─── Card Header ──────────────────────────────────────────── */
+.post-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.post-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+.post-card-meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.post-card-author {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--sl-text);
+}
+
+.post-card-time {
+  font-size: 0.78rem;
+  color: var(--sl-text4);
+  font-weight: 500;
+}
+
+.post-card-actions {
+  display: flex;
+  gap: 0.3rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.post-card:hover .post-card-actions {
+  opacity: 1;
+}
+
+/* ─── Card Body ────────────────────────────────────────────── */
+.post-card-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--sl-text);
+  line-height: 1.4;
+}
+
+.post-card-content {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+  color: var(--sl-text3);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─── Tags ─────────────────────────────────────────────────── */
+.post-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ─── Card Footer ──────────────────────────────────────────── */
+.post-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--sl-border);
+}
+
+.post-card-comments {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--sl-text3);
+  font-weight: 500;
+}
+
+.post-card-comments .material-icons {
+  font-size: 1.1rem;
+}
+
+.post-card-date {
+  font-size: 0.78rem;
+  color: var(--sl-text4);
+}

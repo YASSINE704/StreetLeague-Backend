@@ -1,0 +1,93 @@
+<div class="sl-page">
+  <div class="sl-toast" *ngIf="successMessage">&#x2705; {{ successMessage }}</div>
+
+  <div class="sl-stats-row">
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--blue"><span class="material-icons">article</span></div>
+      <div>
+        <span class="sl-stat-value">{{ posts.length }}</span>
+        <span class="sl-stat-label">Total Posts</span>
+      </div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--green"><span class="material-icons">forum</span></div>
+      <div>
+        <span class="sl-stat-value">{{ countWithComments }}</span>
+        <span class="sl-stat-label">Avec Commentaires</span>
+      </div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--violet"><span class="material-icons">sell</span></div>
+      <div>
+        <span class="sl-stat-value">{{ countWithTags }}</span>
+        <span class="sl-stat-label">Tags</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <h2>Forum - Fil d'actualité</h2>
+      <button (click)="onCreate()" class="sl-btn sl-btn--primary"><span class="material-icons">add</span> Nouveau Post</button>
+    </div>
+
+    <div class="sl-toolbar">
+      <div class="sl-search-box">
+        <span class="sl-search-icon"><span class="material-icons">search</span></span>
+        <input type="text" placeholder="Rechercher par titre ou contenu..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+      </div>
+      <select class="sl-filter-select" (change)="onSortChange($any($event.target).value)">
+        <option *ngFor="let opt of sortOptions" [value]="opt.value" [selected]="sortField + ',' + sortDir === opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+
+    <div class="sl-error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <!-- Feed Cards -->
+    <div class="post-feed" *ngIf="paged.length > 0">
+      <div class="post-card" *ngFor="let post of paged" (click)="onDetails(post.id!)">
+        <div class="post-card-header">
+          <div class="post-avatar" [style.background]="getAvatarColor(post)">{{ getInitials(post) }}</div>
+          <div class="post-card-meta">
+            <span class="post-card-author">{{ getUserName(post) }}</span>
+            <span class="post-card-time">{{ getTimeAgo(post.createdAt!) }}</span>
+          </div>
+          <div class="post-card-actions" (click)="$event.stopPropagation()">
+            <button (click)="onEdit(post.id!)" class="sl-btn-icon" title="Modifier"><span class="material-icons">edit</span></button>
+            <button (click)="onDelete(post.id!)" class="sl-btn-icon sl-btn-icon--danger" title="Supprimer"><span class="material-icons">delete</span></button>
+          </div>
+        </div>
+
+        <h3 class="post-card-title">{{ post.title }}</h3>
+        <p class="post-card-content">{{ post.content }}</p>
+
+        <div class="post-card-tags" *ngIf="post.tags && post.tags.length > 0">
+          <span class="sl-badge sl-badge--blue" *ngFor="let tag of post.tags">{{ tag }}</span>
+        </div>
+
+        <div class="post-card-footer">
+          <span class="post-card-comments">
+            <span class="material-icons">chat_bubble_outline</span>
+            {{ post.commentCount || 0 }} commentaires
+          </span>
+          <span class="post-card-date">{{ post.createdAt | date:'dd MMM yyyy' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sl-pagination" *ngIf="totalPages > 1">
+      <button class="sl-page-btn" [disabled]="page === 1" (click)="page = page - 1">&larr; Précédent</button>
+      <span class="sl-page-info">Page {{ page }} / {{ totalPages }}</span>
+      <button class="sl-page-btn" [disabled]="page === totalPages" (click)="page = page + 1">Suivant &rarr;</button>
+    </div>
+
+    <div class="sl-empty" *ngIf="filtered.length === 0 && posts.length > 0">
+      <span class="sl-empty-icon"><span class="material-icons" style="font-size:2.5rem">search_off</span></span>
+      <p>Aucun résultat pour cette recherche</p>
+    </div>
+    <div class="sl-empty" *ngIf="posts.length === 0 && !errorMessage">
+      <span class="sl-empty-icon"><span class="material-icons" style="font-size:2.5rem">forum</span></span>
+      <p>Aucun post trouvé</p>
+    </div>
+  </div>
+</div>

@@ -4,14 +4,11 @@ import { MainLayoutComponent } from './layouts/main-layout/main-layout.component
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 const routes: Routes = [
-  // Default redirect
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
-  // Auth routes (no sidebar)
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
   },
-  // Main app routes (with sidebar)
   {
     path: '',
     component: MainLayoutComponent,
@@ -48,6 +45,14 @@ const routes: Routes = [
       {
         path: 'coaching',
         loadChildren: () => import('./features/coaching/coaching.module').then(m => m.CoachingModule)
+      },
+      {
+        path: 'forum',
+        loadChildren: () => import('./features/forum/forum.module').then(m => m.ForumModule)
+      },
+      {
+        path: 'marketplace',
+        loadChildren: () => import('./features/marketplace/marketplace.module').then(m => m.MarketplaceModule)
       }
     ]
   },

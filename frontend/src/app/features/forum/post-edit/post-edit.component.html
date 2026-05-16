@@ -1,0 +1,45 @@
+<div class="sl-page sl-page--narrow">
+  <div class="sl-toast" *ngIf="successMessage">&#x2705; {{ successMessage }}</div>
+
+  <div class="sl-card">
+    <div class="sl-card-header">
+      <h2><span class="material-icons" style="vertical-align:middle;margin-right:0.4rem">edit</span> Modifier le Post</h2>
+    </div>
+
+    <div class="error-banner" *ngIf="errorMessage"><span class="material-icons">error</span> {{ errorMessage }}</div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="field-group">
+        <label for="edit-title">Titre</label>
+        <div class="input-wrap">
+          <span class="input-icon"><span class="material-icons">title</span></span>
+          <input id="edit-title" type="text" [(ngModel)]="title" name="title" placeholder="Titre de votre post" required />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="edit-content">Contenu</label>
+        <div class="input-wrap">
+          <span class="input-icon"><span class="material-icons">description</span></span>
+          <textarea id="edit-content" [(ngModel)]="content" name="content" placeholder="Écrivez votre contenu ici..." rows="6" required class="auth-textarea"></textarea>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="edit-tags">Tags <small>(optionnel, séparés par des virgules)</small></label>
+        <div class="input-wrap">
+          <span class="input-icon"><span class="material-icons">label</span></span>
+          <input id="edit-tags" type="text" [(ngModel)]="tags" name="tags" placeholder="ex: football, sport, competition" />
+        </div>
+      </div>
+
+      <div class="sl-form-actions">
+        <button type="button" class="sl-btn sl-btn--secondary" (click)="onCancel()"><span class="material-icons">close</span> Annuler</button>
+        <button type="submit" class="submit-btn" [class.loading]="isLoading" [disabled]="isLoading">
+          <span class="btn-text" *ngIf="!isLoading"><span class="material-icons">save</span> Mettre à jour</span>
+          <span class="btn-loader" *ngIf="isLoading"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

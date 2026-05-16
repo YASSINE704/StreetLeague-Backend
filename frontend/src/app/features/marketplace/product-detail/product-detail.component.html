@@ -1,0 +1,76 @@
+<div class="auth-wrapper">
+  <div class="auth-brand">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <span class="logo-icon">SL</span>
+        <span class="logo-text">Street<strong>League</strong></span>
+      </div>
+      <h1 class="brand-headline">Détail du Produit</h1>
+      <p class="brand-sub">Consultez les informations complètes de l'annonce.</p>
+    </div>
+    <div class="brand-orbs">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="error-banner" *ngIf="errorMessage"><span class="material-icons">error</span> {{ errorMessage }}</div>
+
+      <div class="loader-container" *ngIf="isLoading">
+        <span class="btn-loader"></span>
+      </div>
+
+      <ng-container *ngIf="product && !isLoading">
+        <div class="detail-image" *ngIf="getImageUrl()">
+          <img [src]="getImageUrl()" [alt]="product.name" />
+        </div>
+        <div class="detail-image-placeholder" *ngIf="!getImageUrl()">
+          <span class="material-icons">image</span>
+        </div>
+
+        <div class="detail-header">
+          <h2 class="detail-name">{{ product.name }}</h2>
+          <span class="detail-badge" [style.background]="getCategoryColor(product.category)">{{ product.category }}</span>
+        </div>
+
+        <div class="detail-meta">
+          <div class="detail-price">{{ product.price }} DH</div>
+          <div class="detail-seller">
+            <span class="material-icons">person</span>
+            {{ getUserName() }}
+          </div>
+        </div>
+
+        <div class="detail-subcat" *ngIf="product.subcategory">
+          <span class="meta-label">Sous-catégorie</span>
+          <span class="meta-value">{{ product.subcategory }}</span>
+        </div>
+
+        <div class="detail-size" *ngIf="getSizeInfo()">
+          <span class="meta-label">Taille / Pointure</span>
+          <span class="meta-value">{{ getSizeInfo() }}</span>
+        </div>
+
+        <div class="detail-desc">
+          <span class="meta-label">Description</span>
+          <p>{{ product.description }}</p>
+        </div>
+
+        <div class="detail-actions">
+          <button (click)="onEdit()" class="action-btn action-btn--edit">
+            <span class="material-icons">edit</span> Modifier
+          </button>
+          <button (click)="onDelete()" class="action-btn action-btn--delete">
+            <span class="material-icons">delete</span> Supprimer
+          </button>
+          <button (click)="onBack()" class="action-btn action-btn--back">
+            <span class="material-icons">arrow_back</span> Retour
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
