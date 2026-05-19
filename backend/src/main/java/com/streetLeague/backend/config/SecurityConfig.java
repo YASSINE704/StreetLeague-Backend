@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/players/*/ai-prediction").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/programmes/**").hasAnyRole("COACH", "ADMIN", "SPORTIF", "JOUEUR")
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/seances/**").hasAnyRole("COACH", "ADMIN", "SPORTIF", "JOUEUR")

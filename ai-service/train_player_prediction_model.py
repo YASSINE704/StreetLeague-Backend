@@ -89,6 +89,85 @@ else:
     df = pd.DataFrame(data)
     print(f"[Training] Generated {df.shape[0]} synthetic samples")
 
+
+def build_edge_case_training_data(start_player_id=1000):
+    """Generate low, average, and elite examples so the model learns the full 0-100 scale."""
+    rng = np.random.default_rng(2026)
+    records = []
+
+    profiles = [
+        {
+            "name": "poor",
+            "count": 90,
+            "ranges": {
+                "goals": (0, 1), "assists": (0, 1), "tackles": (0, 3), "interceptions": (0, 2),
+                "passes_completed": (0, 25), "pass_accuracy": (5, 45), "distance_covered_km": (2, 7),
+                "average_speed_kmh": (8, 17), "ball_possession_percent": (5, 30),
+                "fouls_committed": (5, 12), "yellow_cards": (0, 2), "shots_on_target": (0, 1)
+            }
+        },
+        {
+            "name": "average",
+            "count": 90,
+            "ranges": {
+                "goals": (0, 3), "assists": (0, 3), "tackles": (2, 7), "interceptions": (1, 5),
+                "passes_completed": (25, 85), "pass_accuracy": (50, 82), "distance_covered_km": (7, 11),
+                "average_speed_kmh": (18, 26), "ball_possession_percent": (30, 60),
+                "fouls_committed": (1, 5), "yellow_cards": (0, 1), "shots_on_target": (0, 5)
+            }
+        },
+        {
+            "name": "elite",
+            "count": 90,
+            "ranges": {
+                "goals": (2, 8), "assists": (1, 7), "tackles": (4, 12), "interceptions": (2, 8),
+                "passes_completed": (75, 180), "pass_accuracy": (78, 98), "distance_covered_km": (10, 15),
+                "average_speed_kmh": (24, 34), "ball_possession_percent": (55, 85),
+                "fouls_committed": (0, 3), "yellow_cards": (0, 1), "shots_on_target": (3, 12)
+            }
+        }
+    ]
+
+    player_id = start_player_id
+    for profile in profiles:
+        for _ in range(profile["count"]):
+            row = {"player_id": player_id}
+            player_id += 1
+
+            for feature, (low, high) in profile["ranges"].items():
+                if feature in {"pass_accuracy", "distance_covered_km", "average_speed_kmh", "ball_possession_percent"}:
+                    row[feature] = round(float(rng.uniform(low, high)), 1)
+                else:
+                    row[feature] = int(rng.integers(low, high + 1))
+
+            rating = (
+                15
+                + row["goals"] * 5.0
+                + row["assists"] * 3.2
+                + row["shots_on_target"] * 2.4
+                + row["tackles"] * 0.8
+                + row["interceptions"] * 1.2
+                + row["passes_completed"] * 0.08
+                + row["pass_accuracy"] * 0.22
+                + row["distance_covered_km"] * 1.2
+                + row["average_speed_kmh"] * 0.35
+                + row["ball_possession_percent"] * 0.12
+                - row["fouls_committed"] * 3.2
+                - row["yellow_cards"] * 8.0
+                + float(rng.normal(0, 3))
+            )
+            row["next_match_performance_rating"] = round(float(np.clip(rating, 5, 98)), 1)
+            records.append(row)
+
+    return pd.DataFrame(records)
+
+
+edge_case_df = build_edge_case_training_data(
+    start_player_id=int(df["player_id"].max()) + 1 if "player_id" in df.columns else 1000
+)
+df = pd.concat([df, edge_case_df], ignore_index=True)
+print(f"[Training] Added {edge_case_df.shape[0]} edge-case samples for low/average/elite performance")
+
 print(f"\n[Training] Dataset generated: {df.shape[0]} samples, {df.shape[1]} features")
 print(f"[Training] Performance rating range: {df['next_match_performance_rating'].min():.1f} - {df['next_match_performance_rating'].max():.1f}")
 print(f"\nDataset Preview:")
@@ -167,7 +246,7 @@ rf_model = RandomForestRegressor(
     min_samples_split=5,
     min_samples_leaf=2,
     random_state=42,
-    n_jobs=-1,
+    n_jobs=1,
     verbose=0
 )
 rf_model.fit(X_train, y_train)
@@ -247,7 +326,14 @@ metadata = {
     'r2_score': float(best_r2),
     'mae': float(mean_absolute_error(y_test, best_model.predict(X_test))),
     'rmse': float(np.sqrt(mean_squared_error(y_test, best_model.predict(X_test)))),
-    'features': feature_columns
+    'features': feature_columns,
+    'feature_ranges': {
+        col: {
+            'min': float(X[col].min()),
+            'max': float(X[col].max())
+        }
+        for col in feature_columns
+    }
 }
 
 joblib.dump(metadata, 'model/player_performance_metadata.joblib')

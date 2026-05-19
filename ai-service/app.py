@@ -338,10 +338,12 @@ def predict_player_performance(player_stats):
         return None
     
     try:
+        enriched_stats = enrich_player_stats(player_stats)
+
         # Préparer les features dans le même ordre que l'entraînement
         feature_values = []
         for feature in player_prediction_features:
-            value = player_stats.get(feature, 0)
+            value = enriched_stats.get(feature, 0)
             feature_values.append(value)
         
         # Convertir en array numpy
@@ -350,8 +352,11 @@ def predict_player_performance(player_stats):
         # Normaliser les features
         feature_array_scaled = player_prediction_scaler.transform(feature_array)
         
-        # Prédire
-        prediction = player_prediction_model.predict(feature_array_scaled)[0]
+        # Prédire, puis calibrer avec un score métier pour éviter les sorties
+        # trop optimistes lorsque les stats sont très faibles.
+        model_prediction = player_prediction_model.predict(feature_array_scaled)[0]
+        rule_score = calculate_rule_based_performance(enriched_stats)
+        prediction = (model_prediction * 0.6) + (rule_score * 0.4)
         
         # Cliper la prédiction entre 0 et 100
         prediction = np.clip(prediction, 0, 100)
@@ -362,23 +367,85 @@ def predict_player_performance(player_stats):
         return None
 
 
+def enrich_player_stats(player_stats):
+    """Ajoute les features dérivées utilisées par le modèle entraîné."""
+    stats = dict(player_stats)
+
+    goals = float(stats.get('goals', 0))
+    assists = float(stats.get('assists', 0))
+    tackles = float(stats.get('tackles', 0))
+    interceptions = float(stats.get('interceptions', 0))
+    passes_completed = float(stats.get('passes_completed', 0))
+    pass_accuracy = float(stats.get('pass_accuracy', 0))
+    distance = float(stats.get('distance_covered_km', 0))
+    speed = float(stats.get('average_speed_kmh', 0))
+    fouls = float(stats.get('fouls_committed', 0))
+    yellow_cards = float(stats.get('yellow_cards', 0))
+    shots = float(stats.get('shots_on_target', 0))
+
+    stats['goals_assists_ratio'] = (goals + 1) / (assists + 1)
+    stats['defensive_contribution'] = tackles + interceptions
+    stats['aerial_ability'] = interceptions + tackles * 0.3
+    stats['ball_retention'] = pass_accuracy * (passes_completed / 100)
+    stats['physical_intensity'] = distance * speed / 10
+    stats['attack_threat'] = shots + (goals * 2)
+    stats['discipline_factor'] = 100 - (fouls * 5 + yellow_cards * 10)
+    return stats
+
+
+def calculate_rule_based_performance(stats):
+    """Score transparent utilisé pour calibrer le modèle sur les cas extrêmes."""
+    attack = min(35, stats.get('goals', 0) * 4 + stats.get('assists', 0) * 3 + stats.get('shots_on_target', 0) * 2.2)
+    passing = min(20, stats.get('passes_completed', 0) / 10 + stats.get('pass_accuracy', 0) * 0.12)
+    defense = min(15, stats.get('tackles', 0) * 1.1 + stats.get('interceptions', 0) * 1.4)
+    physical = min(20, stats.get('distance_covered_km', 0) * 1.1 + stats.get('average_speed_kmh', 0) * 0.25 + stats.get('ball_possession_percent', 0) * 0.08)
+    penalty = min(20, stats.get('fouls_committed', 0) * 2.5 + stats.get('yellow_cards', 0) * 8)
+    return float(np.clip(25 + attack + passing + defense + physical - penalty, 0, 100))
+
+
+def estimate_prediction_confidence(player_stats):
+    """Estime la confiance selon la qualité du modèle et la plausibilité des inputs."""
+    if not player_pred_model_loaded:
+        return "LOW"
+
+    extreme_values = 0
+    extreme_values += player_stats.get('pass_accuracy', 0) < 35
+    extreme_values += player_stats.get('passes_completed', 0) < 10
+    extreme_values += player_stats.get('ball_possession_percent', 0) < 15
+    extreme_values += player_stats.get('distance_covered_km', 0) < 6
+    extreme_values += player_stats.get('average_speed_kmh', 0) < 15
+    extreme_values += player_stats.get('fouls_committed', 0) > 7
+
+    if extreme_values >= 3:
+        return "LOW"
+    if extreme_values >= 1:
+        return "MEDIUM"
+
+    mae = float(player_prediction_metadata.get('mae', 10)) if player_prediction_metadata else 10
+    if mae <= 5:
+        return "HIGH"
+    if mae <= 8:
+        return "MEDIUM"
+    return "LOW"
+
+
 def build_prediction_response(player_id, player_stats, predicted_rating):
     """Construit une réponse de prédiction avec explications."""
     
     # Catégories de performance
-    if predicted_rating <= 20:
+    if predicted_rating <= 30:
         category = "VERY_BAD"
         interpretation = "Performance attendue très faible"
-    elif predicted_rating <= 40:
+    elif predicted_rating <= 50:
         category = "BAD"
         interpretation = "Performance attendue faible"
-    elif predicted_rating <= 60:
+    elif predicted_rating <= 65:
         category = "AVERAGE"
         interpretation = "Performance attendue moyenne"
-    elif predicted_rating <= 75:
+    elif predicted_rating <= 80:
         category = "GOOD"
         interpretation = "Performance attendue bonne"
-    elif predicted_rating <= 85:
+    elif predicted_rating <= 90:
         category = "EXCELLENT"
         interpretation = "Performance attendue excellente"
     else:
@@ -412,7 +479,7 @@ def build_prediction_response(player_id, player_stats, predicted_rating):
         "interpretation": interpretation,
         "strengths": strengths if strengths else ["Équilibré"],
         "weaknesses": weaknesses if weaknesses else ["Aucune faiblesse notable"],
-        "confidence": "HIGH" if player_pred_model_loaded else "LOW",
+        "confidence": estimate_prediction_confidence(player_stats),
         "algorithm": player_prediction_metadata.get('model_type', 'Unknown') if player_pred_model_loaded else "N/A"
     }
 
@@ -472,6 +539,7 @@ def predict_player():
         'average_speed_kmh': data.get('average_speed_kmh', 25),
         'ball_possession_percent': data.get('ball_possession_percent', 50),
         'fouls_committed': data.get('fouls_committed', 0),
+        'yellow_cards': data.get('yellow_cards', 0),
         'shots_on_target': data.get('shots_on_target', 0),
     }
     
@@ -539,6 +607,7 @@ def predict_batch():
             'average_speed_kmh': player_data.get('average_speed_kmh', 25),
             'ball_possession_percent': player_data.get('ball_possession_percent', 50),
             'fouls_committed': player_data.get('fouls_committed', 0),
+            'yellow_cards': player_data.get('yellow_cards', 0),
             'shots_on_target': player_data.get('shots_on_target', 0),
         }
         

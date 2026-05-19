@@ -45,10 +45,10 @@ public class PlayerStats {
     /**
      * Reference to the match in which these stats were recorded.
      * Many stats can be recorded from one match.
+     * Nullable for AI simulation predictions that are not tied to actual matches.
      */
-    @NotNull(message = "Match cannot be null")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "match_id", nullable = false)
+    @JoinColumn(name = "match_id", nullable = true)
     private Match match;
 
     /**
@@ -108,6 +108,13 @@ public class PlayerStats {
     private int passesCompleted = 0;
 
     /**
+     * Pass accuracy percentage (0-100).
+     */
+    @Min(value = 0, message = "Pass accuracy cannot be negative")
+    @Column(nullable = false)
+    private double passAccuracy = 0.0;
+
+    /**
      * Total distance covered by the player in kilometers.
      * Used for evaluating player work rate and endurance.
      */
@@ -122,5 +129,26 @@ public class PlayerStats {
     @Min(value = 0, message = "Average speed cannot be negative")
     @Column(nullable = false)
     private double averageSpeed = 0.0;
+
+    /**
+     * Ball possession percentage (0-100).
+     */
+    @Min(value = 0, message = "Ball possession cannot be negative")
+    @Column(nullable = false)
+    private double ballPossessionPercent = 0.0;
+
+    /**
+     * Number of fouls committed.
+     */
+    @Min(value = 0, message = "Fouls cannot be negative")
+    @Column(nullable = false)
+    private int foulsCommitted = 0;
+
+    /**
+     * Number of shots on target.
+     */
+    @Min(value = 0, message = "Shots on target cannot be negative")
+    @Column(nullable = false)
+    private int shotsOnTarget = 0;
 
 }

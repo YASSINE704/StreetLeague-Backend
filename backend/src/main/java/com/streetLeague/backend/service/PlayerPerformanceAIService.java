@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
 
 /**
  * Service for calling the Python AI service for player performance predictions.
@@ -55,10 +57,13 @@ public class PlayerPerformanceAIService {
     @SuppressWarnings("unchecked")
     public PlayerPerformanceAIPredictionDTO predictPlayerPerformanceAI(PlayerPerformanceRequestDTO request) {
         try {
-            // Call Python AI service
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(toAiPayload(request), headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(
                     AI_SERVICE_BASE_URL + "/predict-player-performance",
-                    request,
+                    entity,
                     Map.class
             );
 
@@ -95,7 +100,9 @@ public class PlayerPerformanceAIService {
     public List<PlayerPerformanceAIPredictionDTO> predictBatch(List<PlayerPerformanceRequestDTO> requests) {
         try {
             Map<String, Object> batchRequest = new HashMap<>();
-            batchRequest.put("players", requests);
+            batchRequest.put("players", requests.stream()
+                    .map(this::toAiPayload)
+                    .toList());
             
             ResponseEntity<Map> response = restTemplate.postForEntity(
                     AI_SERVICE_BASE_URL + "/predict-batch",
@@ -191,6 +198,23 @@ public class PlayerPerformanceAIService {
         fallback.setAlgorithm("FALLBACK");
         
         return fallback;
+    }
+
+    private Map<String, Object> toAiPayload(PlayerPerformanceRequestDTO request) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("player_id", request.getPlayerId());
+        payload.put("goals", request.getGoals());
+        payload.put("assists", request.getAssists());
+        payload.put("tackles", request.getTackles());
+        payload.put("interceptions", request.getInterceptions());
+        payload.put("passes_completed", request.getPassesCompleted());
+        payload.put("pass_accuracy", request.getPassAccuracy());
+        payload.put("distance_covered_km", request.getDistanceCoveredKm());
+        payload.put("average_speed_kmh", request.getAverageSpeedKmh());
+        payload.put("ball_possession_percent", request.getBallPossessionPercent());
+        payload.put("fouls_committed", request.getFoulsCommitted());
+        payload.put("shots_on_target", request.getShotsOnTarget());
+        return payload;
     }
 
     // Helper methods for safe value extraction

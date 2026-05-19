@@ -78,4 +78,10 @@ public class PlayerPerformanceRequestDTO {
      */
     private int shotsOnTarget;
 
+    /**
+     * Optional predicted rating returned by the AI model (0-100 scale).
+     * Used when saving a custom AI scenario as a player statistics snapshot.
+     */
+    private Double predictedPerformanceRating;
+
 }

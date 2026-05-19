@@ -1,8 +1,10 @@
 package com.streetLeague.backend.controller;
 
 import com.streetLeague.backend.dto.PlayerStatsDTO;
+import com.streetLeague.backend.dto.PlayerPerformanceRequestDTO;
 import com.streetLeague.backend.entity.PlayerStats;
 import com.streetLeague.backend.service.PlayerStatsService;
+import com.streetLeague.backend.service.PlayerStatsSeedService;
 import com.streetLeague.backend.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class PlayerStatsController {
 
     @Autowired
     private PlayerStatsService playerStatsService;
+
+    @Autowired
+    private PlayerStatsSeedService playerStatsSeedService;
 
     /**
      * Retrieves all player statistics.
@@ -82,6 +87,35 @@ public class PlayerStatsController {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             error.put("message", "The player statistics could not be recorded. Please check all fields are filled correctly.");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * Saves a custom AI prediction scenario as a player statistics snapshot.
+     * This is not attached to an official match; it appears as "Simulation IA".
+     */
+    @PostMapping("/simulation")
+    public ResponseEntity<?> saveSimulationStats(@RequestBody PlayerPerformanceRequestDTO request) {
+        try {
+            if (request.getPlayerId() == null || request.getPlayerId() <= 0) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(Map.of("error", "Player ID requis et doit être positif"));
+            }
+
+            PlayerStats savedStats = playerStatsService.saveSimulationStats(request);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(playerStatsService.convertToDTO(savedStats));
+        } catch (ResourceNotFoundException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            error.put("message", "The AI simulation could not be saved as player statistics.");
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
@@ -290,6 +324,37 @@ public class PlayerStatsController {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             error.put("message", "Could not retrieve top rated players.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * ADMIN ENDPOINT: Reseeds comprehensive test data for AI predictions testing.
+     * This endpoint allows manual triggering of test data generation with 8+ matches per player.
+     * 
+     * Useful for:
+     * - Testing AI prediction features with sufficient historical data
+     * - Trend analysis (IMPROVING, STABLE, DECLINING)
+     * - Complete re-initialization of test data
+     * 
+     * @return Status message and number of records created
+     */
+    @PostMapping("/admin/reseed-test-data")
+    public ResponseEntity<?> reseedTestData() {
+        try {
+            playerStatsSeedService.run(); // Trigger seeding
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "ok");
+            response.put("message", "✅ Test data reseeded successfully!");
+            response.put("note", "📊 AI predictions now have comprehensive historical data with trend analysis");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            error.put("message", "Test data reseeding failed");
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
