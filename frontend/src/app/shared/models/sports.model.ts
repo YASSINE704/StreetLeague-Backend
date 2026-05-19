@@ -85,8 +85,12 @@ export interface PlayerStatsDTO {
   tackles: number;
   interceptions: number;
   passesCompleted: number;
+  passAccuracy: number;
   distanceCovered: number;
   averageSpeed: number;
+  ballPossessionPercent: number;
+  foulsCommitted: number;
+  shotsOnTarget: number;
 }
 
 export interface PlayerPredictionDTO {

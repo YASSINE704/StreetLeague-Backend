@@ -64,7 +64,8 @@
               "browserTarget": "PI_StreetLeague:build:production"
             },
             "development": {
-              "browserTarget": "PI_StreetLeague:build:development"
+              "browserTarget": "PI_StreetLeague:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
