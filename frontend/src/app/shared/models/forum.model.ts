@@ -6,6 +6,7 @@ export interface PostDTO {
   user?: { idUser: number; nom?: string; prenom?: string; };
   tags?: string[];
   commentCount?: number;
+  trendScore?: number;
 }
 
 export interface CommentDTO {

@@ -99,4 +99,45 @@ public class AIService {
             return "Error parsing AI response";
         }
     }
+
+    // 🧹 extract JSON from markdown-fenced response (Ollama often returns ```json ... ```)
+    public String extractJson(String response) {
+        String text = extractResponse(response);
+        if (text == null || text.isBlank()) {
+            return "{}";
+        }
+        text = text.trim();
+
+        if (text.startsWith("```json")) {
+            text = text.substring(7);
+        } else if (text.startsWith("```")) {
+            text = text.substring(3);
+        }
+        if (text.endsWith("```")) {
+            text = text.substring(0, text.length() - 3);
+        }
+        text = text.trim();
+
+        int firstBrace = text.indexOf('{');
+        int firstBracket = text.indexOf('[');
+        if (firstBrace == -1 && firstBracket == -1) {
+            return "{}";
+        }
+        int start;
+        if (firstBrace == -1) start = firstBracket;
+        else if (firstBracket == -1) start = firstBrace;
+        else start = Math.min(firstBrace, firstBracket);
+
+        int lastBrace = text.lastIndexOf('}');
+        int lastBracket = text.lastIndexOf(']');
+        if (lastBrace == -1 && lastBracket == -1) {
+            return "{}";
+        }
+        int end;
+        if (lastBrace == -1) end = lastBracket;
+        else if (lastBracket == -1) end = lastBrace;
+        else end = Math.max(lastBrace, lastBracket);
+
+        return text.substring(start, end + 1);
+    }
 }

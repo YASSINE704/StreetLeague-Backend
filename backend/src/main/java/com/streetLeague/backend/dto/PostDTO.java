@@ -19,4 +19,5 @@ public class PostDTO {
     private List<String> tags;
     private User user;
     private int commentCount;
+    private double trendScore;
 }

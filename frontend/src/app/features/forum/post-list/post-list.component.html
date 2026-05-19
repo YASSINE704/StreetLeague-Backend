@@ -25,6 +25,72 @@
     </div>
   </div>
 
+  <!-- ═══════ TRENDING SECTION ═══════ -->
+  <div class="trending-section" *ngIf="trendingPosts.length > 0">
+    <div class="trending-header">
+      <span class="trending-icon">🔥</span>
+      <h2>Trending</h2>
+      <span class="trending-badge">Posts les plus actifs</span>
+    </div>
+    <p class="trending-subtitle">
+      Classés par score de tendance — commentaires récents / temps écoulé
+    </p>
+    <div class="trending-scroll">
+      <div class="trending-card" *ngFor="let post of trendingPosts" (click)="onDetails(post.id!)">
+        <div class="trending-rank">{{ trendingPosts.indexOf(post) + 1 }}</div>
+        <div class="trending-card-body">
+          <div class="trending-card-header">
+            <div class="post-avatar trending-avatar" [style.background]="getAvatarColor(post)">{{ getInitials(post) }}</div>
+            <div class="trending-meta">
+              <span class="trending-author">{{ getUserName(post) }}</span>
+              <span class="trending-time">{{ getTimeAgo(post.createdAt!) }}</span>
+            </div>
+          </div>
+          <h3 class="trending-title">{{ post.title }}</h3>
+          <div class="trending-stats">
+            <span class="trending-stat">
+              <span class="material-icons">chat_bubble_outline</span>
+              {{ post.commentCount || 0 }}
+            </span>
+            <span class="trending-score" *ngIf="post.trendScore">
+              <span class="material-icons">whatshot</span>
+              Score: {{ post.trendScore | number:'1.1-1' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ FEATURED SECTION ═══════ -->
+  <div class="featured-section" *ngIf="featuredPosts.length > 0">
+    <div class="featured-header">
+      <span class="featured-icon">⭐</span>
+      <h2>Featured</h2>
+      <span class="featured-badge">Les plus commentés</span>
+    </div>
+    <p class="featured-subtitle">
+      Posts avec le plus d'engagement — sélectionnés automatiquement
+    </p>
+    <div class="featured-grid">
+      <div class="featured-card" *ngFor="let post of featuredPosts" (click)="onDetails(post.id!)">
+        <div class="featured-card-top">
+          <div class="post-avatar featured-avatar" [style.background]="getAvatarColor(post)">{{ getInitials(post) }}</div>
+          <span class="featured-rank">#{{ featuredPosts.indexOf(post) + 1 }}</span>
+        </div>
+        <h3 class="featured-title">{{ post.title }}</h3>
+        <p class="featured-excerpt">{{ post.content }}</p>
+        <div class="featured-footer">
+          <span class="featured-author">{{ getUserName(post) }}</span>
+          <span class="featured-comments">
+            <span class="material-icons">chat_bubble_outline</span>
+            {{ post.commentCount || 0 }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="sl-card">
     <div class="sl-card-header">
       <h2>Forum - Fil d'actualité</h2>

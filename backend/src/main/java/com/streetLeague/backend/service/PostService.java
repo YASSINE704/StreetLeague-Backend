@@ -112,7 +112,11 @@ public PostDTO create(PostDTO dto) {
                 .stream()
                 .sorted((a, b) ->
                         Double.compare(calculateTrendScore(b), calculateTrendScore(a)))
-                .map(PostMapper::toDTO)
+                .map(post -> {
+                    PostDTO dto = PostMapper.toDTO(post);
+                    dto.setTrendScore(calculateTrendScore(post));
+                    return dto;
+                })
                 .toList();
     }
     public List<PostDTO> getByTag(String tagName) {

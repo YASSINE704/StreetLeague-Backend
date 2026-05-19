@@ -11,6 +11,8 @@ import { PostDTO } from '../../../shared/models/forum.model';
 export class PostListComponent implements OnInit {
   posts: PostDTO[] = [];
   filtered: PostDTO[] = [];
+  trendingPosts: PostDTO[] = [];
+  featuredPosts: PostDTO[] = [];
   errorMessage = '';
   successMessage = '';
 
@@ -38,8 +40,17 @@ export class PostListComponent implements OnInit {
   loadPosts(): void {
     this.errorMessage = '';
     this.postService.getAll().subscribe({
-      next: (data) => { this.posts = data; this.applyFilters(); },
+      next: (data) => {
+        this.posts = data;
+        this.applyFilters();
+        this.featuredPosts = [...data]
+          .sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0))
+          .slice(0, 3);
+      },
       error: () => this.errorMessage = 'Erreur de connexion au serveur. Vérifiez que le backend est lancé.'
+    });
+    this.postService.getTrending().subscribe({
+      next: (data) => { this.trendingPosts = data.slice(0, 5); }
     });
   }
 

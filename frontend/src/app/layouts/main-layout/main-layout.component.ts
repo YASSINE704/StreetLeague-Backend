@@ -73,6 +73,11 @@ export class MainLayoutComponent implements OnInit {
       );
     }
 
+    links.push(
+      { path: '/forum/posts', label: 'Forum', icon: '💬', section: 'COMMUNAUTÉ' },
+      { path: '/marketplace/products', label: 'Marketplace', icon: '🛒' }
+    );
+
     this.navLinks = links;
   }
 
@@ -99,6 +104,8 @@ export class MainLayoutComponent implements OnInit {
     if (url.includes('/coaching')) return 'Module Coaching';
     if (url.includes('/player')) return 'Tableau de Bord Joueur';
     if (url.includes('/terrain')) return 'Gestion des Terrains';
+    if (url.includes('/forum')) return 'Forum';
+    if (url.includes('/marketplace')) return 'Marketplace';
     return 'StreetLeague';
   }
 
