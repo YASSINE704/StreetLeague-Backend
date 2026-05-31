@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/players/*/ai-prediction").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/programmes/**").hasAnyRole("COACH", "ADMIN", "SPORTIF", "JOUEUR")
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/seances/**").hasAnyRole("COACH", "ADMIN", "SPORTIF", "JOUEUR")
@@ -60,6 +61,12 @@ public class SecurityConfig {
                         .requestMatchers("/teams/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "ADMIN")
                         .requestMatchers("/matches/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "TERRAIN_MANAGER", "ADMIN")
                         .requestMatchers("/player-stats/**").hasAnyRole("JOUEUR", "SPORTIF", "COACH", "ADMIN")
+                        .requestMatchers("/api/posts/**").permitAll()
+                        .requestMatchers("/api/comments/**").permitAll()
+                        .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("/api/forum-ai/**").permitAll()
+                        .requestMatchers("/api/market-ai/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -75,7 +82,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

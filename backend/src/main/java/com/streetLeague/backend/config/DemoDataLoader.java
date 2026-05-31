@@ -56,6 +56,8 @@ public class DemoDataLoader {
                     .location("Downtown Tunis")
                     .address("Avenue Habib Bourguiba, Tunis 1000")
                     .typeSport(TypeSport.FOOTBALL)
+                    .location("Downtown")
+                    .address("123 Main Street, Downtown")
                     .build();
             terrain = terrainRepository.save(terrain);
 

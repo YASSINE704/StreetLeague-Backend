@@ -36,4 +36,8 @@ export class PlayerService {
   getStatistics(playerId: number): Observable<PlayerStatsDTO[]> {
     return this.http.get<PlayerStatsDTO[]>(`${this.base}/${playerId}/statistics`);
   }
+
+  saveSimulationStats(stats: any): Observable<PlayerStatsDTO> {
+    return this.http.post<PlayerStatsDTO>('http://localhost:18080/player-stats/simulation', stats);
+  }
 }

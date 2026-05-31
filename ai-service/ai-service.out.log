@@ -1,0 +1,19 @@
+[AI Service] ✓ Modèle de recommandation d'exercices chargé avec succès
+[AI Service] ✓ Modèle de prédiction de performance chargé avec succès
+
+================================================================================
+[AI Service] Démarrage sur http://localhost:5000
+================================================================================
+[AI Service] Modèle Exercices       : ✓ Chargé (ML Mode)
+[AI Service] Modèle Prédictions    : ✓ Chargé (ML Mode)
+
+[API Endpoints]
+  - GET  /api/ai/health                          : Health check
+  - POST /api/ai/recommend                       : Recommandation d'exercices
+  - POST /api/ai/predict-player-performance      : Prédiction performance joueur
+  - POST /api/ai/predict-batch                   : Prédictions par lots
+  - GET  /api/ai/model-info                      : Info modèles
+================================================================================
+
+ * Serving Flask app 'app'
+ * Debug mode: off

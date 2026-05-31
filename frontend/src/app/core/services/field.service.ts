@@ -112,4 +112,15 @@ export class FieldService {
   deleteReservation(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/reservations/${id}`);
   }
+
+  downloadReservationPdf(id: number): void {
+    this.http.get(`${this.apiUrl}/reservations/${id}/pdf`, { responseType: 'blob' }).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reservation-${id}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }

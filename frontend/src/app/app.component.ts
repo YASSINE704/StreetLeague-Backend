@@ -75,6 +75,11 @@ export class AppComponent implements OnInit {
       );
     }
     
+    links.push(
+      { path: '/forum', label: 'Forum', icon: '💬', section: 'COMMUNAUTÉ' },
+      { path: '/marketplace', label: 'Marketplace', icon: '🛒' }
+    );
+    
     this.navLinks = links;
   }
 
@@ -94,6 +99,8 @@ export class AppComponent implements OnInit {
     if (this.router.url.includes('/coaching')) return 'Module Coaching';
     if (this.router.url.includes('/player')) return 'Tableau de Bord Joueur';
     if (this.router.url.includes('/terrain')) return 'Gestion des Terrains';
+    if (this.router.url.includes('/forum')) return 'Forum';
+    if (this.router.url.includes('/marketplace')) return 'Marketplace';
     return 'StreetLeague Dashboard';
   }
 }

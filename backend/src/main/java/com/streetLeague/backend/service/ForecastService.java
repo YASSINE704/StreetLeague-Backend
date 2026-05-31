@@ -25,7 +25,7 @@ public class ForecastService {
     private final ReservationRepository reservationRepository;
     private final RestTemplate restTemplate;
 
-    private static final String PYTHON_SERVICE_URL = "http://localhost:5000/predict";
+    private static final String PYTHON_SERVICE_URL = "http://localhost:5001/predict";
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**

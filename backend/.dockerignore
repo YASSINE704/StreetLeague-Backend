@@ -1,0 +1,12 @@
+target/
+*.log
+*.txt
+.git
+.gitattributes
+.gitignore
+.classpath
+.project
+.settings/
+.factorypath
+uploads/
+node_modules/

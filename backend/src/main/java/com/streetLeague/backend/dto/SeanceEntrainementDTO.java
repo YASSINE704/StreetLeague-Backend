@@ -62,6 +62,7 @@ public class SeanceEntrainementDTO {
         private String lieuNom;
         private String endroitNom;
         private Boolean enPleinAir;
+        private String weatherAlert;
         private List<SeanceExerciceDTO.Response> exercices;
         private SuiviSeanceDTO.Response suiviSeance;
         private List<ReservationSeanceDTO.Response> reservations;

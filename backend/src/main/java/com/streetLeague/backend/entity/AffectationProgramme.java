@@ -7,16 +7,22 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AffectationProgramme {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer idAffectation;
 
     @Enumerated(EnumType.STRING)
     private TypeAffectationProgramme type;
 
+    @Column(name = "date_affectation")
     private LocalDateTime dateAffectation;
 
     @ManyToOne

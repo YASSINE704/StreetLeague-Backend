@@ -1,15 +1,21 @@
 """
-StreetLeague AI Service - Recommandation d'Exercices
-=====================================================
-Ce service Flask charge le modèle ML entraîné dans le notebook
-et expose une API REST pour recommander des exercices.
+StreetLeague AI Service - Recommandation d'Exercices & Prédiction de Performance
+==================================================================================
+Ce service Flask charge les modèles ML entraînés et expose une API REST pour :
+1. Recommander des exercices (Intelligent Exercise Recommendation System)
+2. Prédire la performance des joueurs (Future Player Performance Prediction)
 
 Architecture :
-  - Le notebook (notebook.ipynb) entraîne le modèle et l'exporte dans model/
-  - Ce fichier (app.py) charge le modèle exporté et sert les prédictions
-  - Spring Boot appelle ce service via REST (POST /api/ai/recommend)
+  - train_model.py & train_player_prediction_model.py entraînent les modèles et les exportent dans model/
+  - Ce fichier (app.py) charge les modèles exportés et sert les prédictions
+  - Spring Boot appelle ce service via REST
 
-Lancer le notebook AVANT de démarrer ce service pour générer le modèle.
+Endpoints :
+  - POST /api/ai/recommend - Recommandations d'exercices
+  - POST /api/ai/predict-player-performance - Prédictions de performance
+  - GET /api/ai/health - Health check
+
+Lancer les notebooks AVANT de démarrer ce service pour générer les modèles.
 """
 
 from flask import Flask, request, jsonify
@@ -24,41 +30,63 @@ app = Flask(__name__)
 CORS(app)
 
 # ============================================================
-# Chargement du modèle entraîné
+# Chargement des modèles entraînés
 # ============================================================
 MODEL_DIR = os.path.join(os.path.dirname(__file__), 'model')
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
-model_loaded = False
+# Exercise Recommendation Model
+exercise_model_loaded = False
 knn_model = None
 tfidf = None
 scaler = None
 df = None
 combined_features = None
 
+# Player Performance Prediction Model
+player_pred_model_loaded = False
+player_prediction_model = None
+player_prediction_scaler = None
+player_prediction_features = None
+player_prediction_metadata = None
+
 
 def load_model():
-    """Charge le modèle depuis les fichiers exportés par le notebook."""
-    global model_loaded, knn_model, tfidf, scaler, df, combined_features
+    """Charge les modèles depuis les fichiers exportés par les notebooks."""
+    global exercise_model_loaded, knn_model, tfidf, scaler, df, combined_features
+    global player_pred_model_loaded, player_prediction_model, player_prediction_scaler, player_prediction_features, player_prediction_metadata
 
+    # ========== Charger le modèle de recommandation d'exercices ==========
     try:
         knn_model = joblib.load(os.path.join(MODEL_DIR, 'knn_model.joblib'))
         tfidf = joblib.load(os.path.join(MODEL_DIR, 'tfidf_vectorizer.joblib'))
         scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.joblib'))
         combined_features = joblib.load(os.path.join(MODEL_DIR, 'combined_features.joblib'))
         df = pd.read_csv(os.path.join(MODEL_DIR, 'exercises_enriched.csv'))
-        model_loaded = True
-        print("[AI Service] Modèle chargé avec succès depuis model/")
+        exercise_model_loaded = True
+        print("[AI Service] ✓ Modèle de recommandation d'exercices chargé avec succès")
     except FileNotFoundError as e:
-        print(f"[AI Service] ATTENTION: Modèle non trouvé ({e}). "
-              "Exécutez le notebook d'abord. Utilisation du mode fallback.")
-        model_loaded = False
-        # Charger au moins le dataset brut pour le fallback
+        print(f"[AI Service] ATTENTION: Modèle d'exercices non trouvé ({e}).")
+        print("             Exécutez train_model.py d'abord. Mode fallback pour les exercices.")
+        exercise_model_loaded = False
         try:
             df = pd.read_csv(os.path.join(DATA_DIR, 'exercises_dataset.csv'))
-            print("[AI Service] Dataset brut chargé pour le mode fallback.")
+            print("[AI Service] Dataset d'exercices brut chargé pour le mode fallback.")
         except Exception:
             df = None
+
+    # ========== Charger le modèle de prédiction de performance ==========
+    try:
+        player_prediction_model = joblib.load(os.path.join(MODEL_DIR, 'player_performance_model.joblib'))
+        player_prediction_scaler = joblib.load(os.path.join(MODEL_DIR, 'player_performance_scaler.joblib'))
+        player_prediction_features = joblib.load(os.path.join(MODEL_DIR, 'player_performance_feature_names.joblib'))
+        player_prediction_metadata = joblib.load(os.path.join(MODEL_DIR, 'player_performance_metadata.joblib'))
+        player_pred_model_loaded = True
+        print("[AI Service] ✓ Modèle de prédiction de performance chargé avec succès")
+    except FileNotFoundError as e:
+        print(f"[AI Service] ATTENTION: Modèle de prédiction non trouvé ({e}).")
+        print("             Exécutez train_player_prediction_model.py d'abord.")
+        player_pred_model_loaded = False
 
 
 def recommend_with_model(context, top_n=6):
@@ -208,16 +236,18 @@ def build_reason(row, context, score):
 
 
 # ============================================================
-# API Endpoints
+# API Endpoints - Recommandations d'Exercices
 # ============================================================
 
 @app.route("/api/ai/health", methods=["GET"])
 def health():
-    """Health check — indique si le modèle ML est chargé."""
+    """Health check — indique si les modèles ML sont chargés."""
     return jsonify({
         "status": "ok",
-        "model_loaded": model_loaded,
-        "mode": "ml_model" if model_loaded else "fallback",
+        "exercise_model_loaded": exercise_model_loaded,
+        "player_prediction_model_loaded": player_pred_model_loaded,
+        "exercise_mode": "ml_model" if exercise_model_loaded else "fallback",
+        "prediction_mode": "ml_model" if player_pred_model_loaded else "unavailable",
         "dataset_size": len(df) if df is not None else 0
     }), 200
 
@@ -225,7 +255,7 @@ def health():
 @app.route("/api/ai/recommend", methods=["POST"])
 def recommend():
     """
-    Endpoint principal de recommandation.
+    Endpoint principal de recommandation d'exercices.
     Reçoit un contexte JSON et retourne 6 exercices recommandés.
 
     Input JSON:
@@ -248,7 +278,7 @@ def recommend():
         }), 400
 
     # Utiliser le modèle ML si disponible, sinon fallback
-    if model_loaded:
+    if exercise_model_loaded:
         recommendations = recommend_with_model(context, top_n=6)
         mode = "ml_model"
     else:
@@ -259,7 +289,7 @@ def recommend():
         "status": "ok",
         "mode": mode,
         "message": "Recommandations générées avec succès"
-                   + (" (modèle ML)" if model_loaded else " (mode fallback — exécutez le notebook)"),
+                   + (" (modèle ML)" if exercise_model_loaded else " (mode fallback — exécutez le notebook)"),
         "nbRecommandations": len(recommendations),
         "recommandations": recommendations
     }), 200
@@ -269,13 +299,329 @@ def recommend():
 def model_info():
     """Informations sur le modèle chargé."""
     info = {
-        "model_loaded": model_loaded,
-        "algorithm": "KNN (K=6) + TF-IDF + Cosine Similarity" if model_loaded else "Scoring heuristique (fallback)",
+        "exercise_model_loaded": exercise_model_loaded,
+        "player_prediction_model_loaded": player_pred_model_loaded,
+        "exercise_algorithm": "KNN (K=6) + TF-IDF + Cosine Similarity" if exercise_model_loaded else "Scoring heuristique (fallback)",
+        "prediction_algorithm": player_prediction_metadata.get('model_type', 'Unknown') if player_pred_model_loaded else "N/A",
         "dataset_size": len(df) if df is not None else 0,
-        "features": "TF-IDF (texte) + intensite_score + dureeMinutes + calories + type + difficulte" if model_loaded else "N/A",
-        "metric": "cosine" if model_loaded else "N/A"
+        "features": "TF-IDF (texte) + intensite_score + dureeMinutes + calories + type + difficulte" if exercise_model_loaded else "N/A",
+        "metric": "cosine" if exercise_model_loaded else "N/A"
     }
     return jsonify(info), 200
+
+
+# ============================================================
+# API Endpoints - Prédiction de Performance Joueur
+# ============================================================
+
+def predict_player_performance(player_stats):
+    """
+    Prédit la performance d'un joueur basée sur ses statistiques.
+    
+    Input: {
+        "goals": 2,
+        "assists": 1,
+        "tackles": 5,
+        "interceptions": 3,
+        "passes_completed": 45,
+        "pass_accuracy": 82.5,
+        "distance_covered_km": 10.2,
+        "average_speed_kmh": 25.1,
+        "ball_possession_percent": 55,
+        "fouls_committed": 2,
+        "shots_on_target": 3
+    }
+    
+    Returns: Predicted performance rating (0-100)
+    """
+    if not player_pred_model_loaded:
+        return None
+    
+    try:
+        enriched_stats = enrich_player_stats(player_stats)
+
+        # Préparer les features dans le même ordre que l'entraînement
+        feature_values = []
+        for feature in player_prediction_features:
+            value = enriched_stats.get(feature, 0)
+            feature_values.append(value)
+        
+        # Convertir en array numpy
+        feature_array = np.array([feature_values])
+        
+        # Normaliser les features
+        feature_array_scaled = player_prediction_scaler.transform(feature_array)
+        
+        # Prédire, puis calibrer avec un score métier pour éviter les sorties
+        # trop optimistes lorsque les stats sont très faibles.
+        model_prediction = player_prediction_model.predict(feature_array_scaled)[0]
+        rule_score = calculate_rule_based_performance(enriched_stats)
+        prediction = (model_prediction * 0.6) + (rule_score * 0.4)
+        
+        # Cliper la prédiction entre 0 et 100
+        prediction = np.clip(prediction, 0, 100)
+        
+        return round(prediction, 2)
+    except Exception as e:
+        print(f"[AI Service] Erreur lors de la prédiction : {e}")
+        return None
+
+
+def enrich_player_stats(player_stats):
+    """Ajoute les features dérivées utilisées par le modèle entraîné."""
+    stats = dict(player_stats)
+
+    goals = float(stats.get('goals', 0))
+    assists = float(stats.get('assists', 0))
+    tackles = float(stats.get('tackles', 0))
+    interceptions = float(stats.get('interceptions', 0))
+    passes_completed = float(stats.get('passes_completed', 0))
+    pass_accuracy = float(stats.get('pass_accuracy', 0))
+    distance = float(stats.get('distance_covered_km', 0))
+    speed = float(stats.get('average_speed_kmh', 0))
+    fouls = float(stats.get('fouls_committed', 0))
+    yellow_cards = float(stats.get('yellow_cards', 0))
+    shots = float(stats.get('shots_on_target', 0))
+
+    stats['goals_assists_ratio'] = (goals + 1) / (assists + 1)
+    stats['defensive_contribution'] = tackles + interceptions
+    stats['aerial_ability'] = interceptions + tackles * 0.3
+    stats['ball_retention'] = pass_accuracy * (passes_completed / 100)
+    stats['physical_intensity'] = distance * speed / 10
+    stats['attack_threat'] = shots + (goals * 2)
+    stats['discipline_factor'] = 100 - (fouls * 5 + yellow_cards * 10)
+    return stats
+
+
+def calculate_rule_based_performance(stats):
+    """Score transparent utilisé pour calibrer le modèle sur les cas extrêmes."""
+    attack = min(35, stats.get('goals', 0) * 4 + stats.get('assists', 0) * 3 + stats.get('shots_on_target', 0) * 2.2)
+    passing = min(20, stats.get('passes_completed', 0) / 10 + stats.get('pass_accuracy', 0) * 0.12)
+    defense = min(15, stats.get('tackles', 0) * 1.1 + stats.get('interceptions', 0) * 1.4)
+    physical = min(20, stats.get('distance_covered_km', 0) * 1.1 + stats.get('average_speed_kmh', 0) * 0.25 + stats.get('ball_possession_percent', 0) * 0.08)
+    penalty = min(20, stats.get('fouls_committed', 0) * 2.5 + stats.get('yellow_cards', 0) * 8)
+    return float(np.clip(25 + attack + passing + defense + physical - penalty, 0, 100))
+
+
+def estimate_prediction_confidence(player_stats):
+    """Estime la confiance selon la qualité du modèle et la plausibilité des inputs."""
+    if not player_pred_model_loaded:
+        return "LOW"
+
+    extreme_values = 0
+    extreme_values += player_stats.get('pass_accuracy', 0) < 35
+    extreme_values += player_stats.get('passes_completed', 0) < 10
+    extreme_values += player_stats.get('ball_possession_percent', 0) < 15
+    extreme_values += player_stats.get('distance_covered_km', 0) < 6
+    extreme_values += player_stats.get('average_speed_kmh', 0) < 15
+    extreme_values += player_stats.get('fouls_committed', 0) > 7
+
+    if extreme_values >= 3:
+        return "LOW"
+    if extreme_values >= 1:
+        return "MEDIUM"
+
+    mae = float(player_prediction_metadata.get('mae', 10)) if player_prediction_metadata else 10
+    if mae <= 5:
+        return "HIGH"
+    if mae <= 8:
+        return "MEDIUM"
+    return "LOW"
+
+
+def build_prediction_response(player_id, player_stats, predicted_rating):
+    """Construit une réponse de prédiction avec explications."""
+    
+    # Catégories de performance
+    if predicted_rating <= 30:
+        category = "VERY_BAD"
+        interpretation = "Performance attendue très faible"
+    elif predicted_rating <= 50:
+        category = "BAD"
+        interpretation = "Performance attendue faible"
+    elif predicted_rating <= 65:
+        category = "AVERAGE"
+        interpretation = "Performance attendue moyenne"
+    elif predicted_rating <= 80:
+        category = "GOOD"
+        interpretation = "Performance attendue bonne"
+    elif predicted_rating <= 90:
+        category = "EXCELLENT"
+        interpretation = "Performance attendue excellente"
+    else:
+        category = "LEGEND"
+        interpretation = "Performance attendue légendaire"
+    
+    # Identifier les forces et faiblesses
+    strengths = []
+    weaknesses = []
+    
+    if player_stats.get('goals', 0) > 2:
+        strengths.append("Attaque (buts)")
+    if player_stats.get('pass_accuracy', 0) > 80:
+        strengths.append("Précision de passes")
+    if player_stats.get('tackles', 0) > 5:
+        strengths.append("Défense (tacles)")
+    if player_stats.get('distance_covered_km', 0) > 10:
+        strengths.append("Endurance")
+    
+    if player_stats.get('fouls_committed', 0) > 3:
+        weaknesses.append("Discipline (fautes)")
+    if player_stats.get('pass_accuracy', 0) < 70:
+        weaknesses.append("Précision")
+    if player_stats.get('tackles', 0) < 2:
+        weaknesses.append("Engagement défensif")
+    
+    return {
+        "player_id": player_id,
+        "predicted_performance_rating": predicted_rating,
+        "performance_category": category,
+        "interpretation": interpretation,
+        "strengths": strengths if strengths else ["Équilibré"],
+        "weaknesses": weaknesses if weaknesses else ["Aucune faiblesse notable"],
+        "confidence": estimate_prediction_confidence(player_stats),
+        "algorithm": player_prediction_metadata.get('model_type', 'Unknown') if player_pred_model_loaded else "N/A"
+    }
+
+
+@app.route("/api/ai/predict-player-performance", methods=["POST"])
+def predict_player():
+    """
+    Endpoint de prédiction de performance joueur.
+    Reçoit les statistiques du joueur et retourne une prédiction de performance.
+    
+    Input JSON:
+    {
+        "player_id": 1,
+        "goals": 2,
+        "assists": 1,
+        "tackles": 5,
+        "interceptions": 3,
+        "passes_completed": 45,
+        "pass_accuracy": 82.5,
+        "distance_covered_km": 10.2,
+        "average_speed_kmh": 25.1,
+        "ball_possession_percent": 55,
+        "fouls_committed": 2,
+        "shots_on_target": 3
+    }
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "status": "error",
+            "message": "Données JSON requises"
+        }), 400
+    
+    player_id = data.get('player_id')
+    if not player_id:
+        return jsonify({
+            "status": "error",
+            "message": "player_id requis"
+        }), 400
+    
+    if not player_pred_model_loaded:
+        return jsonify({
+            "status": "error",
+            "message": "Modèle de prédiction non disponible",
+            "hint": "Exécutez train_player_prediction_model.py"
+        }), 503
+    
+    # Extraire les stats du joueur
+    player_stats = {
+        'goals': data.get('goals', 0),
+        'assists': data.get('assists', 0),
+        'tackles': data.get('tackles', 0),
+        'interceptions': data.get('interceptions', 0),
+        'passes_completed': data.get('passes_completed', 0),
+        'pass_accuracy': data.get('pass_accuracy', 75),
+        'distance_covered_km': data.get('distance_covered_km', 10),
+        'average_speed_kmh': data.get('average_speed_kmh', 25),
+        'ball_possession_percent': data.get('ball_possession_percent', 50),
+        'fouls_committed': data.get('fouls_committed', 0),
+        'yellow_cards': data.get('yellow_cards', 0),
+        'shots_on_target': data.get('shots_on_target', 0),
+    }
+    
+    # Prédire
+    predicted_rating = predict_player_performance(player_stats)
+    
+    if predicted_rating is None:
+        return jsonify({
+            "status": "error",
+            "message": "Erreur lors de la prédiction"
+        }), 500
+    
+    # Construire la réponse
+    response = build_prediction_response(player_id, player_stats, predicted_rating)
+    
+    return jsonify({
+        "status": "ok",
+        "mode": "ml_model",
+        "prediction": response
+    }), 200
+
+
+@app.route("/api/ai/predict-batch", methods=["POST"])
+def predict_batch():
+    """
+    Endpoint pour prédictions par lots (multiple joueurs).
+    
+    Input JSON:
+    {
+        "players": [
+            {"player_id": 1, "goals": 2, "assists": 1, ...},
+            {"player_id": 2, "goals": 3, "assists": 2, ...}
+        ]
+    }
+    """
+    data = request.get_json()
+    if not data or 'players' not in data:
+        return jsonify({
+            "status": "error",
+            "message": "Format attendu: {\"players\": [...]}"
+        }), 400
+    
+    if not player_pred_model_loaded:
+        return jsonify({
+            "status": "error",
+            "message": "Modèle de prédiction non disponible"
+        }), 503
+    
+    players = data.get('players', [])
+    predictions = []
+    
+    for player_data in players:
+        player_id = player_data.get('player_id')
+        if not player_id:
+            continue
+        
+        player_stats = {
+            'goals': player_data.get('goals', 0),
+            'assists': player_data.get('assists', 0),
+            'tackles': player_data.get('tackles', 0),
+            'interceptions': player_data.get('interceptions', 0),
+            'passes_completed': player_data.get('passes_completed', 0),
+            'pass_accuracy': player_data.get('pass_accuracy', 75),
+            'distance_covered_km': player_data.get('distance_covered_km', 10),
+            'average_speed_kmh': player_data.get('average_speed_kmh', 25),
+            'ball_possession_percent': player_data.get('ball_possession_percent', 50),
+            'fouls_committed': player_data.get('fouls_committed', 0),
+            'yellow_cards': player_data.get('yellow_cards', 0),
+            'shots_on_target': player_data.get('shots_on_target', 0),
+        }
+        
+        predicted_rating = predict_player_performance(player_stats)
+        if predicted_rating is not None:
+            response = build_prediction_response(player_id, player_stats, predicted_rating)
+            predictions.append(response)
+    
+    return jsonify({
+        "status": "ok",
+        "mode": "ml_model",
+        "total": len(predictions),
+        "predictions": predictions
+    }), 200
 
 
 # ============================================================
@@ -283,6 +629,16 @@ def model_info():
 # ============================================================
 if __name__ == "__main__":
     load_model()
-    print("\n[AI Service] Démarrage sur http://localhost:5000")
-    print(f"[AI Service] Mode : {'ML Model' if model_loaded else 'Fallback (exécutez le notebook)'}")
+    print("\n" + "="*80)
+    print("[AI Service] Démarrage sur http://localhost:5000")
+    print("="*80)
+    print(f"[AI Service] Modèle Exercices       : {'✓ Chargé (ML Mode)' if exercise_model_loaded else '✗ Non disponible (Mode Fallback)'}")
+    print(f"[AI Service] Modèle Prédictions    : {'✓ Chargé (ML Mode)' if player_pred_model_loaded else '✗ Non disponible'}")
+    print("\n[API Endpoints]")
+    print("  - GET  /api/ai/health                          : Health check")
+    print("  - POST /api/ai/recommend                       : Recommandation d'exercices")
+    print("  - POST /api/ai/predict-player-performance      : Prédiction performance joueur")
+    print("  - POST /api/ai/predict-batch                   : Prédictions par lots")
+    print("  - GET  /api/ai/model-info                      : Info modèles")
+    print("="*80 + "\n")
     app.run(host="0.0.0.0", port=5000, debug=False)

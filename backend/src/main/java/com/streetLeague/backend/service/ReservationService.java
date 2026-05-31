@@ -5,17 +5,25 @@ import com.streetLeague.backend.entity.SousEspace;
 import com.streetLeague.backend.enums.StatutReservation;
 import com.streetLeague.backend.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final SousEspaceService sousEspaceService;
     private final NotificationService notificationService;
+    private final ReservationPdfService reservationPdfService;
+    private final PricingService pricingService;
 
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
@@ -55,9 +63,11 @@ public class ReservationService {
         reservation.setSousEspace(sousEspace);
         reservation.setDateCreation(LocalDateTime.now());
         reservation.setStatut(StatutReservation.EN_ATTENTE);
+        reservation.setPrixTotal(pricingService.calculerPrix(reservation, sousEspace));
         Reservation saved = reservationRepository.save(reservation);
         notificationService.notifyReservationCreated(saved.getId(), sousEspace.getNom(),
             sousEspace.getEndroit() != null ? sousEspace.getEndroit().getNom() : "");
+        savePdf(saved);
         return saved;
     }
 
@@ -122,5 +132,18 @@ public class ReservationService {
             reservation.getSousEspace().getNom(),
             reservation.getSousEspace().getEndroit() != null ? reservation.getSousEspace().getEndroit().getNom() : "");
         return saved;
+    }
+
+    private void savePdf(Reservation reservation) {
+        try {
+            Path dir = Paths.get("reservations-pdf");
+            Files.createDirectories(dir);
+            byte[] pdf = reservationPdfService.generateReservationPdf(reservation);
+            Path file = dir.resolve("reservation-" + reservation.getId() + ".pdf");
+            Files.write(file, pdf);
+            log.info("PDF réservation sauvegardé : {}", file.toAbsolutePath());
+        } catch (Exception e) {
+            log.error("Erreur génération PDF réservation #{}: {}", reservation.getId(), e.getMessage());
+        }
     }
 }

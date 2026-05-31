@@ -33,7 +33,11 @@ public class PlayerStatsDTO {
     private int tackles;
     private int interceptions;
     private int passesCompleted;
+    private double passAccuracy;
     private double distanceCovered;
     private double averageSpeed;
+    private double ballPossessionPercent;
+    private int foulsCommitted;
+    private int shotsOnTarget;
     
 }

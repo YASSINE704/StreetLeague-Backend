@@ -1,32 +1,28 @@
 package com.streetLeague.backend.service;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.streetLeague.backend.entity.Endroit;
+import com.streetLeague.backend.entity.Product;
 import com.streetLeague.backend.entity.Reservation;
 import com.streetLeague.backend.enums.StatutEndroit;
 import com.streetLeague.backend.enums.TypeEndroit;
 import com.streetLeague.backend.repository.EndroitRepository;
+import com.streetLeague.backend.repository.ProductRepository;
 import com.streetLeague.backend.repository.ReservationRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-/**
- * AI-powered recommendation engine for endroits.
- *
- * Scoring algorithm (Content-Based Filtering):
- * - Popularity (45%): number of reservations (all statuses except ANNULEE)
- * - Availability (30%): DISPONIBLE endroits get a boost
- * - Capacity (15%): higher capacity = more attractive
- * - Variety bonus (10%): types with fewer reservations get a discovery boost
- */
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
 
     private final EndroitRepository endroitRepository;
     private final ReservationRepository reservationRepository;
+    private final ProductRepository productRepository;
 
     public List<Map<String, Object>> getRecommendations(Long userId, int limit) {
         List<Reservation> allReservations = reservationRepository.findAll();
@@ -36,7 +32,6 @@ public class RecommendationService {
             return Collections.emptyList();
         }
 
-        // Popularity: endroitId -> reservation count (include EN_ATTENTE + CONFIRMEE)
         Map<Long, Long> popularityMap = allReservations.stream()
                 .filter(r -> r.getSousEspace() != null && r.getSousEspace().getEndroit() != null)
                 .collect(Collectors.groupingBy(
@@ -45,7 +40,6 @@ public class RecommendationService {
                 ));
         long maxPop = popularityMap.values().stream().max(Long::compareTo).orElse(1L);
 
-        // Type popularity for variety bonus
         Map<TypeEndroit, Long> typePopularity = allReservations.stream()
                 .filter(r -> r.getSousEspace() != null && r.getSousEspace().getEndroit() != null)
                 .collect(Collectors.groupingBy(
@@ -54,19 +48,16 @@ public class RecommendationService {
                 ));
         long maxTypePop = typePopularity.values().stream().max(Long::compareTo).orElse(1L);
 
-        // Max capacity for normalization
         int maxCapacity = allEndroits.stream()
                 .mapToInt(e -> e.getCapacite() != null ? e.getCapacite() : 0)
                 .max().orElse(1);
 
-        // Score each endroit
         List<Map<String, Object>> scored = new ArrayList<>();
         for (Endroit endroit : allEndroits) {
             double popScore = popularityMap.getOrDefault(endroit.getId(), 0L) / (double) maxPop;
             double availScore = endroit.getStatut() == StatutEndroit.DISPONIBLE ? 1.0 : 0.0;
             double capScore = (endroit.getCapacite() != null ? endroit.getCapacite() : 0) / (double) maxCapacity;
 
-            // Variety: less popular types get a boost (discovery)
             double typeCount = typePopularity.getOrDefault(endroit.getType(), 0L);
             double varietyScore = 1.0 - (typeCount / (double) (maxTypePop + 1));
 
@@ -88,7 +79,6 @@ public class RecommendationService {
             entry.put("score", scorePercent);
             entry.put("totalReservations", popularityMap.getOrDefault(endroit.getId(), 0L));
 
-            // Build reasons
             List<String> reasons = new ArrayList<>();
             long pop = popularityMap.getOrDefault(endroit.getId(), 0L);
             if (pop > 0) reasons.add("🔥 " + pop + " réservation(s)");
@@ -103,5 +93,13 @@ public class RecommendationService {
 
         scored.sort((a, b) -> Long.compare((long) b.get("score"), (long) a.get("score")));
         return scored.stream().limit(limit).toList();
+    }
+
+    public List<Product> recommend(String category, double maxPrice) {
+        return productRepository.findAll()
+                .stream()
+                .filter(p -> p.getCategory().equalsIgnoreCase(category))
+                .filter(p -> p.getPrice() <= maxPrice)
+                .toList();
     }
 }

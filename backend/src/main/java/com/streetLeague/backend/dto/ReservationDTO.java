@@ -21,4 +21,5 @@ public class ReservationDTO {
     private String sousEspaceNom;
     private Long endroitId;
     private String endroitNom;
+    private Double prixTotal;
 }

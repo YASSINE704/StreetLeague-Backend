@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 /**
  * Interface for Player Performance Prediction
@@ -34,7 +35,7 @@ export interface PlayerPrediction {
   providedIn: 'root'
 })
 export class PlayerPredictionService {
-  private readonly base = 'http://localhost:18080/players';
+  private readonly base = '/api/players';
 
   constructor(private http: HttpClient) {}
 
@@ -45,7 +46,23 @@ export class PlayerPredictionService {
    * @returns Observable of PlayerPrediction
    */
   getPrediction(playerId: number): Observable<PlayerPrediction> {
-    return this.http.get<PlayerPrediction>(`${this.base}/${playerId}/prediction`);
+    return this.http.get<any>(`${this.base}/${playerId}/prediction`)
+      .pipe(
+        map(response => response.prediction ?? response)
+      );
+  }
+
+  /**
+   * Predict performance with custom player statistics
+   * 
+   * @param stats Player statistics for prediction
+   * @returns Observable of prediction result
+   */
+  predictWithCustomStats(stats: any): Observable<any> {
+    return this.http.post<any>(`${this.base}/ai-predict-custom`, stats)
+      .pipe(
+        map(response => response.prediction)
+      );
   }
 
   /**

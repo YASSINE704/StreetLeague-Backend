@@ -69,6 +69,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Aperçu Global
           </button>
+          <button class="pd-nav-item" [class.active]="activeTab === 'ADVANCED'" (click)="activeTab = 'ADVANCED'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 3.4 6.9L23 11l-5.5 5.4 1.3 7.6L12 20.4 5.2 24l1.3-7.6L1 11l7.6-1.1L12 3z"/></svg>
+            Stats Avancées
+          </button>
           <button class="pd-nav-item" [class.active]="activeTab === 'PROFILE'" (click)="activeTab = 'PROFILE'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Édition de Profil
@@ -153,6 +157,106 @@
               </div>
               <div *ngIf="activityFeed.length === 0" class="pd-empty-state">
                 <p>Aucune activité récente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADVANCED STATS TAB -->
+        <div *ngIf="activeTab === 'ADVANCED'" class="pd-tab-panel">
+          <div class="pd-advanced-shell">
+            <div class="pd-advanced-hero">
+              <div class="pd-card-stage">
+                <div class="pd-fut-card">
+                  <div class="pd-card-glow"></div>
+                  <div class="pd-card-top">
+                    <div>
+                      <div class="pd-card-rating">{{ advancedOverall }}</div>
+                      <div class="pd-card-position">{{ positionCode }}</div>
+                    </div>
+                    <div class="pd-card-level">
+                      <span *ngFor="let star of levelStars">★</span>
+                    </div>
+                  </div>
+
+                  <div class="pd-card-photo" [class.empty]="!playerData?.profilePicture">
+                    <img *ngIf="playerData?.profilePicture" [src]="playerData?.profilePicture" alt="Player photo">
+                    <span *ngIf="!playerData?.profilePicture">{{ playerData?.nom?.charAt(0) || 'J' }}</span>
+                  </div>
+
+                  <div class="pd-card-name">{{ playerData?.nom || authService.user?.username }}</div>
+                  <div class="pd-card-club">{{ myTeam?.nom || 'StreetLeague FC' }}</div>
+
+                  <div class="pd-card-metrics">
+                    <div class="pd-card-metric" *ngFor="let metric of advancedMetrics">
+                      <strong>{{ metric.value }}</strong>
+                      <span>{{ metric.code }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pd-growth-panel">
+                <div class="pd-growth-header">
+                  <div>
+                    <p>PRO PLAYER DATA</p>
+                    <h2>{{ playerData?.nom || 'Joueur' }}</h2>
+                  </div>
+                  <div class="pd-growth-overall">
+                    <span>OVR</span>
+                    <strong>{{ advancedOverall }}</strong>
+                  </div>
+                </div>
+
+                <div class="pd-advanced-grid">
+                  <div class="pd-advanced-stat">
+                    <span>Matchs</span>
+                    <strong>{{ advancedSummary.matches }}</strong>
+                  </div>
+                  <div class="pd-advanced-stat">
+                    <span>Buts</span>
+                    <strong>{{ advancedSummary.goals }}</strong>
+                  </div>
+                  <div class="pd-advanced-stat">
+                    <span>Assists</span>
+                    <strong>{{ advancedSummary.assists }}</strong>
+                  </div>
+                  <div class="pd-advanced-stat">
+                    <span>Note Moy.</span>
+                    <strong>{{ advancedSummary.averageRating }}</strong>
+                  </div>
+                </div>
+
+                <div class="pd-growth-bars">
+                  <div class="pd-growth-row" *ngFor="let metric of growthMetrics">
+                    <div class="pd-growth-label">
+                      <span>{{ metric.label }}</span>
+                      <strong>{{ metric.value }}</strong>
+                    </div>
+                    <div class="pd-growth-track">
+                      <div class="pd-growth-fill" [style.width.%]="metric.value" [style.background]="metric.tone"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pd-profile-strip">
+                  <div>
+                    <span>POINT FORT</span>
+                    <strong>{{ advancedSummary.topMetric.label }}</strong>
+                  </div>
+                  <div>
+                    <span>POSITION</span>
+                    <strong>{{ positionCode }}</strong>
+                  </div>
+                  <div>
+                    <span>DISTANCE</span>
+                    <strong>{{ advancedSummary.distance }} km</strong>
+                  </div>
+                  <div>
+                    <span>MIN/MATCH</span>
+                    <strong>{{ advancedSummary.minutes }}</strong>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -337,6 +441,140 @@
 
             <div class="pd-empty-state mt-8" *ngIf="!playerPrediction">
               <p>⏳ Chargement de la prédiction IA...</p>
+            </div>
+
+            <!-- CUSTOM PREDICTION FORM SECTION -->
+            <div class="pd-custom-prediction-section mt-10">
+              <div class="pd-section-header">
+                <h3>🎯 Prédiction Personnalisée</h3>
+                <p class="pd-section-hint">Entre tes stats pour voir une prédiction IA instantanée</p>
+              </div>
+
+              <form [formGroup]="customPredictionForm" (ngSubmit)="submitCustomPrediction()" class="pd-custom-form">
+                <div class="pd-form-grid">
+                  <!-- Row 1: Attacking Stats -->
+                  <div class="pd-form-field">
+                    <label>⚽ Buts</label>
+                    <input type="number" formControlName="goals" min="0" max="20">
+                  </div>
+                  <div class="pd-form-field">
+                    <label>🤝 Assists</label>
+                    <input type="number" formControlName="assists" min="0" max="20">
+                  </div>
+                  <div class="pd-form-field">
+                    <label>💥 Tirs Cadrés</label>
+                    <input type="number" formControlName="shotsOnTarget" min="0" max="15">
+                  </div>
+
+                  <!-- Row 2: Defending Stats -->
+                  <div class="pd-form-field">
+                    <label>🛡️ Tacles</label>
+                    <input type="number" formControlName="tackles" min="0" max="30">
+                  </div>
+                  <div class="pd-form-field">
+                    <label>🚫 Interceptions</label>
+                    <input type="number" formControlName="interceptions" min="0" max="20">
+                  </div>
+                  <div class="pd-form-field">
+                    <label>⚠️ Fautes Commises</label>
+                    <input type="number" formControlName="foulsCommitted" min="0" max="20">
+                  </div>
+
+                  <!-- Row 3: Possession/Pass Stats -->
+                  <div class="pd-form-field">
+                    <label>📍 Passes Réussies</label>
+                    <input type="number" formControlName="passesCompleted" min="0" max="300">
+                  </div>
+                  <div class="pd-form-field">
+                    <label>📊 Précision Passes (%)</label>
+                    <input type="number" formControlName="passAccuracy" min="0" max="100">
+                  </div>
+                  <div class="pd-form-field">
+                    <label>🎾 Possession (%)</label>
+                    <input type="number" formControlName="ballPossessionPercent" min="0" max="100">
+                  </div>
+
+                  <!-- Row 4: Movement Stats -->
+                  <div class="pd-form-field">
+                    <label>🏃 Distance (km)</label>
+                    <input type="number" formControlName="distanceCoveredKm" min="0" max="20" step="0.1">
+                  </div>
+                  <div class="pd-form-field">
+                    <label>⚡ Vitesse Moyenne (km/h)</label>
+                    <input type="number" formControlName="averageSpeedKmh" min="0" max="40" step="0.1">
+                  </div>
+                </div>
+
+                <div class="pd-form-footer">
+                  <button type="submit" class="pd-btn-primary" [disabled]="customPredictionForm.invalid || predictionLoading">
+                    {{ predictionLoading ? '🔄 Prédiction en cours...' : '🤖 Obtenir la Prédiction IA' }}
+                  </button>
+                </div>
+              </form>
+
+              <!-- Custom Prediction Result -->
+              <div *ngIf="customPredictionResult" class="pd-prediction-result mt-8">
+                <div class="pd-result-header">
+                  <h4>✅ Résultat de la Prédiction</h4>
+                  <span class="pd-algorithm">Algorithme: {{ customPredictionResult.algorithm }}</span>
+                </div>
+
+                <div class="pd-prediction-grid">
+                  <!-- Performance Rating -->
+                  <div class="pd-prediction-card main">
+                    <div class="pd-pred-label">Performance Prédite</div>
+                    <div class="pd-pred-rating-display">
+                      <div class="pd-pred-score" [style.color]="predictionService.getCategoryColor(customPredictionResult.performanceCategory)">
+                        {{ customPredictionResult.predictedPerformanceRating | number:'1.0-1' }}
+                      </div>
+                      <div class="pd-pred-category" [style.backgroundColor]="predictionService.getCategoryColor(customPredictionResult.performanceCategory)">
+                        {{ predictionService.getCategoryLabel(customPredictionResult.performanceCategory) }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Confidence -->
+                  <div class="pd-prediction-card">
+                    <div class="pd-pred-label">Confiance</div>
+                    <div class="pd-pred-metric">
+                      <span class="pd-pred-value">{{ customPredictionResult.confidence || 'N/A' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Interpretation -->
+                <div class="pd-interpretation mt-4" *ngIf="customPredictionResult.interpretation">
+                  <p class="pd-interp-title">💡 Interprétation</p>
+                  <p class="pd-interp-text">{{ customPredictionResult.interpretation }}</p>
+                </div>
+
+                <!-- Strengths & Weaknesses -->
+                <div class="pd-strengths-weaknesses mt-4" *ngIf="customPredictionResult.strengths || customPredictionResult.weaknesses">
+                  <div class="pd-sw-column" *ngIf="customPredictionResult.strengths">
+                    <p class="pd-sw-title">💪 Forces</p>
+                    <ul>
+                      <li *ngFor="let s of customPredictionResult.strengths">{{ s }}</li>
+                    </ul>
+                  </div>
+                  <div class="pd-sw-column" *ngIf="customPredictionResult.weaknesses">
+                    <p class="pd-sw-title">📈 Points d'Amélioration</p>
+                    <ul>
+                      <li *ngFor="let w of customPredictionResult.weaknesses">{{ w }}</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="pd-save-simulation">
+                  <button
+                    type="button"
+                    class="pd-btn-secondary"
+                    (click)="saveCustomPredictionAsStats()"
+                    [disabled]="savingSimulation || !!savedSimulationId">
+                    {{ savedSimulationId ? '✅ Performance sauvegardée' : (savingSimulation ? '💾 Sauvegarde...' : '💾 Sauvegarder dans mes stats') }}
+                  </button>
+                  <p>Cette action ajoute cette simulation IA à ton historique joueur.</p>
+                </div>
+              </div>
             </div>
 
             <!-- Per-match stats table -->

@@ -27,6 +27,7 @@ public class Reservation {
 
     private LocalDateTime dateCreation;
     private String motifAnnulation;
+    private Double prixTotal;
 
     @ManyToOne
     @JoinColumn(name = "sous_espace_id")
