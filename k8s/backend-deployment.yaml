@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streetleague-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streetleague-backend
+  template:
+    metadata:
+      labels:
+        app: streetleague-backend
+    spec:
+      containers:
+      - name: backend
+        image: nafissanbr/streetleague-backend:latest
+        ports:
+        - containerPort: 18080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://host.docker.internal:3306/streetleague?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: ""
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streetleague-backend-svc
+spec:
+  selector:
+    app: streetleague-backend
+  ports:
+  - port: 80
+    targetPort: 18080
+  type: NodePort
