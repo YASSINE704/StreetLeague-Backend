@@ -56,12 +56,55 @@
       <span class="db-stat__sub">à venir</span>
     </div>
     <div class="db-stat db-stat--violet">
-      <div class="db-stat__icon">💪</div>
+      <div class="db-stat__icon">👥</div>
       <div class="db-stat__body">
-        <span class="db-stat__value">{{ totalExercices }}</span>
-        <span class="db-stat__label">Exercices</span>
+        <span class="db-stat__value">{{ totalSportifsInscrits }}</span>
+        <span class="db-stat__label">Sportifs inscrits</span>
       </div>
-      <span class="db-stat__sub">dans le catalogue</span>
+      <span class="db-stat__sub">{{ reservationsEnAttente.length }} en attente</span>
+    </div>
+  </div>
+
+  <!-- Séances du jour / cette semaine -->
+  <div class="sl-card" *ngIf="seancesCetteSemaine.length > 0">
+    <div class="sl-card-header">
+      <h3>📅 Planning de la semaine</h3>
+      <span class="sl-badge sl-badge--blue">{{ seancesCetteSemaine.length }} séance(s)</span>
+    </div>
+    <div class="db-schedule">
+      <div class="db-schedule-item" *ngFor="let s of seancesCetteSemaine"
+           [class.db-schedule-item--today]="s.dateSeance === todayStr">
+        <div class="db-schedule-date">
+          <span class="db-schedule-day">{{ getDayLabel(s.dateSeance) }}</span>
+          <span class="db-schedule-time">{{ s.heureDebut || '—' }} - {{ s.heureFin || '—' }}</span>
+        </div>
+        <div class="db-schedule-info">
+          <span class="db-schedule-title">{{ s.titreSeance }}</span>
+          <span class="db-schedule-meta">
+            {{ s.programmeTitre }} · {{ s.intensite }} · 👥 {{ getParticipants(s) }}/{{ s.maxParticipants || 5 }}
+          </span>
+        </div>
+        <span class="sl-badge sl-badge--blue">{{ s.statut }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Réservations en attente -->
+  <div class="sl-card" *ngIf="reservationsEnAttente.length > 0">
+    <div class="sl-card-header">
+      <h3>🔔 Réservations en attente</h3>
+      <span class="sl-badge sl-badge--orange">{{ reservationsEnAttente.length }}</span>
+    </div>
+    <div class="db-pending-list">
+      <div class="db-pending-item" *ngFor="let r of reservationsEnAttente">
+        <div class="db-pending-info">
+          <span class="db-pending-user">{{ r.userNom }}</span>
+          <span class="db-pending-seance">→ {{ r.seanceTitre }}</span>
+        </div>
+        <a [routerLink]="['/coaching/seances', r.seanceId]" class="sl-btn sl-btn--primary sl-btn--sm">
+          Gérer →
+        </a>
+      </div>
     </div>
   </div>
 
@@ -117,24 +160,46 @@
       </div>
     </div>
 
-    <!-- Right: Suivi averages + Quick actions -->
+    <!-- Right: Feedback Stats + Quick actions -->
     <div class="db-col">
-      <!-- Suivi Moyennes -->
+      <!-- Statistiques Feedback -->
       <div class="sl-card">
         <div class="sl-card-header">
-          <h3>🎯 Moyennes Suivi</h3>
+          <h3>⭐ Statistiques Feedback</h3>
         </div>
-        <div class="db-avg-grid">
-          <div class="db-avg-card db-avg-card--blue">
-            <span class="db-avg-emoji">😊</span>
-            <span class="db-avg-value">{{ moyenneRessenti }}</span>
-            <span class="db-avg-label">Ressenti /10</span>
+        <div class="db-feedback-stats" *ngIf="totalFeedbacks > 0">
+          <div class="db-feedback-score">
+            <span class="db-feedback-big-number">{{ moyenneNote }}</span>
+            <span class="db-feedback-big-label">/5 ⭐</span>
           </div>
-          <div class="db-avg-card db-avg-card--orange">
-            <span class="db-avg-emoji">😓</span>
-            <span class="db-avg-value">{{ moyenneFatigue }}</span>
-            <span class="db-avg-label">Fatigue /10</span>
+          <p class="db-feedback-count">Basé sur {{ totalFeedbacks }} feedback(s)</p>
+
+          <div class="db-avg-grid">
+            <div class="db-avg-card db-avg-card--blue">
+              <span class="db-avg-emoji">😊</span>
+              <span class="db-avg-value">{{ moyenneRessenti }}</span>
+              <span class="db-avg-label">Ressenti /10</span>
+            </div>
+            <div class="db-avg-card db-avg-card--orange">
+              <span class="db-avg-emoji">😓</span>
+              <span class="db-avg-value">{{ moyenneFatigue }}</span>
+              <span class="db-avg-label">Fatigue /10</span>
+            </div>
           </div>
+
+          <div class="db-feedback-verdict">
+            <span class="db-verdict-icon" *ngIf="verdictGlobal === 'EXCELLENT'">🏆</span>
+            <span class="db-verdict-icon" *ngIf="verdictGlobal === 'BON'">👍</span>
+            <span class="db-verdict-icon" *ngIf="verdictGlobal === 'MOYEN'">⚠️</span>
+            <span class="db-verdict-icon" *ngIf="verdictGlobal === 'FAIBLE'">👎</span>
+            <span class="db-verdict-text">{{ verdictGlobal }}</span>
+            <span class="db-verdict-desc">{{ verdictDescription }}</span>
+          </div>
+        </div>
+        <div class="sl-empty" *ngIf="totalFeedbacks === 0">
+          <span class="sl-empty-icon">⭐</span>
+          <p>Aucun feedback reçu</p>
+          <span class="sl-empty-hint">Les statistiques apparaîtront après les premiers feedbacks des sportifs</span>
         </div>
       </div>
 

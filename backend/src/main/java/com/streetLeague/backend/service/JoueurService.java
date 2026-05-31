@@ -95,6 +95,9 @@ public class JoueurService {
         joueur.setAge(joueurDetails.getAge());
         joueur.setNiveau(joueurDetails.getNiveau());
         joueur.setPosition(joueurDetails.getPosition());
+        if (joueurDetails.getProfilePicture() != null) {
+            joueur.setProfilePicture(joueurDetails.getProfilePicture());
+        }
 
         if (joueurDetails.getEquipe() != null) {
             joueur.setEquipe(resolveEquipe(joueurDetails.getEquipe()));
@@ -167,17 +170,18 @@ public class JoueurService {
             dto.setEquipeName(joueur.getEquipe().getNom());
         }
         
-        if (joueur.getPlayerStats() != null && !joueur.getPlayerStats().isEmpty()) {
-            int totalGoals = joueur.getPlayerStats().stream().mapToInt(PlayerStats::getGoals).sum();
-            int totalAssists = joueur.getPlayerStats().stream().mapToInt(PlayerStats::getAssists).sum();
-            double avgRating = joueur.getPlayerStats().stream()
+        List<PlayerStats> stats = playerStatsRepository.findByJoueurId(joueur.getId());
+        if (!stats.isEmpty()) {
+            int totalGoals = stats.stream().mapToInt(PlayerStats::getGoals).sum();
+            int totalAssists = stats.stream().mapToInt(PlayerStats::getAssists).sum();
+            double avgRating = stats.stream()
                     .mapToDouble(PlayerStats::getPerformanceRating)
                     .average()
                     .orElse(0.0);
             
             dto.setTotalGoals(totalGoals);
             dto.setTotalAssists(totalAssists);
-            dto.setMatchesPlayed(joueur.getPlayerStats().size());
+            dto.setMatchesPlayed(stats.size());
             dto.setAverageRating(avgRating);
         }
         

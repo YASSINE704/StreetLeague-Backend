@@ -5,7 +5,7 @@ import { TerrainDTO, MatchDTO, TerrainRequest } from '../../shared/models/sports
 
 @Injectable({ providedIn: 'root' })
 export class TerrainService {
-  private readonly base = 'http://localhost:8080/terrains';
+  private readonly base = 'http://localhost:18080/terrains';
 
   constructor(private http: HttpClient) {}
 

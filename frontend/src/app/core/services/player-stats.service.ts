@@ -5,7 +5,7 @@ import { PlayerStatsDTO } from '../../shared/models/sports.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerStatsService {
-  private readonly base = 'http://localhost:8080/player-stats';
+  private readonly base = 'http://localhost:18080/player-stats';
 
   constructor(private http: HttpClient) {}
 

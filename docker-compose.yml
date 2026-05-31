@@ -1,0 +1,88 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: streetleague-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: streetleague
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - streetleague-net
+
+  backend:
+    build:
+      context: ./backend
+    container_name: streetleague-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/streetleague?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      APP_JWT_SECRET: ${JWT_SECRET:-streetleague-local-development-secret-change-before-prod}
+      APP_JWT_EXPIRATION_SECONDS: "86400"
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3}
+      APP_EMAIL_ENABLED: "false"
+      WEATHER_API_KEY: ${WEATHER_API_KEY:-}
+      WEATHER_API_ENABLED: "false"
+    ports:
+      - "18080:18080"
+    volumes:
+      - uploads-data:/app/uploads
+    networks:
+      - streetleague-net
+
+  ai-service:
+    build:
+      context: ./ai-service
+    container_name: streetleague-ai
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    networks:
+      - streetleague-net
+
+  forecast-service:
+    build:
+      context: ./forecast-service
+    container_name: streetleague-forecast
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    networks:
+      - streetleague-net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: streetleague-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - ai-service
+      - forecast-service
+    ports:
+      - "4200:80"
+    networks:
+      - streetleague-net
+
+networks:
+  streetleague-net:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  uploads-data:

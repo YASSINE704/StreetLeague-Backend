@@ -1,6 +1,7 @@
 package com.streetLeague.backend.service;
 
 import com.streetLeague.backend.dto.PlayerStatsDTO;
+import com.streetLeague.backend.dto.PlayerPerformanceRequestDTO;
 import com.streetLeague.backend.entity.PlayerStats;
 import com.streetLeague.backend.entity.Joueur;
 import com.streetLeague.backend.entity.Match;
@@ -80,8 +81,41 @@ public class PlayerStatsService {
      */
     public PlayerStats savePlayerStats(PlayerStats playerStats) {
         playerStats.setJoueur(resolvePlayer(playerStats.getJoueur()));
-        playerStats.setMatch(resolveMatch(playerStats.getMatch()));
+        if (playerStats.getMatch() != null && playerStats.getMatch().getId() != null) {
+            playerStats.setMatch(resolveMatch(playerStats.getMatch()));
+        }
         return playerStatsRepository.save(playerStats);
+    }
+
+    /**
+     * Saves a custom AI prediction scenario as a player statistics snapshot.
+     * The row is intentionally not attached to an official match and is shown
+     * as "Simulation IA" in DTO responses.
+     */
+    public PlayerStats saveSimulationStats(PlayerPerformanceRequestDTO request) {
+        Joueur joueur = joueurRepository.findById(request.getPlayerId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    String.format("Player not found with id: %d", request.getPlayerId())
+                ));
+
+        PlayerStats stats = new PlayerStats();
+        stats.setJoueur(joueur);
+        stats.setMatch(null);
+        stats.setGoals(request.getGoals());
+        stats.setAssists(request.getAssists());
+        stats.setMinutesPlayed(90);
+        stats.setPerformanceRating(toMatchRating(request.getPredictedPerformanceRating()));
+        stats.setTackles(request.getTackles());
+        stats.setInterceptions(request.getInterceptions());
+        stats.setPassesCompleted(request.getPassesCompleted());
+        stats.setPassAccuracy(request.getPassAccuracy());
+        stats.setDistanceCovered(request.getDistanceCoveredKm());
+        stats.setAverageSpeed(request.getAverageSpeedKmh());
+        stats.setBallPossessionPercent(request.getBallPossessionPercent());
+        stats.setFoulsCommitted(request.getFoulsCommitted());
+        stats.setShotsOnTarget(request.getShotsOnTarget());
+
+        return playerStatsRepository.save(stats);
     }
 
     /**
@@ -131,24 +165,28 @@ public class PlayerStatsService {
         dto.setId(stats.getId());
         dto.setPlayerId(stats.getJoueur().getId());
         dto.setPlayerName(stats.getJoueur().getNom());
-        dto.setMatchId(stats.getMatch().getId());
-        dto.setMatchDate(stats.getMatch().getMatchDate());
-
-        Long playerTeamId = stats.getJoueur().getEquipe() != null
-                ? stats.getJoueur().getEquipe().getId()
-                : null;
-
-        Long homeTeamId = stats.getMatch().getHomeTeam() != null ? stats.getMatch().getHomeTeam().getId() : null;
-        Long awayTeamId = stats.getMatch().getAwayTeam() != null ? stats.getMatch().getAwayTeam().getId() : null;
-        String homeTeamName = stats.getMatch().getHomeTeam() != null ? stats.getMatch().getHomeTeam().getNom() : "Home team";
-        String awayTeamName = stats.getMatch().getAwayTeam() != null ? stats.getMatch().getAwayTeam().getNom() : "Away team";
-
-        if (playerTeamId != null && playerTeamId.equals(homeTeamId)) {
-            dto.setOpponent(awayTeamName);
-        } else if (playerTeamId != null && playerTeamId.equals(awayTeamId)) {
-            dto.setOpponent(homeTeamName);
+        if (stats.getMatch() == null) {
+            dto.setOpponent("Simulation IA");
         } else {
-            dto.setOpponent("Unknown opponent");
+            dto.setMatchId(stats.getMatch().getId());
+            dto.setMatchDate(stats.getMatch().getMatchDate());
+
+            Long playerTeamId = stats.getJoueur().getEquipe() != null
+                    ? stats.getJoueur().getEquipe().getId()
+                    : null;
+
+            Long homeTeamId = stats.getMatch().getHomeTeam() != null ? stats.getMatch().getHomeTeam().getId() : null;
+            Long awayTeamId = stats.getMatch().getAwayTeam() != null ? stats.getMatch().getAwayTeam().getId() : null;
+            String homeTeamName = stats.getMatch().getHomeTeam() != null ? stats.getMatch().getHomeTeam().getNom() : "Home team";
+            String awayTeamName = stats.getMatch().getAwayTeam() != null ? stats.getMatch().getAwayTeam().getNom() : "Away team";
+
+            if (playerTeamId != null && playerTeamId.equals(homeTeamId)) {
+                dto.setOpponent(awayTeamName);
+            } else if (playerTeamId != null && playerTeamId.equals(awayTeamId)) {
+                dto.setOpponent(homeTeamName);
+            } else {
+                dto.setOpponent("Unknown opponent");
+            }
         }
         
         dto.setGoals(stats.getGoals());
@@ -158,8 +196,12 @@ public class PlayerStatsService {
         dto.setTackles(stats.getTackles());
         dto.setInterceptions(stats.getInterceptions());
         dto.setPassesCompleted(stats.getPassesCompleted());
+        dto.setPassAccuracy(stats.getPassAccuracy());
         dto.setDistanceCovered(stats.getDistanceCovered());
         dto.setAverageSpeed(stats.getAverageSpeed());
+        dto.setBallPossessionPercent(stats.getBallPossessionPercent());
+        dto.setFoulsCommitted(stats.getFoulsCommitted());
+        dto.setShotsOnTarget(stats.getShotsOnTarget());
         
         return dto;
     }
@@ -240,6 +282,33 @@ public class PlayerStatsService {
         }
         if (updatedStats.getPerformanceRating() >= 0) {
             stats.setPerformanceRating(updatedStats.getPerformanceRating());
+        }
+        if (updatedStats.getTackles() >= 0) {
+            stats.setTackles(updatedStats.getTackles());
+        }
+        if (updatedStats.getInterceptions() >= 0) {
+            stats.setInterceptions(updatedStats.getInterceptions());
+        }
+        if (updatedStats.getPassesCompleted() >= 0) {
+            stats.setPassesCompleted(updatedStats.getPassesCompleted());
+        }
+        if (updatedStats.getPassAccuracy() >= 0) {
+            stats.setPassAccuracy(updatedStats.getPassAccuracy());
+        }
+        if (updatedStats.getDistanceCovered() >= 0) {
+            stats.setDistanceCovered(updatedStats.getDistanceCovered());
+        }
+        if (updatedStats.getAverageSpeed() >= 0) {
+            stats.setAverageSpeed(updatedStats.getAverageSpeed());
+        }
+        if (updatedStats.getBallPossessionPercent() >= 0) {
+            stats.setBallPossessionPercent(updatedStats.getBallPossessionPercent());
+        }
+        if (updatedStats.getFoulsCommitted() >= 0) {
+            stats.setFoulsCommitted(updatedStats.getFoulsCommitted());
+        }
+        if (updatedStats.getShotsOnTarget() >= 0) {
+            stats.setShotsOnTarget(updatedStats.getShotsOnTarget());
         }
         
         return playerStatsRepository.save(stats);
@@ -341,5 +410,15 @@ public class PlayerStatsService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                     String.format("Match not found with id: %d", match.getId())
                 ));
+    }
+
+    private double toMatchRating(Double predictedPerformanceRating) {
+        if (predictedPerformanceRating == null) {
+            return 0.0;
+        }
+        double normalized = predictedPerformanceRating > 10
+                ? predictedPerformanceRating / 10.0
+                : predictedPerformanceRating;
+        return Math.max(0.0, Math.min(10.0, normalized));
     }
 }

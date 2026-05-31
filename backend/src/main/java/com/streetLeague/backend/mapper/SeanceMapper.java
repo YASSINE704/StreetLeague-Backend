@@ -31,8 +31,8 @@ public class SeanceMapper {
                 ? entity.getSeanceExercices().stream().map(ExerciceMapper::toSeanceExerciceResponse).toList()
                 : Collections.emptyList();
 
-        SuiviSeanceDTO.Response suivi = entity.getSuiviSeance() != null
-                ? SuiviMapper.toResponse(entity.getSuiviSeance())
+        SuiviSeanceDTO.Response suivi = (entity.getSuiviSeances() != null && !entity.getSuiviSeances().isEmpty())
+                ? SuiviMapper.toResponse(entity.getSuiviSeances().get(0))
                 : null;
 
         /* Calculer les réservations actives et les places restantes */

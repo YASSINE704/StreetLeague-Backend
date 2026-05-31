@@ -93,8 +93,8 @@ public class CoachingStatsService {
         stats.put("nbExercices", seance.getSeanceExercices() != null ? seance.getSeanceExercices().size() : 0);
 
         // Suivi
-        if (seance.getSuiviSeance() != null) {
-            SuiviSeance suivi = seance.getSuiviSeance();
+        if (seance.getSuiviSeances() != null && !seance.getSuiviSeances().isEmpty()) {
+            SuiviSeance suivi = seance.getSuiviSeances().get(0);
             stats.put("ressenti", suivi.getRessenti());
             stats.put("fatigue", suivi.getFatigue());
             stats.put("note", suivi.getNote());
@@ -127,8 +127,8 @@ public class CoachingStatsService {
 
         // Moyennes des suivis du programme
         List<SuiviSeance> suivis = seances.stream()
-                .filter(s -> s.getSuiviSeance() != null)
-                .map(SeanceEntrainement::getSuiviSeance)
+                .filter(s -> s.getSuiviSeances() != null && !s.getSuiviSeances().isEmpty())
+                .flatMap(s -> s.getSuiviSeances().stream())
                 .toList();
 
         if (!suivis.isEmpty()) {

@@ -1,261 +1,272 @@
+"""
+StreetLeague AI Service - Recommandation d'Exercices & Prédiction de Performance
+==================================================================================
+Ce service Flask charge les modèles ML entraînés et expose une API REST pour :
+1. Recommander des exercices (Intelligent Exercise Recommendation System)
+2. Prédire la performance des joueurs (Future Player Performance Prediction)
+
+Architecture :
+  - train_model.py & train_player_prediction_model.py entraînent les modèles et les exportent dans model/
+  - Ce fichier (app.py) charge les modèles exportés et sert les prédictions
+  - Spring Boot appelle ce service via REST
+
+Endpoints :
+  - POST /api/ai/recommend - Recommandations d'exercices
+  - POST /api/ai/predict-player-performance - Prédictions de performance
+  - GET /api/ai/health - Health check
+
+Lancer les notebooks AVANT de démarrer ce service pour générer les modèles.
+"""
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import pandas as pd
+import numpy as np
+import joblib
+import os
+from scipy.sparse import hstack, csr_matrix
 
 app = Flask(__name__)
 CORS(app)
 
-# Base de 17 exercices couvrant les types FORCE, CARDIO, MOBILITE, TECHNIQUE
-EXERCICES_BASE = [
-    {
-        "nom": "Pompes explosives",
-        "type": "FORCE",
-        "description": "Pompes avec phase explosive pour développer la puissance du haut du corps",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "puissance force explosivité haut du corps",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Garder le dos droit, ne pas cambrer"
-    },
-    {
-        "nom": "Squats sautés",
-        "type": "FORCE",
-        "description": "Squats avec saut pour renforcer les membres inférieurs",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 12,
-        "equipement": "Aucun",
-        "objectif": "puissance jambes explosivité détente",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Atterrir en douceur, genoux alignés avec les pieds"
-    },
-    {
-        "nom": "Gainage dynamique",
-        "type": "FORCE",
-        "description": "Exercice de gainage avec mouvements pour renforcer le tronc",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 8,
-        "equipement": "Tapis",
-        "objectif": "stabilité core renforcement tronc",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Ne pas creuser le dos, respirer régulièrement"
-    },
-    {
-        "nom": "Tractions australiennes",
-        "type": "FORCE",
-        "description": "Tractions horizontales pour le dos et les biceps",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 10,
-        "equipement": "Barre basse",
-        "objectif": "dos biceps tirage force",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Garder le corps aligné, contrôler la descente"
-    },
-    {
-        "nom": "Sprint intervalles 30/30",
-        "type": "CARDIO",
-        "description": "Alternance de sprints de 30s et récupération de 30s",
-        "difficulte": "AVANCE",
-        "dureeMinutes": 15,
-        "equipement": "Aucun",
-        "objectif": "vitesse endurance cardio intervalles",
-        "niveauRecommande": "AVANCE",
-        "consigneSecurite": "Échauffement obligatoire, arrêter en cas de douleur"
-    },
-    {
-        "nom": "Course continue modérée",
-        "type": "CARDIO",
-        "description": "Course à allure modérée pour développer l'endurance de base",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 20,
-        "equipement": "Aucun",
-        "objectif": "endurance fond cardio aérobie",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Maintenir une allure conversationnelle"
-    },
-    {
-        "nom": "Burpees",
-        "type": "CARDIO",
-        "description": "Exercice complet combinant squat, planche et saut",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "cardio complet explosivité endurance",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Adapter le rythme à son niveau, ne pas négliger la technique"
-    },
-    {
-        "nom": "Corde à sauter",
-        "type": "CARDIO",
-        "description": "Sauts à la corde pour améliorer la coordination et le cardio",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 12,
-        "equipement": "Corde à sauter",
-        "objectif": "coordination cardio agilité rythme",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Surface souple, chaussures adaptées"
-    },
-    {
-        "nom": "Étirements dynamiques",
-        "type": "MOBILITE",
-        "description": "Série d'étirements en mouvement pour préparer le corps",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "souplesse échauffement mobilité articulaire",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Mouvements fluides, ne pas forcer"
-    },
-    {
-        "nom": "Yoga sportif",
-        "type": "MOBILITE",
-        "description": "Postures de yoga adaptées aux sportifs pour la récupération",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 15,
-        "equipement": "Tapis",
-        "objectif": "récupération souplesse relaxation mobilité",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Respecter ses limites, ne pas forcer les postures"
-    },
-    {
-        "nom": "Mobilité des hanches",
-        "type": "MOBILITE",
-        "description": "Exercices ciblés pour améliorer la mobilité des hanches",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 10,
-        "equipement": "Aucun",
-        "objectif": "hanches mobilité prévention blessures",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Mouvements contrôlés, pas de rebonds"
-    },
-    {
-        "nom": "Foam rolling récupération",
-        "type": "MOBILITE",
-        "description": "Auto-massage avec rouleau pour la récupération musculaire",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 12,
-        "equipement": "Foam roller",
-        "objectif": "récupération massage détente musculaire",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Éviter les articulations, rouler lentement"
-    },
-    {
-        "nom": "Dribble slalom",
-        "type": "TECHNIQUE",
-        "description": "Parcours de dribble entre plots pour améliorer le contrôle de balle",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 15,
-        "equipement": "Ballon, plots",
-        "objectif": "dribble technique contrôle balle agilité",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Surface plane, chaussures adaptées"
-    },
-    {
-        "nom": "Passes courtes en mouvement",
-        "type": "TECHNIQUE",
-        "description": "Exercice de passes courtes avec déplacements",
-        "difficulte": "DEBUTANT",
-        "dureeMinutes": 12,
-        "equipement": "Ballon",
-        "objectif": "passes précision technique collective",
-        "niveauRecommande": "DEBUTANT",
-        "consigneSecurite": "Communication entre partenaires"
-    },
-    {
-        "nom": "Tirs cadrés",
-        "type": "TECHNIQUE",
-        "description": "Exercice de tirs au but avec contraintes de placement",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 15,
-        "equipement": "Ballon, but",
-        "objectif": "tir précision finition technique",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Échauffement des jambes avant les frappes"
-    },
-    {
-        "nom": "Jeu réduit 3v3",
-        "type": "TECHNIQUE",
-        "description": "Match en effectif réduit pour travailler la prise de décision",
-        "difficulte": "INTERMEDIAIRE",
-        "dureeMinutes": 20,
-        "equipement": "Ballon, chasubles",
-        "objectif": "tactique décision collective jeu",
-        "niveauRecommande": "INTERMEDIAIRE",
-        "consigneSecurite": "Respect des règles, pas de tacles dangereux"
-    },
-    {
-        "nom": "Conduite de balle en vitesse",
-        "type": "TECHNIQUE",
-        "description": "Course avec ballon pour améliorer le contrôle à haute vitesse",
-        "difficulte": "AVANCE",
-        "dureeMinutes": 12,
-        "equipement": "Ballon",
-        "objectif": "vitesse technique contrôle conduite",
-        "niveauRecommande": "AVANCE",
-        "consigneSecurite": "Terrain dégagé, attention aux obstacles"
-    }
-]
+# ============================================================
+# Chargement des modèles entraînés
+# ============================================================
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'model')
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+# Exercise Recommendation Model
+exercise_model_loaded = False
+knn_model = None
+tfidf = None
+scaler = None
+df = None
+combined_features = None
+
+# Player Performance Prediction Model
+player_pred_model_loaded = False
+player_prediction_model = None
+player_prediction_scaler = None
+player_prediction_features = None
+player_prediction_metadata = None
 
 
-def calculate_score(exercice, context):
+def load_model():
+    """Charge les modèles depuis les fichiers exportés par les notebooks."""
+    global exercise_model_loaded, knn_model, tfidf, scaler, df, combined_features
+    global player_pred_model_loaded, player_prediction_model, player_prediction_scaler, player_prediction_features, player_prediction_metadata
+
+    # ========== Charger le modèle de recommandation d'exercices ==========
+    try:
+        knn_model = joblib.load(os.path.join(MODEL_DIR, 'knn_model.joblib'))
+        tfidf = joblib.load(os.path.join(MODEL_DIR, 'tfidf_vectorizer.joblib'))
+        scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.joblib'))
+        combined_features = joblib.load(os.path.join(MODEL_DIR, 'combined_features.joblib'))
+        df = pd.read_csv(os.path.join(MODEL_DIR, 'exercises_enriched.csv'))
+        exercise_model_loaded = True
+        print("[AI Service] ✓ Modèle de recommandation d'exercices chargé avec succès")
+    except FileNotFoundError as e:
+        print(f"[AI Service] ATTENTION: Modèle d'exercices non trouvé ({e}).")
+        print("             Exécutez train_model.py d'abord. Mode fallback pour les exercices.")
+        exercise_model_loaded = False
+        try:
+            df = pd.read_csv(os.path.join(DATA_DIR, 'exercises_dataset.csv'))
+            print("[AI Service] Dataset d'exercices brut chargé pour le mode fallback.")
+        except Exception:
+            df = None
+
+    # ========== Charger le modèle de prédiction de performance ==========
+    try:
+        player_prediction_model = joblib.load(os.path.join(MODEL_DIR, 'player_performance_model.joblib'))
+        player_prediction_scaler = joblib.load(os.path.join(MODEL_DIR, 'player_performance_scaler.joblib'))
+        player_prediction_features = joblib.load(os.path.join(MODEL_DIR, 'player_performance_feature_names.joblib'))
+        player_prediction_metadata = joblib.load(os.path.join(MODEL_DIR, 'player_performance_metadata.joblib'))
+        player_pred_model_loaded = True
+        print("[AI Service] ✓ Modèle de prédiction de performance chargé avec succès")
+    except FileNotFoundError as e:
+        print(f"[AI Service] ATTENTION: Modèle de prédiction non trouvé ({e}).")
+        print("             Exécutez train_player_prediction_model.py d'abord.")
+        player_pred_model_loaded = False
+
+
+def recommend_with_model(context, top_n=6):
     """
-    Algorithme de scoring pour classer les exercices par pertinence.
-    - Type match: +30
-    - Intensité match: +20
-    - Objectif keywords match: +15
-    - Pas d'équipement requis: +10
+    Recommandation via le modèle KNN entraîné.
+    Utilise TF-IDF + features numériques + cosine similarity.
     """
-    score = 0
+    # Construire le texte de requête
+    query_parts = []
+    if 'typeSeance' in context:
+        query_parts.append(str(context['typeSeance']))
+    if 'intensite' in context:
+        query_parts.append(str(context['intensite']))
+    if 'objectifProgramme' in context:
+        query_parts.append(str(context['objectifProgramme']))
+    if 'niveauJoueurs' in context:
+        query_parts.append(str(context['niveauJoueurs']))
 
-    # Type match (+30)
-    type_seance = context.get("typeSeance", "").upper()
-    if exercice["type"].upper() == type_seance:
-        score += 30
+    query_text = ' '.join(query_parts) if query_parts else 'FORCE INTERMEDIAIRE'
 
-    # Intensité match (+20)
-    intensite = context.get("intensite", "").upper()
-    difficulte = exercice.get("difficulte", "").upper()
-    intensite_mapping = {
-        "FAIBLE": "DEBUTANT",
-        "MODEREE": "INTERMEDIAIRE",
-        "MODERE": "INTERMEDIAIRE",
-        "MOYENNE": "INTERMEDIAIRE",
-        "ELEVEE": "AVANCE",
-        "HAUTE": "AVANCE",
-        "INTENSE": "AVANCE"
+    # Vectoriser la requête avec TF-IDF
+    query_tfidf = tfidf.transform([query_text])
+
+    # Mapper les features numériques du contexte
+    intensite_map = {
+        'FAIBLE': 3, 'MODEREE': 5, 'MOYENNE': 5, 'MODERE': 5,
+        'ELEVEE': 8, 'FORTE': 8, 'HAUTE': 8, 'INTENSE': 9
     }
-    mapped_intensite = intensite_mapping.get(intensite, intensite)
-    if mapped_intensite == difficulte:
-        score += 20
+    type_map = {'FORCE': 1, 'CARDIO': 0, 'MOBILITE': 2, 'TECHNIQUE': 3}
+    diff_map = {'DEBUTANT': 1, 'INTERMEDIAIRE': 2, 'AVANCE': 0}
 
-    # Objectif keywords match (+15)
-    objectif_programme = context.get("objectifProgramme", "").lower()
-    exercice_objectif = exercice.get("objectif", "").lower()
-    if objectif_programme:
-        keywords = objectif_programme.split()
-        for keyword in keywords:
-            if len(keyword) > 3 and keyword in exercice_objectif:
+    intensite_val = intensite_map.get(str(context.get('intensite', 'MOYENNE')).upper(), 5)
+    type_val = type_map.get(str(context.get('typeSeance', 'FORCE')).upper(), 0)
+    diff_val = diff_map.get(str(context.get('niveauJoueurs', 'INTERMEDIAIRE')).upper(), 1)
+    duree_val = context.get('dureeSeanceMinutes', 60) / 60.0 * 20
+    calories_val = intensite_val * 20
+
+    query_numeric = scaler.transform([[intensite_val, duree_val, calories_val, type_val, diff_val]])
+    query_combined = hstack([query_tfidf, csr_matrix(query_numeric)])
+
+    # Trouver les K plus proches voisins
+    distances, indices = knn_model.kneighbors(query_combined, n_neighbors=min(top_n, len(df)))
+
+    # Construire les recommandations
+    recommendations = []
+    for i, (idx, dist) in enumerate(zip(indices[0], distances[0])):
+        row = df.iloc[idx]
+        score = round((1 - dist) * 100, 1)  # Convertir distance cosinus en score %
+        recommendations.append({
+            "nom": row['nom'],
+            "type": row['type'],
+            "description": row.get('objectif', ''),
+            "difficulte": row['difficulte'],
+            "dureeMinutes": int(row['dureeMinutes']),
+            "equipement": row['equipement'],
+            "objectif": row['objectif'],
+            "niveauRecommande": row['niveauRecommande'],
+            "consigneSecurite": row['consigneSecurite'],
+            "scoreRelevance": score,
+            "raison": build_reason(row, context, score)
+        })
+
+    return recommendations
+
+
+def recommend_fallback(context, top_n=6):
+    """
+    Mode fallback : scoring simple quand le modèle n'est pas disponible.
+    Utilisé si le notebook n'a pas encore été exécuté.
+    """
+    if df is None:
+        return []
+
+    scored = []
+    for _, row in df.iterrows():
+        score = 0
+        # Type match
+        if str(row.get('type', '')).upper() == str(context.get('typeSeance', '')).upper():
+            score += 30
+        # Intensité match
+        intensite_mapping = {
+            'FAIBLE': 'DEBUTANT', 'MODEREE': 'INTERMEDIAIRE', 'MODERE': 'INTERMEDIAIRE',
+            'MOYENNE': 'INTERMEDIAIRE', 'ELEVEE': 'AVANCE', 'FORTE': 'AVANCE', 'INTENSE': 'AVANCE'
+        }
+        mapped = intensite_mapping.get(str(context.get('intensite', '')).upper(), '')
+        if mapped == str(row.get('difficulte', '')).upper():
+            score += 20
+        # Objectif keywords
+        objectif = str(context.get('objectifProgramme', '')).lower()
+        row_obj = str(row.get('objectif', '')).lower()
+        for kw in objectif.split():
+            if len(kw) > 3 and kw in row_obj:
                 score += 15
                 break
+        # Pas d'équipement
+        if str(row.get('equipement', '')).lower() in ['aucun', 'none', '']:
+            score += 10
 
-    # Pas d'équipement requis (+10)
-    equipement = exercice.get("equipement", "")
-    if equipement.lower() in ["aucun", "none", ""]:
-        score += 10
+        scored.append({
+            "nom": row['nom'],
+            "type": row['type'],
+            "description": row.get('objectif', ''),
+            "difficulte": row['difficulte'],
+            "dureeMinutes": int(row['dureeMinutes']),
+            "equipement": row['equipement'],
+            "objectif": row.get('objectif', ''),
+            "niveauRecommande": row.get('niveauRecommande', ''),
+            "consigneSecurite": row.get('consigneSecurite', ''),
+            "scoreRelevance": score,
+            "raison": f"Score de pertinence : {score}/75 (mode fallback)"
+        })
 
-    return score
+    scored.sort(key=lambda x: x['scoreRelevance'], reverse=True)
+    return scored[:top_n]
 
+
+def build_reason(row, context, score):
+    """Construit une explication de la recommandation."""
+    raisons = []
+    type_seance = str(context.get('typeSeance', '')).upper()
+
+    if str(row['type']).upper() == type_seance:
+        raisons.append(f"correspond au type de séance ({type_seance})")
+
+    intensite_mapping = {
+        'FAIBLE': 'DEBUTANT', 'MODEREE': 'INTERMEDIAIRE', 'MODERE': 'INTERMEDIAIRE',
+        'MOYENNE': 'INTERMEDIAIRE', 'ELEVEE': 'AVANCE', 'FORTE': 'AVANCE'
+    }
+    mapped = intensite_mapping.get(str(context.get('intensite', '')).upper(), '')
+    if mapped == str(row.get('difficulte', '')).upper():
+        raisons.append("intensité adaptée au niveau")
+
+    objectif = str(context.get('objectifProgramme', '')).lower()
+    row_obj = str(row.get('objectif', '')).lower()
+    for kw in objectif.split():
+        if len(kw) > 3 and kw in row_obj:
+            raisons.append(f"correspond à l'objectif ({kw})")
+            break
+
+    if str(row.get('equipement', '')).lower() in ['aucun', 'none', '']:
+        raisons.append("ne nécessite pas d'équipement")
+
+    if not raisons:
+        raisons.append("exercice complémentaire recommandé par le modèle")
+
+    return f"Recommandé (score: {score}%) — " + ", ".join(raisons)
+
+
+# ============================================================
+# API Endpoints - Recommandations d'Exercices
+# ============================================================
 
 @app.route("/api/ai/health", methods=["GET"])
 def health():
-    """Health check endpoint."""
-    return jsonify({"status": "ok"}), 200
+    """Health check — indique si les modèles ML sont chargés."""
+    return jsonify({
+        "status": "ok",
+        "exercise_model_loaded": exercise_model_loaded,
+        "player_prediction_model_loaded": player_pred_model_loaded,
+        "exercise_mode": "ml_model" if exercise_model_loaded else "fallback",
+        "prediction_mode": "ml_model" if player_pred_model_loaded else "unavailable",
+        "dataset_size": len(df) if df is not None else 0
+    }), 200
 
 
 @app.route("/api/ai/recommend", methods=["POST"])
 def recommend():
     """
-    Reçoit un contexte JSON et retourne 6 recommandations d'exercices
-    classées par score de pertinence.
+    Endpoint principal de recommandation d'exercices.
+    Reçoit un contexte JSON et retourne 6 exercices recommandés.
+
+    Input JSON:
+    {
+        "typeSeance": "CARDIO",
+        "intensite": "FORTE",
+        "objectifProgramme": "endurance vitesse",
+        "niveauJoueurs": "INTERMEDIAIRE",
+        "dureeSeanceMinutes": 60,
+        "nbParticipants": 5
+    }
     """
     context = request.get_json()
     if not context:
@@ -266,66 +277,368 @@ def recommend():
             "recommandations": []
         }), 400
 
-    # Calculer le score pour chaque exercice
-    scored_exercices = []
-    for exercice in EXERCICES_BASE:
-        score = calculate_score(exercice, context)
-        exercice_with_score = dict(exercice)
-        exercice_with_score["scoreRelevance"] = score
-        exercice_with_score["raison"] = build_raison(exercice, context, score)
-        scored_exercices.append(exercice_with_score)
-
-    # Trier par score décroissant et prendre les 6 meilleurs
-    scored_exercices.sort(key=lambda x: x["scoreRelevance"], reverse=True)
-    top_recommendations = scored_exercices[:6]
+    # Utiliser le modèle ML si disponible, sinon fallback
+    if exercise_model_loaded:
+        recommendations = recommend_with_model(context, top_n=6)
+        mode = "ml_model"
+    else:
+        recommendations = recommend_fallback(context, top_n=6)
+        mode = "fallback"
 
     return jsonify({
         "status": "ok",
-        "message": "Recommandations générées avec succès",
-        "nbRecommandations": len(top_recommendations),
-        "recommandations": top_recommendations
+        "mode": mode,
+        "message": "Recommandations générées avec succès"
+                   + (" (modèle ML)" if exercise_model_loaded else " (mode fallback — exécutez le notebook)"),
+        "nbRecommandations": len(recommendations),
+        "recommandations": recommendations
     }), 200
 
 
-def build_raison(exercice, context, score):
-    """Construit une explication de la recommandation."""
-    raisons = []
-    type_seance = context.get("typeSeance", "").upper()
-
-    if exercice["type"].upper() == type_seance:
-        raisons.append(f"correspond au type de séance ({type_seance})")
-
-    intensite = context.get("intensite", "").upper()
-    intensite_mapping = {
-        "FAIBLE": "DEBUTANT",
-        "MODEREE": "INTERMEDIAIRE",
-        "MODERE": "INTERMEDIAIRE",
-        "MOYENNE": "INTERMEDIAIRE",
-        "ELEVEE": "AVANCE",
-        "HAUTE": "AVANCE",
-        "INTENSE": "AVANCE"
+@app.route("/api/ai/model-info", methods=["GET"])
+def model_info():
+    """Informations sur le modèle chargé."""
+    info = {
+        "exercise_model_loaded": exercise_model_loaded,
+        "player_prediction_model_loaded": player_pred_model_loaded,
+        "exercise_algorithm": "KNN (K=6) + TF-IDF + Cosine Similarity" if exercise_model_loaded else "Scoring heuristique (fallback)",
+        "prediction_algorithm": player_prediction_metadata.get('model_type', 'Unknown') if player_pred_model_loaded else "N/A",
+        "dataset_size": len(df) if df is not None else 0,
+        "features": "TF-IDF (texte) + intensite_score + dureeMinutes + calories + type + difficulte" if exercise_model_loaded else "N/A",
+        "metric": "cosine" if exercise_model_loaded else "N/A"
     }
-    mapped = intensite_mapping.get(intensite, intensite)
-    if mapped == exercice.get("difficulte", "").upper():
-        raisons.append("intensité adaptée")
-
-    objectif = context.get("objectifProgramme", "").lower()
-    if objectif:
-        keywords = objectif.split()
-        for kw in keywords:
-            if len(kw) > 3 and kw in exercice.get("objectif", "").lower():
-                raisons.append(f"correspond à l'objectif ({kw})")
-                break
-
-    equipement = exercice.get("equipement", "")
-    if equipement.lower() in ["aucun", "none", ""]:
-        raisons.append("ne nécessite pas d'équipement")
-
-    if not raisons:
-        raisons.append("exercice complémentaire recommandé")
-
-    return "Recommandé car : " + ", ".join(raisons)
+    return jsonify(info), 200
 
 
+# ============================================================
+# API Endpoints - Prédiction de Performance Joueur
+# ============================================================
+
+def predict_player_performance(player_stats):
+    """
+    Prédit la performance d'un joueur basée sur ses statistiques.
+    
+    Input: {
+        "goals": 2,
+        "assists": 1,
+        "tackles": 5,
+        "interceptions": 3,
+        "passes_completed": 45,
+        "pass_accuracy": 82.5,
+        "distance_covered_km": 10.2,
+        "average_speed_kmh": 25.1,
+        "ball_possession_percent": 55,
+        "fouls_committed": 2,
+        "shots_on_target": 3
+    }
+    
+    Returns: Predicted performance rating (0-100)
+    """
+    if not player_pred_model_loaded:
+        return None
+    
+    try:
+        enriched_stats = enrich_player_stats(player_stats)
+
+        # Préparer les features dans le même ordre que l'entraînement
+        feature_values = []
+        for feature in player_prediction_features:
+            value = enriched_stats.get(feature, 0)
+            feature_values.append(value)
+        
+        # Convertir en array numpy
+        feature_array = np.array([feature_values])
+        
+        # Normaliser les features
+        feature_array_scaled = player_prediction_scaler.transform(feature_array)
+        
+        # Prédire, puis calibrer avec un score métier pour éviter les sorties
+        # trop optimistes lorsque les stats sont très faibles.
+        model_prediction = player_prediction_model.predict(feature_array_scaled)[0]
+        rule_score = calculate_rule_based_performance(enriched_stats)
+        prediction = (model_prediction * 0.6) + (rule_score * 0.4)
+        
+        # Cliper la prédiction entre 0 et 100
+        prediction = np.clip(prediction, 0, 100)
+        
+        return round(prediction, 2)
+    except Exception as e:
+        print(f"[AI Service] Erreur lors de la prédiction : {e}")
+        return None
+
+
+def enrich_player_stats(player_stats):
+    """Ajoute les features dérivées utilisées par le modèle entraîné."""
+    stats = dict(player_stats)
+
+    goals = float(stats.get('goals', 0))
+    assists = float(stats.get('assists', 0))
+    tackles = float(stats.get('tackles', 0))
+    interceptions = float(stats.get('interceptions', 0))
+    passes_completed = float(stats.get('passes_completed', 0))
+    pass_accuracy = float(stats.get('pass_accuracy', 0))
+    distance = float(stats.get('distance_covered_km', 0))
+    speed = float(stats.get('average_speed_kmh', 0))
+    fouls = float(stats.get('fouls_committed', 0))
+    yellow_cards = float(stats.get('yellow_cards', 0))
+    shots = float(stats.get('shots_on_target', 0))
+
+    stats['goals_assists_ratio'] = (goals + 1) / (assists + 1)
+    stats['defensive_contribution'] = tackles + interceptions
+    stats['aerial_ability'] = interceptions + tackles * 0.3
+    stats['ball_retention'] = pass_accuracy * (passes_completed / 100)
+    stats['physical_intensity'] = distance * speed / 10
+    stats['attack_threat'] = shots + (goals * 2)
+    stats['discipline_factor'] = 100 - (fouls * 5 + yellow_cards * 10)
+    return stats
+
+
+def calculate_rule_based_performance(stats):
+    """Score transparent utilisé pour calibrer le modèle sur les cas extrêmes."""
+    attack = min(35, stats.get('goals', 0) * 4 + stats.get('assists', 0) * 3 + stats.get('shots_on_target', 0) * 2.2)
+    passing = min(20, stats.get('passes_completed', 0) / 10 + stats.get('pass_accuracy', 0) * 0.12)
+    defense = min(15, stats.get('tackles', 0) * 1.1 + stats.get('interceptions', 0) * 1.4)
+    physical = min(20, stats.get('distance_covered_km', 0) * 1.1 + stats.get('average_speed_kmh', 0) * 0.25 + stats.get('ball_possession_percent', 0) * 0.08)
+    penalty = min(20, stats.get('fouls_committed', 0) * 2.5 + stats.get('yellow_cards', 0) * 8)
+    return float(np.clip(25 + attack + passing + defense + physical - penalty, 0, 100))
+
+
+def estimate_prediction_confidence(player_stats):
+    """Estime la confiance selon la qualité du modèle et la plausibilité des inputs."""
+    if not player_pred_model_loaded:
+        return "LOW"
+
+    extreme_values = 0
+    extreme_values += player_stats.get('pass_accuracy', 0) < 35
+    extreme_values += player_stats.get('passes_completed', 0) < 10
+    extreme_values += player_stats.get('ball_possession_percent', 0) < 15
+    extreme_values += player_stats.get('distance_covered_km', 0) < 6
+    extreme_values += player_stats.get('average_speed_kmh', 0) < 15
+    extreme_values += player_stats.get('fouls_committed', 0) > 7
+
+    if extreme_values >= 3:
+        return "LOW"
+    if extreme_values >= 1:
+        return "MEDIUM"
+
+    mae = float(player_prediction_metadata.get('mae', 10)) if player_prediction_metadata else 10
+    if mae <= 5:
+        return "HIGH"
+    if mae <= 8:
+        return "MEDIUM"
+    return "LOW"
+
+
+def build_prediction_response(player_id, player_stats, predicted_rating):
+    """Construit une réponse de prédiction avec explications."""
+    
+    # Catégories de performance
+    if predicted_rating <= 30:
+        category = "VERY_BAD"
+        interpretation = "Performance attendue très faible"
+    elif predicted_rating <= 50:
+        category = "BAD"
+        interpretation = "Performance attendue faible"
+    elif predicted_rating <= 65:
+        category = "AVERAGE"
+        interpretation = "Performance attendue moyenne"
+    elif predicted_rating <= 80:
+        category = "GOOD"
+        interpretation = "Performance attendue bonne"
+    elif predicted_rating <= 90:
+        category = "EXCELLENT"
+        interpretation = "Performance attendue excellente"
+    else:
+        category = "LEGEND"
+        interpretation = "Performance attendue légendaire"
+    
+    # Identifier les forces et faiblesses
+    strengths = []
+    weaknesses = []
+    
+    if player_stats.get('goals', 0) > 2:
+        strengths.append("Attaque (buts)")
+    if player_stats.get('pass_accuracy', 0) > 80:
+        strengths.append("Précision de passes")
+    if player_stats.get('tackles', 0) > 5:
+        strengths.append("Défense (tacles)")
+    if player_stats.get('distance_covered_km', 0) > 10:
+        strengths.append("Endurance")
+    
+    if player_stats.get('fouls_committed', 0) > 3:
+        weaknesses.append("Discipline (fautes)")
+    if player_stats.get('pass_accuracy', 0) < 70:
+        weaknesses.append("Précision")
+    if player_stats.get('tackles', 0) < 2:
+        weaknesses.append("Engagement défensif")
+    
+    return {
+        "player_id": player_id,
+        "predicted_performance_rating": predicted_rating,
+        "performance_category": category,
+        "interpretation": interpretation,
+        "strengths": strengths if strengths else ["Équilibré"],
+        "weaknesses": weaknesses if weaknesses else ["Aucune faiblesse notable"],
+        "confidence": estimate_prediction_confidence(player_stats),
+        "algorithm": player_prediction_metadata.get('model_type', 'Unknown') if player_pred_model_loaded else "N/A"
+    }
+
+
+@app.route("/api/ai/predict-player-performance", methods=["POST"])
+def predict_player():
+    """
+    Endpoint de prédiction de performance joueur.
+    Reçoit les statistiques du joueur et retourne une prédiction de performance.
+    
+    Input JSON:
+    {
+        "player_id": 1,
+        "goals": 2,
+        "assists": 1,
+        "tackles": 5,
+        "interceptions": 3,
+        "passes_completed": 45,
+        "pass_accuracy": 82.5,
+        "distance_covered_km": 10.2,
+        "average_speed_kmh": 25.1,
+        "ball_possession_percent": 55,
+        "fouls_committed": 2,
+        "shots_on_target": 3
+    }
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "status": "error",
+            "message": "Données JSON requises"
+        }), 400
+    
+    player_id = data.get('player_id')
+    if not player_id:
+        return jsonify({
+            "status": "error",
+            "message": "player_id requis"
+        }), 400
+    
+    if not player_pred_model_loaded:
+        return jsonify({
+            "status": "error",
+            "message": "Modèle de prédiction non disponible",
+            "hint": "Exécutez train_player_prediction_model.py"
+        }), 503
+    
+    # Extraire les stats du joueur
+    player_stats = {
+        'goals': data.get('goals', 0),
+        'assists': data.get('assists', 0),
+        'tackles': data.get('tackles', 0),
+        'interceptions': data.get('interceptions', 0),
+        'passes_completed': data.get('passes_completed', 0),
+        'pass_accuracy': data.get('pass_accuracy', 75),
+        'distance_covered_km': data.get('distance_covered_km', 10),
+        'average_speed_kmh': data.get('average_speed_kmh', 25),
+        'ball_possession_percent': data.get('ball_possession_percent', 50),
+        'fouls_committed': data.get('fouls_committed', 0),
+        'yellow_cards': data.get('yellow_cards', 0),
+        'shots_on_target': data.get('shots_on_target', 0),
+    }
+    
+    # Prédire
+    predicted_rating = predict_player_performance(player_stats)
+    
+    if predicted_rating is None:
+        return jsonify({
+            "status": "error",
+            "message": "Erreur lors de la prédiction"
+        }), 500
+    
+    # Construire la réponse
+    response = build_prediction_response(player_id, player_stats, predicted_rating)
+    
+    return jsonify({
+        "status": "ok",
+        "mode": "ml_model",
+        "prediction": response
+    }), 200
+
+
+@app.route("/api/ai/predict-batch", methods=["POST"])
+def predict_batch():
+    """
+    Endpoint pour prédictions par lots (multiple joueurs).
+    
+    Input JSON:
+    {
+        "players": [
+            {"player_id": 1, "goals": 2, "assists": 1, ...},
+            {"player_id": 2, "goals": 3, "assists": 2, ...}
+        ]
+    }
+    """
+    data = request.get_json()
+    if not data or 'players' not in data:
+        return jsonify({
+            "status": "error",
+            "message": "Format attendu: {\"players\": [...]}"
+        }), 400
+    
+    if not player_pred_model_loaded:
+        return jsonify({
+            "status": "error",
+            "message": "Modèle de prédiction non disponible"
+        }), 503
+    
+    players = data.get('players', [])
+    predictions = []
+    
+    for player_data in players:
+        player_id = player_data.get('player_id')
+        if not player_id:
+            continue
+        
+        player_stats = {
+            'goals': player_data.get('goals', 0),
+            'assists': player_data.get('assists', 0),
+            'tackles': player_data.get('tackles', 0),
+            'interceptions': player_data.get('interceptions', 0),
+            'passes_completed': player_data.get('passes_completed', 0),
+            'pass_accuracy': player_data.get('pass_accuracy', 75),
+            'distance_covered_km': player_data.get('distance_covered_km', 10),
+            'average_speed_kmh': player_data.get('average_speed_kmh', 25),
+            'ball_possession_percent': player_data.get('ball_possession_percent', 50),
+            'fouls_committed': player_data.get('fouls_committed', 0),
+            'yellow_cards': player_data.get('yellow_cards', 0),
+            'shots_on_target': player_data.get('shots_on_target', 0),
+        }
+        
+        predicted_rating = predict_player_performance(player_stats)
+        if predicted_rating is not None:
+            response = build_prediction_response(player_id, player_stats, predicted_rating)
+            predictions.append(response)
+    
+    return jsonify({
+        "status": "ok",
+        "mode": "ml_model",
+        "total": len(predictions),
+        "predictions": predictions
+    }), 200
+
+
+# ============================================================
+# Démarrage
+# ============================================================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    load_model()
+    print("\n" + "="*80)
+    print("[AI Service] Démarrage sur http://localhost:5000")
+    print("="*80)
+    print(f"[AI Service] Modèle Exercices       : {'✓ Chargé (ML Mode)' if exercise_model_loaded else '✗ Non disponible (Mode Fallback)'}")
+    print(f"[AI Service] Modèle Prédictions    : {'✓ Chargé (ML Mode)' if player_pred_model_loaded else '✗ Non disponible'}")
+    print("\n[API Endpoints]")
+    print("  - GET  /api/ai/health                          : Health check")
+    print("  - POST /api/ai/recommend                       : Recommandation d'exercices")
+    print("  - POST /api/ai/predict-player-performance      : Prédiction performance joueur")
+    print("  - POST /api/ai/predict-batch                   : Prédictions par lots")
+    print("  - GET  /api/ai/model-info                      : Info modèles")
+    print("="*80 + "\n")
+    app.run(host="0.0.0.0", port=5000, debug=False)

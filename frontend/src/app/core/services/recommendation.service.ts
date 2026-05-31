@@ -21,7 +21,7 @@ export interface Recommendation {
 
 @Injectable({ providedIn: 'root' })
 export class RecommendationService {
-  private apiUrl = 'http://localhost:8080/api/recommendations';
+  private apiUrl = 'http://localhost:18080/api/recommendations';
 
   constructor(private http: HttpClient) {}
 

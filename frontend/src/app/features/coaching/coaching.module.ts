@@ -24,6 +24,9 @@ import { ExerciceEditComponent } from './exercices/exercice-edit/exercice-edit.c
 // Suivis
 import { SuiviCreateComponent } from './suivis/suivi-create/suivi-create.component';
 
+// Mes Réservations
+import { MesReservationsCoachingComponent } from './mes-reservations/mes-reservations.component';
+
 // Dashboard
 import { DashboardComponent } from './dashboard/dashboard.component';
 
@@ -41,6 +44,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     ExerciceCreateComponent,
     ExerciceEditComponent,
     SuiviCreateComponent,
+    MesReservationsCoachingComponent,
     DashboardComponent
   ],
   imports: [

@@ -25,7 +25,7 @@ public class SuiviSeance {
     @JoinColumn(name = "auteur_id")
     private User auteur;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "seance_id")
     private SeanceEntrainement seance;
 }

@@ -28,16 +28,18 @@ public class CoachingRoleService {
     }
 
     /**
-     * Vérifie que l'utilisateur est SPORTIF, COACH ou ADMIN.
-     * Utilisé pour le suivi et le feedback.
+     * Vérifie que l'utilisateur est SPORTIF, JOUEUR, COACH ou ADMIN.
+     * Utilisé pour la réservation et le feedback.
+     * JOUEUR et SPORTIF peuvent tous deux participer aux séances de coaching.
      */
     public User requireSportifOrCoachOrAdmin(Integer userId) {
         User user = findUserOrThrow(userId);
         if (user.getRole() != Role.SPORTIF
+                && user.getRole() != Role.JOUEUR
                 && user.getRole() != Role.COACH
                 && user.getRole() != Role.ADMIN) {
             throw new BusinessRuleException(
-                    "Accès refusé : seuls les SPORTIF, COACH et ADMIN peuvent accéder à cette ressource");
+                    "Accès refusé : seuls les SPORTIF, JOUEUR, COACH et ADMIN peuvent accéder à cette ressource");
         }
         return user;
     }

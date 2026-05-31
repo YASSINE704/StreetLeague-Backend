@@ -37,7 +37,7 @@ export interface AIRecommendationResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AiRecommendationService {
-  private apiUrl = 'http://localhost:8080/api/coaching/ai';
+  private apiUrl = 'http://localhost:18080/api/coaching/ai';
 
   constructor(private http: HttpClient) {}
 
