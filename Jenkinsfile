@@ -9,18 +9,16 @@ pipeline {
     stages {
 
         stage('Backend') {
-            agent { docker { image 'maven:3.9-eclipse-temurin-21' } }
             steps {
                 dir('backend') {
-                    sh 'mvn clean test'
-                    sh 'mvn package -DskipTests'
+                    sh './mvnw clean test'
+                    sh './mvnw package -DskipTests'
                 }
             }
             post { success { archiveArtifacts 'backend/target/*.jar' } }
         }
 
         stage('Frontend') {
-            agent { docker { image 'node:18.20-alpine' } }
             steps {
                 dir('frontend') {
                     sh 'npm ci'
@@ -31,7 +29,6 @@ pipeline {
         }
 
         stage('AI Service') {
-            agent { docker { image 'python:3.11-slim' } }
             steps {
                 dir('ai-service') {
                     sh 'pip install -r requirements.txt -q'
@@ -41,7 +38,6 @@ pipeline {
         }
 
         stage('Forecast Service') {
-            agent { docker { image 'python:3.11-slim' } }
             steps {
                 dir('forecast-service') {
                     sh 'pip install -r requirements.txt -q'
@@ -104,7 +100,7 @@ pipeline {
             emailext(
                 subject: "[CI FAILED] PI_StreetLeague - ${env.BRANCH_NAME}",
                 body: "Pipeline failed at stage ${env.STAGE_NAME}. Check ${env.BUILD_URL}",
-                to: 'admin@example.com'
+                to: 'azizeifa74@gmail.com Nafissa.BRIDAH@esprit.tn'
             )
         }
         success {
