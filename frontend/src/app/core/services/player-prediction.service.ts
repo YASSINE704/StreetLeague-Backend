@@ -48,7 +48,7 @@ export class PlayerPredictionService {
   getPrediction(playerId: number): Observable<PlayerPrediction> {
     return this.http.get<any>(`${this.base}/${playerId}/prediction`)
       .pipe(
-        map(response => response.prediction)
+        map(response => response.prediction ?? response)
       );
   }
 

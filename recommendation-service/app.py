@@ -1,11 +1,12 @@
 """
 StreetLeague — Recommendation Web Service
-Expose le modèle SVD entraîné via une API Flask.
+Uses sklearn-based matrix factorization (SVD) instead of scikit-surprise
+for Python 3.13+ compatibility.
 
 Endpoints:
-  GET  /health          — vérification que le service tourne
-  POST /recommend       — recommandations pour un client
-  POST /train           — ré-entraîner le modèle avec de nouvelles données
+  GET  /health          — service health check
+  POST /recommend       — recommendations for a client
+  POST /train           — retrain model with new data
 """
 
 from flask import Flask, request, jsonify
@@ -14,55 +15,114 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
-from surprise import SVD, Dataset, Reader
+from sklearn.decomposition import TruncatedSVD
+from sklearn.preprocessing import LabelEncoder
 
 app = Flask(__name__)
 CORS(app)
 
-# ── Chargement du modèle et des données ─────────────────────────────────────
-MODEL_PATH       = "svd_model.pkl"
+MODEL_PATH        = "svd_model.pkl"
 INTERACTIONS_PATH = "interactions.csv"
-TERRAINS_PATH    = "terrains.csv"
+TERRAINS_PATH     = "terrains.csv"
 
-model        = None
-df_interactions = None
-df_terrains  = None
+model            = None
+df_interactions  = None
+df_terrains      = None
+user_encoder     = None
+item_encoder     = None
+user_item_matrix = None
 
 
 def load_artifacts():
-    """Charge le modèle et les données depuis les fichiers."""
-    global model, df_interactions, df_terrains
+    global model, df_interactions, df_terrains, user_encoder, item_encoder, user_item_matrix
 
     if os.path.exists(MODEL_PATH):
-        model = joblib.load(MODEL_PATH)
-        print(f"[OK] Modèle chargé depuis {MODEL_PATH}")
+        artifacts = joblib.load(MODEL_PATH)
+        model            = artifacts.get("model")
+        user_encoder     = artifacts.get("user_encoder")
+        item_encoder     = artifacts.get("item_encoder")
+        user_item_matrix = artifacts.get("user_item_matrix")
+        print(f"[OK] Model loaded from {MODEL_PATH}")
     else:
-        print(f"[WARN] Modèle introuvable ({MODEL_PATH}). Lance le notebook d'abord.")
+        print(f"[WARN] Model not found ({MODEL_PATH}). Train first via POST /train.")
 
     if os.path.exists(INTERACTIONS_PATH):
         df_interactions = pd.read_csv(INTERACTIONS_PATH)
-        print(f"[OK] {len(df_interactions)} interactions chargées")
+        print(f"[OK] {len(df_interactions)} interactions loaded")
     else:
         df_interactions = pd.DataFrame(columns=["client_id", "terrain_id", "score"])
 
     if os.path.exists(TERRAINS_PATH):
         df_terrains = pd.read_csv(TERRAINS_PATH)
-        print(f"[OK] {len(df_terrains)} terrains chargés")
+        print(f"[OK] {len(df_terrains)} terrains loaded")
     else:
         df_terrains = pd.DataFrame(columns=["id", "nom", "type", "disponible", "prix_base"])
+
+
+def train_model(interactions_df):
+    """Train SVD model from interactions dataframe."""
+    global model, user_encoder, item_encoder, user_item_matrix
+
+    ue = LabelEncoder()
+    ie = LabelEncoder()
+
+    interactions_df = interactions_df.copy()
+    interactions_df["user_idx"] = ue.fit_transform(interactions_df["client_id"])
+    interactions_df["item_idx"] = ie.fit_transform(interactions_df["terrain_id"])
+
+    n_users = interactions_df["user_idx"].max() + 1
+    n_items = interactions_df["item_idx"].max() + 1
+
+    matrix = np.zeros((n_users, n_items))
+    for _, row in interactions_df.iterrows():
+        matrix[int(row["user_idx"]), int(row["item_idx"])] = row["score"]
+
+    n_components = min(20, n_users - 1, n_items - 1)
+    if n_components < 1:
+        n_components = 1
+
+    svd = TruncatedSVD(n_components=n_components, random_state=42)
+    svd.fit(matrix)
+
+    user_item_matrix = matrix
+    user_encoder     = ue
+    item_encoder     = ie
+    model            = svd
+
+    return svd, ue, ie, matrix
+
+
+def predict_score(client_id, terrain_id):
+    """Predict score for a user-item pair."""
+    if model is None or user_encoder is None or item_encoder is None:
+        return 3.0  # default neutral score
+
+    try:
+        if client_id not in user_encoder.classes_:
+            return 3.0
+        if terrain_id not in item_encoder.classes_:
+            return 3.0
+
+        user_idx = user_encoder.transform([client_id])[0]
+        item_idx = item_encoder.transform([terrain_id])[0]
+
+        # Reconstruct matrix via SVD
+        reconstructed = model.inverse_transform(model.transform(user_item_matrix))
+        score = reconstructed[user_idx, item_idx]
+        # Clamp to [1, 5]
+        return float(np.clip(score, 1.0, 5.0))
+    except Exception:
+        return 3.0
 
 
 load_artifacts()
 
 
-# ── Endpoints ────────────────────────────────────────────────────────────────
-
 @app.route("/health", methods=["GET"])
 def health():
-    """Vérifie que le service est opérationnel."""
     return jsonify({
         "status": "ok",
-        "service": "StreetLeague Recommendation Service",
+        "service": "StreetLeague Recommendation Service (sklearn SVD)",
         "model_loaded": model is not None,
         "interactions_count": len(df_interactions) if df_interactions is not None else 0,
         "terrains_count": len(df_terrains) if df_terrains is not None else 0
@@ -71,32 +131,7 @@ def health():
 
 @app.route("/recommend", methods=["POST"])
 def recommend():
-    """
-    Recommande des terrains pour un client.
-
-    Body JSON attendu:
-    {
-        "client_id": 1,
-        "top_n": 5,
-        "terrains": [                          // optionnel: liste live depuis la DB
-            {"id": 1, "nom": "...", "type": "...", "disponible": true, "prix_base": 20},
-            ...
-        ]
-    }
-
-    Retourne:
-    {
-        "client_id": 1,
-        "recommendations": [
-            {"terrain_id": 3, "nom": "...", "type": "...", "score_predit": 4.2, ...},
-            ...
-        ]
-    }
-    """
     global model, df_interactions, df_terrains
-
-    if model is None:
-        return jsonify({"error": "Modèle non chargé. Lance le notebook d'abord."}), 503
 
     data = request.get_json()
     if not data or "client_id" not in data:
@@ -105,24 +140,21 @@ def recommend():
     client_id = int(data["client_id"])
     top_n     = int(data.get("top_n", 5))
 
-    # Utiliser les terrains envoyés dans la requête (données live de la DB)
-    # ou fallback sur le fichier CSV
     if "terrains" in data and data["terrains"]:
         terrains_df = pd.DataFrame(data["terrains"])
-        # Normaliser le champ disponible
         terrains_df["disponible"] = terrains_df["disponible"].astype(bool)
     else:
-        terrains_df = df_terrains.copy()
+        terrains_df = df_terrains.copy() if df_terrains is not None else pd.DataFrame()
 
-    # Terrains déjà réservés par ce client
+    if terrains_df.empty:
+        return jsonify({"client_id": client_id, "recommendations": [], "message": "No terrains available"})
+
+    deja_reserves = set()
     if df_interactions is not None and not df_interactions.empty:
         deja_reserves = set(
             df_interactions[df_interactions["client_id"] == client_id]["terrain_id"].tolist()
         )
-    else:
-        deja_reserves = set()
 
-    # Candidats : disponibles et pas encore réservés
     candidats = terrains_df[
         (terrains_df["disponible"] == True) &
         (~terrains_df["id"].isin(deja_reserves))
@@ -135,20 +167,18 @@ def recommend():
             "message": "Aucun terrain disponible à recommander"
         })
 
-    # Prédire le score pour chaque candidat
     recommendations = []
     for _, terrain in candidats.iterrows():
-        pred = model.predict(client_id, int(terrain["id"]))
+        score = predict_score(client_id, int(terrain["id"]))
         recommendations.append({
             "terrain_id": int(terrain["id"]),
             "nom": terrain.get("nom", ""),
             "type": terrain.get("type", ""),
             "prix_base": float(terrain.get("prix_base", 0)),
             "disponible": bool(terrain.get("disponible", True)),
-            "score_predit": round(float(pred.est), 3)
+            "score_predit": round(score, 3)
         })
 
-    # Trier par score décroissant
     recommendations.sort(key=lambda x: x["score_predit"], reverse=True)
 
     return jsonify({
@@ -161,17 +191,6 @@ def recommend():
 
 @app.route("/train", methods=["POST"])
 def train():
-    """
-    Ré-entraîne le modèle avec de nouvelles interactions.
-
-    Body JSON:
-    {
-        "interactions": [
-            {"client_id": 1, "terrain_id": 2, "score": 5},
-            ...
-        ]
-    }
-    """
     global model, df_interactions
 
     data = request.get_json()
@@ -180,7 +199,6 @@ def train():
 
     new_df = pd.DataFrame(data["interactions"])
 
-    # Fusionner avec les interactions existantes
     if df_interactions is not None and not df_interactions.empty:
         combined = pd.concat([df_interactions, new_df]).drop_duplicates(
             subset=["client_id", "terrain_id"], keep="last"
@@ -188,24 +206,24 @@ def train():
     else:
         combined = new_df
 
-    # Ré-entraîner
-    reader  = Reader(rating_scale=(1, 5))
-    dataset = Dataset.load_from_df(combined[["client_id", "terrain_id", "score"]], reader)
-    trainset = dataset.build_full_trainset()
+    if len(combined) < 2:
+        return jsonify({"error": "Need at least 2 interactions to train"}), 400
 
-    new_model = SVD(n_factors=50, n_epochs=30, lr_all=0.005, reg_all=0.02, random_state=42)
-    new_model.fit(trainset)
+    svd, ue, ie, matrix = train_model(combined)
 
-    # Sauvegarder
-    joblib.dump(new_model, MODEL_PATH)
+    joblib.dump({
+        "model": svd,
+        "user_encoder": ue,
+        "item_encoder": ie,
+        "user_item_matrix": matrix
+    }, MODEL_PATH)
+
     combined.to_csv(INTERACTIONS_PATH, index=False)
-
-    model           = new_model
     df_interactions = combined
 
     return jsonify({
         "status": "ok",
-        "message": "Modèle ré-entraîné avec succès",
+        "message": "Model retrained successfully",
         "interactions_count": len(combined)
     })
 
