@@ -31,6 +31,7 @@ public class SeanceEntrainementService {
     private final ProgrammeEntrainementService programmeService;
     private final AffectationProgrammeRepository affectationRepository;
     private final SousEspaceRepository sousEspaceRepository;
+    private final WeatherService weatherService;
 
     public SeanceEntrainementDTO.Response create(SeanceEntrainementDTO.Request dto) {
         ProgrammeEntrainement programme = programmeService.findOrThrow(dto.getProgrammeId());
@@ -69,7 +70,24 @@ public class SeanceEntrainementService {
 
     @Transactional(readOnly = true)
     public SeanceEntrainementDTO.Response getById(Integer id) {
-        return SeanceMapper.toResponse(findOrThrow(id));
+        SeanceEntrainement seance = findOrThrow(id);
+        SeanceEntrainementDTO.Response response = SeanceMapper.toResponse(seance);
+        // Ajouter l'alerte météo si séance en plein air
+        if (Boolean.TRUE.equals(seance.getEnPleinAir()) && seance.getLieu() != null) {
+            SousEspace lieu = seance.getLieu();
+            Double lat = lieu.getEndroit() != null ? lieu.getEndroit().getLatitude() : 36.8065;
+            Double lon = lieu.getEndroit() != null ? lieu.getEndroit().getLongitude() : 10.1815;
+            WeatherService.WeatherInfo weather = weatherService.getWeatherForecast(lat, lon);
+            if (weather != null) {
+                String alert = weatherService.getWeatherRecommendation(weather);
+                if (alert != null) {
+                    response.setWeatherAlert(alert);
+                } else {
+                    response.setWeatherAlert("✅ Météo favorable : " + weather.description() + " (" + String.format("%.1f", weather.temperature()) + "°C)");
+                }
+            }
+        }
+        return response;
     }
 
     @Transactional(readOnly = true)

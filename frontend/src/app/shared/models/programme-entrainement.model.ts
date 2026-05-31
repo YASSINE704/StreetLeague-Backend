@@ -26,6 +26,7 @@ export interface SeanceEntrainement {
   lieuNom?: string;
   endroitNom?: string;
   enPleinAir?: boolean;
+  weatherAlert?: string;
   exercices?: SeanceExercice[];
   suiviSeance?: SuiviSeance;
   reservations?: ReservationSeance[];
