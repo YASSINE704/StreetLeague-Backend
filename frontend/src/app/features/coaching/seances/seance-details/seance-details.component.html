@@ -16,6 +16,14 @@
       <div class="seance-meta-chip"><span class="seance-meta-icon">🔥</span> {{ seance.intensite }}</div>
       <div class="seance-meta-chip" *ngIf="seance.programmeTitre"><span class="seance-meta-icon">📋</span> {{ seance.programmeTitre }}</div>
     </div>
+    <!-- Alerte météo -->
+    <div *ngIf="seance.weatherAlert"
+         [style.background]="seance.weatherAlert.startsWith('✅') ? '#d1fae5' : '#fef3c7'"
+         [style.border]="seance.weatherAlert.startsWith('✅') ? '1px solid #6ee7b7' : '1px solid #fcd34d'"
+         [style.color]="seance.weatherAlert.startsWith('✅') ? '#065f46' : '#92400e'"
+         style="margin-top:12px;padding:10px 16px;border-radius:8px;font-size:13px;">
+      {{ seance.weatherAlert }}
+    </div>
     <!-- Stats bar -->
     <div class="seance-stats-bar">
       <div class="seance-stat-item">
