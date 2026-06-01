@@ -83,7 +83,7 @@ pipeline {
         }
 
         stage('Docker Build & Push') {
-            when { branch 'main' }
+            when { branch 'master' }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub',
                                                   usernameVariable: 'DOCKER_USER',
@@ -110,7 +110,7 @@ pipeline {
         }
 
         stage('Deploy to K8s') {
-            when { branch 'main' }
+            when { branch 'master' }
             steps {
                 sh """
                     kubectl set image -n pi-streetleague deployment/backend \
