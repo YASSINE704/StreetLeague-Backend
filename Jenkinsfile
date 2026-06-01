@@ -4,18 +4,48 @@ pipeline {
     environment {
         DOCKER_HUB_ORG = 'streetleague'
         IMAGE_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+        KUBECONFIG = '/home/jenkins/.kube/config'
     }
 
     stages {
 
         stage('Backend') {
             steps {
+                sh '''
+                    docker run -d \
+                      --name mysql-test \
+                      -e MYSQL_ROOT_PASSWORD=root \
+                      -e MYSQL_DATABASE=streetleague \
+                      -e MYSQL_USER=testuser \
+                      -e MYSQL_PASSWORD=testpass \
+                      -p 3306:3306 \
+                      mysql:8
+                '''
+                sh '''
+                    echo "Waiting for MySQL to be ready..."
+                    for i in $(seq 1 30); do
+                        if docker exec mysql-test mysqladmin ping -h localhost -u root -proot --silent 2>/dev/null; then
+                            echo "MySQL is up!"
+                            break
+                        fi
+                        echo "Attempt $i/30 - MySQL not ready yet, waiting 3s..."
+                        sleep 3
+                    done
+                '''
                 dir('backend') {
-                    sh './mvnw clean test'
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean test -Dspring.datasource.url=jdbc:mysql://localhost:3306/streetleague -Dspring.datasource.username=root -Dspring.datasource.password=root'
                     sh './mvnw package -DskipTests'
                 }
             }
-            post { success { archiveArtifacts 'backend/target/*.jar' } }
+            post {
+                always {
+                    sh 'docker rm -f mysql-test || true'
+                }
+                success {
+                    archiveArtifacts 'backend/target/*.jar'
+                }
+            }
         }
 
         stage('Frontend') {
@@ -100,7 +130,7 @@ pipeline {
             emailext(
                 subject: "[CI FAILED] PI_StreetLeague - ${env.BRANCH_NAME}",
                 body: "Pipeline failed at stage ${env.STAGE_NAME}. Check ${env.BUILD_URL}",
-                to: 'azizeifa74@gmail.com Nafissa.BRIDAH@esprit.tn'
+                to: 'azizeifa74@gmail.com, Nafissa.BRIDAH@esprit.tn'
             )
         }
         success {
