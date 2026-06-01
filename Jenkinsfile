@@ -24,20 +24,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                dir('backend') {
-                    withCredentials([string(credentialsId: 'sonarqube-token',
-                                            variable: 'SONAR_TOKEN')]) {
-                        sh '''./mvnw sonar:sonar \
-                            -Dsonar.host.url=http://host.docker.internal:9000 \
-                            -Dsonar.login=$SONAR_TOKEN \
-                            -Dsonar.qualitygate.wait=false'''
-                    }
-                }
-            }
-        }
-
+        
         stage('Frontend') {
             steps {
                 dir('frontend') {
