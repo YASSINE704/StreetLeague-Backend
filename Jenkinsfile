@@ -14,11 +14,9 @@ pipeline {
                 sh '''
                     docker run -d \
                       --name mysql-test \
+                      --network host \
                       -e MYSQL_ROOT_PASSWORD=root \
                       -e MYSQL_DATABASE=streetleague \
-                      -e MYSQL_USER=testuser \
-                      -e MYSQL_PASSWORD=testpass \
-                      -p 3306:3306 \
                       mysql:8
                 '''
                 sh '''
