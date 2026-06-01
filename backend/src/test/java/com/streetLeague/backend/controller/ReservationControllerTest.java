@@ -6,6 +6,7 @@ import com.streetLeague.backend.entity.Reservation;
 import com.streetLeague.backend.enums.StatutReservation;
 import com.streetLeague.backend.security.CustomUserDetailsService;
 import com.streetLeague.backend.security.JwtService;
+import com.streetLeague.backend.service.ReservationPdfService;
 import com.streetLeague.backend.service.ReservationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class ReservationControllerTest {
 
     @MockBean
     private ReservationService reservationService;
+
+    @MockBean
+    private ReservationPdfService reservationPdfService;
 
     @MockBean
     private DtoMapper dtoMapper;
