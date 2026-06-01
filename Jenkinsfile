@@ -25,9 +25,9 @@ pipeline {
         }
 
         stage('Frontend') {
-            agent { docker 'node:22' }
             steps {
                 dir('frontend') {
+                    sh 'apt-get update -qq && apt-get install -y -qq nodejs npm'
                     sh 'npm ci'
                     sh 'npm run build -- --configuration=production'
                 }
@@ -36,21 +36,23 @@ pipeline {
         }
 
         stage('AI Service') {
-            agent { docker 'python:3.13-slim' }
             steps {
                 dir('ai-service') {
-                    sh 'pip install -r requirements.txt -q'
-                    sh 'python -c "from app import app; print(\'AI Service OK\')"'
+                    sh 'apt-get update -qq && apt-get install -y -qq python3 python3-venv python3-pip'
+                    sh 'python3 -m venv venv'
+                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
+                    sh '. venv/bin/activate && python -c "from app import app; print(\'AI Service OK\')"'
                 }
             }
         }
 
         stage('Forecast Service') {
-            agent { docker 'python:3.13-slim' }
             steps {
                 dir('forecast-service') {
-                    sh 'pip install -r requirements.txt -q'
-                    sh 'python -c "from app import app; print(\'Forecast Service OK\')"'
+                    sh 'apt-get update -qq && apt-get install -y -qq python3 python3-venv python3-pip'
+                    sh 'python3 -m venv venv'
+                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
+                    sh '. venv/bin/activate && python -c "from app import app; print(\'Forecast Service OK\')"'
                 }
             }
         }
