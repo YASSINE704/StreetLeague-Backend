@@ -24,10 +24,11 @@ pipeline {
             }
         }
 
+        
         stage('Frontend') {
             steps {
                 dir('frontend') {
-                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm ci'''
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm install'''
                     sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm run build -- --configuration=production'''
                 }
             }
