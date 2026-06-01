@@ -26,23 +26,23 @@ pipeline {
 
         stage('Frontend') {
             steps {
-                sh "docker run --rm -v \"${env.WORKSPACE}:/workspace\" -w /workspace/frontend node:22 npm install"
-                sh "docker run --rm -v \"${env.WORKSPACE}:/workspace\" -w /workspace/frontend node:22 npm run build -- --configuration=production"
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/frontend" node:22 npm install'''
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/frontend" node:22 npm run build -- --configuration=production'''
             }
             post { success { archiveArtifacts 'frontend/dist/**/*' } }
         }
 
         stage('AI Service') {
             steps {
-                sh "docker run --rm -v \"${env.WORKSPACE}:/workspace\" -w /workspace/ai-service python:3.13-slim pip install -r requirements.txt -q"
-                sh "docker run --rm -v \"${env.WORKSPACE}:/workspace\" -w /workspace/ai-service python:3.13-slim python -c \"from app import app; print('AI Service OK')\""
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/ai-service" python:3.13-slim pip install -r requirements.txt -q'''
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/ai-service" python:3.13-slim python -c "from app import app; print('AI Service OK')"'''
             }
         }
 
         stage('Forecast Service') {
             steps {
-                sh "docker run --rm -v \"${env.WORKSPACE}:/workspace\" -w /workspace/forecast-service python:3.13-slim pip install -r requirements.txt -q"
-                sh "docker run --rm -v \"${env.WORKSPACE}:/workspace\" -w /workspace/forecast-service python:3.13-slim python -c \"from app import app; print('Forecast Service OK')\""
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/forecast-service" python:3.13-slim pip install -r requirements.txt -q'''
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/forecast-service" python:3.13-slim python -c "from app import app; print('Forecast Service OK')"'''
             }
         }
 
