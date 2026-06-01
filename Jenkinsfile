@@ -24,10 +24,24 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                dir('backend') {
+                    withCredentials([string(credentialsId: 'sonarqube-token',
+                                            variable: 'SONAR_TOKEN')]) {
+                        sh '''./mvnw sonar:sonar \
+                            -Dsonar.host.url=http://host.docker.internal:9000 \
+                            -Dsonar.login=$SONAR_TOKEN \
+                            -Dsonar.qualitygate.wait=false'''
+                    }
+                }
+            }
+        }
+
         stage('Frontend') {
             steps {
                 dir('frontend') {
-                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm ci'''
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm install'''
                     sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm run build -- --configuration=production'''
                 }
             }
