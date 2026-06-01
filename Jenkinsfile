@@ -65,8 +65,9 @@ pipeline {
         stage('AI Service') {
             steps {
                 dir('ai-service') {
-                    sh 'pip install -r requirements.txt -q'
-                    sh 'python -c "from app import app; print(\'AI Service OK\')"'
+                    sh 'python3 -m venv venv'
+                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
+                    sh '. venv/bin/activate && python -c "from app import app; print(\'AI Service OK\')"'
                 }
             }
         }
@@ -74,8 +75,9 @@ pipeline {
         stage('Forecast Service') {
             steps {
                 dir('forecast-service') {
-                    sh 'pip install -r requirements.txt -q'
-                    sh 'python -c "from app import app; print(\'Forecast Service OK\')"'
+                    sh 'python3 -m venv venv'
+                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
+                    sh '. venv/bin/activate && python -c "from app import app; print(\'Forecast Service OK\')"'
                 }
             }
         }
