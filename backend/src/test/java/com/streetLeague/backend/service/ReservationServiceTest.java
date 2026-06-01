@@ -5,6 +5,8 @@ import com.streetLeague.backend.entity.Reservation;
 import com.streetLeague.backend.entity.SousEspace;
 import com.streetLeague.backend.enums.StatutReservation;
 import com.streetLeague.backend.repository.ReservationRepository;
+import com.streetLeague.backend.service.PricingService;
+import com.streetLeague.backend.service.ReservationPdfService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -33,6 +35,12 @@ class ReservationServiceTest {
 
     @Mock
     private NotificationService notificationService;
+
+    @Mock
+    private ReservationPdfService reservationPdfService;
+
+    @Mock
+    private PricingService pricingService;
 
     @InjectMocks
     private ReservationService reservationService;
@@ -89,6 +97,7 @@ class ReservationServiceTest {
         when(sousEspaceService.getSousEspaceById(1L)).thenReturn(se);
         when(reservationRepository.findOverlapping(anyLong(), any(), any(), any())).thenReturn(List.of());
         when(reservationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(pricingService.calculerPrix(any(), any())).thenReturn(100.0);
 
         Reservation result = reservationService.createReservation(1L, r);
 
