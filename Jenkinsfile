@@ -25,6 +25,7 @@ pipeline {
         }
 
         stage('Frontend') {
+            agent { docker 'node:22' }
             steps {
                 dir('frontend') {
                     sh 'npm ci'
@@ -35,21 +36,21 @@ pipeline {
         }
 
         stage('AI Service') {
+            agent { docker 'python:3.13-slim' }
             steps {
                 dir('ai-service') {
-                    sh 'python3 -m venv venv'
-                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
-                    sh '. venv/bin/activate && python -c "from app import app; print(\'AI Service OK\')"'
+                    sh 'pip install -r requirements.txt -q'
+                    sh 'python -c "from app import app; print(\'AI Service OK\')"'
                 }
             }
         }
 
         stage('Forecast Service') {
+            agent { docker 'python:3.13-slim' }
             steps {
                 dir('forecast-service') {
-                    sh 'python3 -m venv venv'
-                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
-                    sh '. venv/bin/activate && python -c "from app import app; print(\'Forecast Service OK\')"'
+                    sh 'pip install -r requirements.txt -q'
+                    sh 'python -c "from app import app; print(\'Forecast Service OK\')"'
                 }
             }
         }
