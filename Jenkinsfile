@@ -27,9 +27,8 @@ pipeline {
         stage('Frontend') {
             steps {
                 dir('frontend') {
-                    sh 'apt-get update -qq && apt-get install -y -qq nodejs npm'
-                    sh 'npm ci'
-                    sh 'npm run build -- --configuration=production'
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm ci'''
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace node:22 npm run build -- --configuration=production'''
                 }
             }
             post { success { archiveArtifacts 'frontend/dist/**/*' } }
@@ -38,10 +37,8 @@ pipeline {
         stage('AI Service') {
             steps {
                 dir('ai-service') {
-                    sh 'apt-get update -qq && apt-get install -y -qq python3 python3-venv python3-pip'
-                    sh 'python3 -m venv venv'
-                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
-                    sh '. venv/bin/activate && python -c "from app import app; print(\'AI Service OK\')"'
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace python:3.13-slim pip install -r requirements.txt -q'''
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace python:3.13-slim python -c "from app import app; print('AI Service OK')"'''
                 }
             }
         }
@@ -49,10 +46,8 @@ pipeline {
         stage('Forecast Service') {
             steps {
                 dir('forecast-service') {
-                    sh 'apt-get update -qq && apt-get install -y -qq python3 python3-venv python3-pip'
-                    sh 'python3 -m venv venv'
-                    sh '. venv/bin/activate && pip install -r requirements.txt -q'
-                    sh '. venv/bin/activate && python -c "from app import app; print(\'Forecast Service OK\')"'
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace python:3.13-slim pip install -r requirements.txt -q'''
+                    sh '''docker run --rm -v "$PWD:/workspace" -w /workspace python:3.13-slim python -c "from app import app; print('Forecast Service OK')"'''
                 }
             }
         }
