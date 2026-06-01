@@ -14,7 +14,6 @@ pipeline {
                 sh '''
                     docker run -d \
                       --name mysql-test \
-                      --network host \
                       -e MYSQL_ROOT_PASSWORD=root \
                       -e MYSQL_DATABASE=streetleague \
                       mysql:8
@@ -22,7 +21,7 @@ pipeline {
                 sh '''
                     echo "Waiting for MySQL to be ready..."
                     for i in $(seq 1 30); do
-                        if docker exec mysql-test mysqladmin ping -h localhost -u root -proot --silent 2>/dev/null; then
+                        if docker exec mysql-test mysqladmin ping -h 127.0.0.1 -u root -proot --silent 2>/dev/null; then
                             echo "MySQL is up!"
                             break
                         fi
@@ -30,10 +29,17 @@ pipeline {
                         sleep 3
                     done
                 '''
+                script {
+                    env.MYSQL_IP = sh(
+                        script: "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql-test",
+                        returnStdout: true
+                    ).trim()
+                    echo "MySQL IP: ${env.MYSQL_IP}"
+                }
                 dir('backend') {
                     sh 'chmod +x mvnw'
-                    sh './mvnw clean test -Dspring.datasource.url=jdbc:mysql://localhost:3306/streetleague -Dspring.datasource.username=root -Dspring.datasource.password=root'
-                    sh './mvnw package -DskipTests'
+                    sh "./mvnw clean test -Dspring.datasource.url=jdbc:mysql://${env.MYSQL_IP}:3306/streetleague -Dspring.datasource.username=root -Dspring.datasource.password=root"
+                    sh "./mvnw package -DskipTests -Dspring.datasource.url=jdbc:mysql://${env.MYSQL_IP}:3306/streetleague -Dspring.datasource.username=root -Dspring.datasource.password=root"
                 }
             }
             post {
