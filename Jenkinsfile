@@ -34,15 +34,15 @@ pipeline {
 
         stage('AI Service') {
             steps {
-                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/ai-service" python:3.13-slim pip install -r requirements.txt -q'''
-                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/ai-service" python:3.13-slim python -c "from app import app; print('AI Service OK')"'''
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/ai-service" python:3.11-slim pip install -r requirements.txt -q'''
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/ai-service" python:3.11-slim python -c "from app import app; print('AI Service OK')"'''
             }
         }
 
         stage('Forecast Service') {
             steps {
-                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/forecast-service" python:3.13-slim pip install -r requirements.txt -q'''
-                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/forecast-service" python:3.13-slim python -c "from app import app; print('Forecast Service OK')"'''
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/forecast-service" python:3.11-slim pip install -r requirements.txt -q'''
+                sh '''docker run --rm --volumes-from $(hostname) -w "$WORKSPACE/forecast-service" python:3.11-slim python -c "from app import app; print('Forecast Service OK')"'''
             }
         }
 
