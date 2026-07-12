@@ -31,6 +31,15 @@ jobs:
       - name: Build and run tests
         run: mvn clean verify
 
+      - name: Check Sonar Token Exists
+        shell: powershell
+        run: |
+          if ("${{ secrets.SONAR_TOKEN }}" -eq "") {
+            Write-Error "SONAR_TOKEN is missing"
+          } else {
+            Write-Host "SONAR_TOKEN exists"
+          }
+
       - name: SonarQube Analysis
         shell: powershell
         run: |
