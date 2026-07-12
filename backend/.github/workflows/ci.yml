@@ -29,7 +29,7 @@ jobs:
 
       - name: SonarQube Analysis
         run: |
-          mvn sonar:sonar ^
-          -Dsonar.projectKey=My-Spring-Project ^
-          -Dsonar.host.url=http://localhost:9000 ^
+          mvn sonar:sonar `
+          -Dsonar.projectKey=My-Spring-Project `
+          -Dsonar.host.url=http://localhost:9000 `
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
