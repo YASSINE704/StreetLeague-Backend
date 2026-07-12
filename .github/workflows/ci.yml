@@ -42,8 +42,10 @@ jobs:
 
       - name: SonarQube Analysis
         shell: powershell
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn sonar:sonar `
-            "-Dsonar.projectKey=My-Spring-Project" `
-            "-Dsonar.host.url=http://localhost:9000" `
-            "-Dsonar.login="${{ secrets.SONAR_TOKEN }}"
+          -Dsonar.projectKey=My-Spring-Project `
+          -Dsonar.host.url=http://localhost:9000 `
+          -Dsonar.login=$env:SONAR_TOKEN
