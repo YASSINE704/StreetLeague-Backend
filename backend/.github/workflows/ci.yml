@@ -1,4 +1,3 @@
-# CI test
 name: StreetLeague Backend CI
 
 on:
