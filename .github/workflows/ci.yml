@@ -49,3 +49,7 @@ jobs:
           "-Dsonar.projectKey=My-Spring-Project" `
           "-Dsonar.host.url=http://localhost:9000" `
           "-Dsonar.login=$env:SONAR_TOKEN"
+      
+      - name: Build Docker image
+        working-directory: backend
+        run: docker build -t streetleague-backend .
