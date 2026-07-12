@@ -32,7 +32,7 @@ jobs:
         run: mvn clean verify
 
       - name: SonarQube Analysis
-        run: |
+        run: mvn sonar:sonar -Dsonar.projectKey=My-Spring-Project -Dsonar.host.url=http://localhost:9000 -Dsonar.token=${{ secrets.SONAR_TOKEN }}
           mvn sonar:sonar `
           -Dsonar.projectKey=My-Spring-Project `
           -Dsonar.host.url=http://localhost:9000 `
