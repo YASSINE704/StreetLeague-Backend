@@ -8,7 +8,11 @@ COPY src src
 RUN mvn clean package -DskipTests -q
 
 FROM eclipse-temurin:21-jre
+
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+COPY target/*.jar app.jar
+
 EXPOSE 18080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]

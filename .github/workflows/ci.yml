@@ -60,4 +60,5 @@ jobs:
       
       - name: Build Docker image
         working-directory: backend
+        timeout-minutes: 10
         run: docker build -t streetleague-backend .
