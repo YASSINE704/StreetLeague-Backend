@@ -69,8 +69,8 @@ jobs:
         working-directory: backend
         timeout-minutes: 10
         run: |
-          docker build -t yassinetrigui/streetleague-backend:latest .
+          docker build -t streetleagueyassine/streetleague-backend:latest .
 
       - name: Push Docker image
         run: |
-          docker push yassinetrigui/streetleague-backend:latest
+          docker push streetleagueyassine/streetleague-backend:latest
