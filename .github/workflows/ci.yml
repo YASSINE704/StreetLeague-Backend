@@ -12,6 +12,7 @@ jobs:
   build-test-sonar:
 
     runs-on: self-hosted
+    timeout-minutes: 30
 
     defaults:
       run:
